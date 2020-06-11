@@ -1,6 +1,6 @@
 [user]
-	name = Nikita Voloboev
-	email = nikita.voloboev@gmail.com
+	name = Woodrow Pearson
+	email = woodypearson@protonmail.com
 [alias]
     update = add -u .
 	unstage = reset HEAD
