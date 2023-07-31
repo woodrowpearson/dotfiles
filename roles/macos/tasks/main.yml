@@ -1,0 +1,21 @@
+- name: Set system defaults
+  script: set-defaults.sh
+  changed_when: false
+
+- name: Homebrew
+  import_tasks: brew.yml
+
+- name: Tap into homebrew/cask-fonts
+  homebrew_tap: tap=homebrew/cask-fonts state=present
+
+- name: Tap into homebrew/cask-versions
+  homebrew_tap: tap=homebrew/cask-versions state=present
+
+- name: Homebrew Cask
+  import_tasks: cask.yml
+
+- name: Mac App Store
+  import_tasks: mac_app_store.yml
+
+- name: Brew cleanup
+  command: brew cleanup

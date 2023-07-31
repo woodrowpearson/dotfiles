@@ -1,0 +1,16 @@
+- name: "Remove nvm dir"
+  file:
+    path: "{{ dotfiles_user_home }}/.nvm"
+    state: absent
+
+- import_tasks: nodejs.yml
+- import_tasks: yarn.yml
+- import_tasks: npm_global_packages.yml
+
+- name: Install n with homebrew
+  homebrew:
+    name: n
+    state: latest
+
+- import_tasks: debian.yml
+  when: ansible_os_family == "Debian"

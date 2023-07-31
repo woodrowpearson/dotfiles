@@ -1,0 +1,62 @@
+# We need this for pyenv to work under xonsh (until my fork is finished, approved and merged; it's not ready for a pull request yet)
+- import_tasks: xonsh_hack.yml
+  when: "'xonsh' in ansible_user_shell"
+
+- name: Check if pytest.ini file exists
+  stat: path="{{ dotfiles_user_home }}/pytest.ini"
+  register: pytest_stat
+
+- name: Back up pytest.ini file
+  command: mv ~/pytest.ini ~/pytest.ini.bak
+  args:
+    creates: "{{ dotfiles_user_home }}/pytest.ini"
+  when: pytest_stat.stat.exists
+
+- name: Link pytest.ini file
+  file:
+    src: "{{ role_path }}/files/pytest.ini"
+    dest: "{{ dotfiles_user_home }}/pytest.ini"
+    state: link
+
+- name: "ipython: Create default profile dir"
+  file:
+    state: directory
+    path: "~/.ipython/profile_default"
+
+- name: "ipython: Link ipython_config.py"
+  file:
+    src: "{{ role_path }}/files/ipython_config.py"
+    dest: "~/.ipython/profile_default/ipython_config.py"
+    state: link
+
+# https://medium.com/@henriquebastos/the-definitive-guide-to-setup-my-python-workspace-628d68552e14
+- name: "Install Python 3 versions with pyenv"
+  import_tasks: python3.yml
+- name: "Install Python 2 versions with pyenv"
+  import_tasks: python2.yml
+
+- name: Set global pyenv path
+  pyenv:
+    subcommand: global
+    versions:
+      - "{{ latest_python_3_11.stdout }}"
+      - "{{ latest_python_3_10.stdout }}"
+      - "{{ latest_python_3_9.stdout }}"
+      - "{{ latest_python_3_8.stdout }}"
+      - "{{ latest_python_3_7.stdout }}"
+      - "{{ latest_python_2_7.stdout }}"
+
+- name: "Install pipx"
+  import_tasks: pipx.yml
+
+- name: "Install Invoke"
+  import_tasks: invoke.yml
+
+- name: "Install Conjuring"
+  import_tasks: invoke-conjuring.yml
+
+- name: "Install Conjuring (Private)"
+  import_tasks: invoke-conjuring-private.yml
+
+- name: "Install JetBrains PyCharm"
+  import_tasks: pycharm.yml

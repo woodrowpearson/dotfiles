@@ -1,0 +1,5 @@
+# https://github.com/magicmonty/bash-git-prompt
+- name: "bash-git-prompt: Remove dir"
+  file:
+    path: "{{ dotfiles_user_home }}/.bash-git-prompt"
+    state: absent

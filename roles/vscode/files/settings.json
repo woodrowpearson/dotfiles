@@ -1,0 +1,141 @@
+{
+  "python.linting.enabled": true,
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": ["--line-length", "120"],
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+    "--ignore=D107,D202,D203,D401,E203,E402,E501,W503",
+    "--max-line-length=120"
+  ],
+  "workbench.startupEditor": "newUntitledFile",
+  "explorer.confirmDragAndDrop": false,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "files.associations": {
+    "*.conf.local": "properties",
+    "*.xsh": "shellscript",
+    "*.xsh.link": "shellscript",
+    "*.ktr": "xml",
+    "*.kjb": "xml",
+    "*.drawio": "xml",
+    "**/.ssh/config": "shellscript",
+    "hosts": "ini",
+    "*.mrconfig*": "ini",
+    "Makefile*": "makefile",
+    "*.jrnl": "markdown",
+    "*.json5": "jsonc"
+  },
+  "diffEditor.ignoreTrimWhitespace": true,
+  "extensions.ignoreRecommendations": false,
+  "breadcrumbs.enabled": true,
+  "workbench.activityBar.visible": true,
+  "workbench.statusBar.visible": true,
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "none",
+  "workbench.colorTheme": "Default Light+",
+  "python.pipenvPath": "",
+  "python.formatting.blackPath": "~/.local/bin/black",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "git.enableCommitSigning": true,
+  "git.showPushSuccessNotification": true,
+  "editor.renderControlCharacters": true,
+  "editor.multiCursorModifier": "alt",
+  "git.postCommitCommand": "sync",
+  "todo-tree.tree.flat": true,
+  "todo-tree.tree.grouped": true,
+  "todo-tree.tree.hideIconsWhenGroupedByTag": true,
+  "todo-tree.ripgrep.ripgrep": "~/.cargo/bin/rg",
+  "todo-tree.tree.showCountsInTree": true,
+  "todo-tree.general.statusBar": "tags",
+  "todo-tree.tree.tagsOnly": true,
+  "todo-tree.filtering.excludedWorkspaces": ["node_modules/*"],
+  "todo-tree.filtering.excludeGlobs": ["**/node_modules/*"],
+  "todo-tree.highlights.enabled": true,
+  "todo-tree.tree.showScanModeButton": false,
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "editor.fontFamily": "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
+  "python.envFile": "${workspaceFolder}/.envrc",
+  "explorer.confirmDelete": false,
+  "editor.fontSize": 13,
+  "githubIssues.queries": [
+    {
+      "label": "My Issues",
+      "query": "default"
+    },
+    {
+      "label": "Created Issues",
+      "query": "author:${user} state:open repo:${owner}/${repository} sort:updated-desc"
+    },
+    {
+      "label": "Open Issues",
+      "query": "state:open repo:${owner}/${repository} sort:updated-desc"
+    }
+  ],
+  "ansibleVaultInline.keyfile": "~/.config/dotfiles/vault_password.txt",
+  "editor.rulers": [80, 120],
+  "editor.unusualLineTerminators": "auto",
+  "python.languageServer": "Pylance",
+  "python.showStartPage": false,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "sync-rsync.onSaveIndividual": true,
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "diffEditor.renderSideBySide": true,
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  },
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "[ ]",
+    "[x]"
+  ],
+  "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^|^\\s*(-|\\d+.))\\s*($TAGS)",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": [
+    "/Users/aa/.local/pipx/venvs/invoke/lib/python3.8/site-packages"
+  ],
+  "yaml.customTags": ["!encrypted/pkcs1-oaep scalar", "!vault scalar"],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left"
+  },
+  "redhat.telemetry.enabled": true,
+  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "plantuml.render": "Local",
+  "plantuml.server": "http://localhost:8080",
+  "screencastMode.onlyKeyboardShortcuts": true,
+  "screencastMode.keyboardShortcutsFormat": "commandWithGroupAndKeys",
+  "python.venvFolders": [
+    "~/.local/pipx/venvs/",
+    "~/Library/Caches/pypoetry/virtualenvs"
+  ],
+  "git.inputValidationSubjectLength": 69,
+  "search.smartCase": true,
+  "search.useGlobalIgnoreFiles": true,
+  "search.showLineNumbers": true,
+  "editor.detectIndentation": false,
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "rewrap.wrappingColumn": 140,
+  "editor.inlineSuggest.enabled": true
+}

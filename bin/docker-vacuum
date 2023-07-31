@@ -1,0 +1,45 @@
+#!/bin/bash
+echo '# Remove all images'
+echo 'docker images -q -a | xargs docker rmi -f'
+echo
+echo '# Remove desired images'
+echo "docker images -a | grep -e cave_ | awk '{print \$3}' | xargs docker rmi -f"
+
+# -e '<none>'
+
+# http://stackoverflow.com/questions/17236796/how-to-remove-old-docker-containers
+# Old containers
+# docker ps -a | grep 'weeks ago' | awk '{print $1}' | xargs --no-run-if-empty docker rm
+
+# Stopped
+# docker ps -a | grep Exited | awk '{print $1}' | xargs --no-run-if-empty docker rm
+
+# By status
+# docker ps -aq -f status=exited
+
+echo
+echo
+# http://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
+# To remove, use:
+#  -q | xargs docker rm -v 2> /dev/null
+EXITED_COMMAND="docker ps --filter status=exited"
+UNUSED_COMMAND="docker images --filter dangling=true"
+CLEANUP_COMMAND="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock zzrot/docker-clean --log"
+
+echo -e "Exited containers:\n$EXITED_COMMAND"
+$EXITED_COMMAND
+echo
+echo -e "Unused images:\n$UNUSED_COMMAND"
+$UNUSED_COMMAND
+echo
+echo -e "Cleanup command:\n$CLEANUP_COMMAND"
+echo "Press any key to run them, or Ctrl-C to quit."
+read -r
+
+docker pull zzrot/docker-clean
+$CLEANUP_COMMAND
+
+echo -e "\nVolumes:"
+docker volume ls
+echo -e "\nNetworks:"
+docker network ls

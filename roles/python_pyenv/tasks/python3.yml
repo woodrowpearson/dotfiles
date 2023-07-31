@@ -1,0 +1,52 @@
+- name: "Upgrade system pip3 version on Linux"
+  pip:
+    name: pip
+    state: latest
+    executable: pip3
+  when: ansible_os_family != "Darwin"
+
+- name: "Get latest Python 3.11"
+  shell: "pyenv install --list | egrep -i ' 3.11.[0-9.abrc]+$' | tail -n 1 | xargs"
+  register: latest_python_3_11
+  changed_when: false
+
+- name: "Install Python 3.11 version {{ latest_python_3_11.stdout }}"
+  pyenv:
+    version: "{{ latest_python_3_11.stdout }}"
+
+- name: "Get latest Python 3.10"
+  shell: "pyenv install --list | egrep -i ' 3.10.[0-9.abrc]+$' | tail -n 1 | xargs"
+  register: latest_python_3_10
+  changed_when: false
+
+- name: "Install Python 3.10 version {{ latest_python_3_10.stdout }}"
+  pyenv:
+    version: "{{ latest_python_3_10.stdout }}"
+
+- name: "Get latest Python 3.9"
+  shell: "pyenv install --list | egrep -i ' 3.9.[0-9.abrc]+$' | tail -n 1 | xargs"
+  register: latest_python_3_9
+  changed_when: false
+# TODO feat: if latest_python_3_9.stdout is empty, show warning "run pyenv in another terminal"
+
+- name: "Install Python 3.9 version {{ latest_python_3_9.stdout }}"
+  pyenv:
+    version: "{{ latest_python_3_9.stdout }}"
+
+- name: "Get latest Python 3.8"
+  shell: "pyenv install --list | egrep -i ' 3.8[0-9.]+$' | tail -n 1 | xargs"
+  register: latest_python_3_8
+  changed_when: false
+
+- name: "Install Python 3.8 version {{ latest_python_3_8.stdout }}"
+  pyenv:
+    version: "{{ latest_python_3_8.stdout }}"
+
+- name: "Get latest Python 3.7"
+  shell: "pyenv install --list | egrep -i ' 3.7[0-9.]+$' | tail -n 1 | xargs"
+  register: latest_python_3_7
+  changed_when: false
+
+- name: "Install Python 3.7 version {{ latest_python_3_7.stdout }}"
+  pyenv:
+    version: "{{ latest_python_3_7.stdout }}"

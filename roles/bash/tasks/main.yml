@@ -1,0 +1,100 @@
+- name: "Create ~/.config/dotfiles"
+  file:
+    state: directory
+    path: ~/.config/dotfiles
+
+- import_tasks: shell.yml
+
+# To check the distribution on the local machine:
+# ansible -m setup localhost | rg 'distribution"'
+- import_tasks: link_files.yml
+  when: ansible_distribution == "MacOSX" # TODO fix: link files on Linux too
+- import_tasks: copy_files.yml
+  when: ansible_distribution in ("OSMC", "Amazon") or (ansible_system_vendor is defined and ansible_system_vendor == "DigitalOcean")
+
+# https://github.com/powerline/powerline
+# https://github.com/b-ryan/powerline-shell
+# They are both slow and ugly (maybe a font needs to be configured).
+# Too much hassle to configure, not ready out of the box.
+# - import_tasks: bash-powerline.yml
+
+- import_tasks: bash-git-prompt.yml
+
+- import_tasks: z.yml
+  when: ansible_os_family in ("Debian", "OSMC")
+
+- import_tasks: autojump.yml
+  when: ansible_os_family == "Darwin"
+
+- name: "Create local bash completions dir"
+  file:
+    state: directory
+    path: "{{ ansible_env.BASH_COMPLETION_USER_DIR }}/completions"
+
+- name: "Add content to .bashrc"
+  blockinfile:
+    path: ~/.bashrc
+    marker: "# ==================== {mark} Bash completion / dotfiles"
+    block: |
+      # brew info bash-completion2
+      export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+      [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && \
+          source "/usr/local/etc/profile.d/bash_completion.sh"
+
+      # Source all scripts. To regenerate this .sh file, run:
+      # dotfiles-cache-shell-scripts bash
+      # shellcheck source=/dev/null
+      test -f "$HOME"/.cache/dotfiles/cached_script.sh && \
+          source "$HOME"/.cache/dotfiles/cached_script.sh
+
+- name: "complete_alias: Copy script from https://github.com/cykerway/complete-alias"
+  get_url:
+    url: "https://raw.githubusercontent.com/cykerway/complete-alias/master/complete_alias"
+    dest: "{{ ansible_env.BASH_COMPLETION_USER_DIR }}/completions/complete_alias.bash-completion"
+
+- name: "complete_alias: Add aliases to script"
+  blockinfile:
+    path: "{{ ansible_env.BASH_COMPLETION_USER_DIR }}/completions/complete_alias.bash-completion"
+    marker: "# ==================== {mark} My aliases"
+    block: |
+      complete -F _complete_alias d
+      complete -F _complete_alias dc
+      complete -F _complete_alias dk
+      complete -F _complete_alias g
+      complete -F _complete_alias gb
+      complete -F _complete_alias gco
+      complete -F _complete_alias gl
+      complete -F _complete_alias gp
+      complete -F _complete_alias gs
+      complete -F _complete_alias gst
+      complete -F _complete_alias i
+      complete -F _complete_alias ih
+      complete -F _complete_alias ir
+      complete -F _complete_alias k
+      complete -F _complete_alias p
+
+- name: "dotfiles-cache-shell-scripts: Install PyYAML"
+  command: "python3 -m pip install pyyaml"
+  when:
+    - ansible_distribution not in ("OSMC", "Amazon")
+    - ansible_system_vendor is not defined or ansible_system_vendor != "DigitalOcean"
+
+- name: "dotfiles-cache-shell-scripts: Create cached script that will be sourced on .bashrc"
+  command: "{{ dotfiles_home }}/bin/dotfiles-cache-shell-scripts bash"
+  when:
+    - ansible_distribution not in ("OSMC", "Amazon")
+    - ansible_system_vendor is not defined or ansible_system_vendor != "DigitalOcean"
+
+- name: "Add .local/bin to PATH"
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+  when: ansible_distribution == "Amazon" or (ansible_system_vendor is defined and ansible_system_vendor == "DigitalOcean") or ansible_os_family == "OSMC"
+
+- name: "Add ~/container-apps-private/bin to PATH"
+  lineinfile:
+    path: ~/.bashrc
+    state: present
+    line: 'export PATH="$PATH:$HOME/container-apps-private/bin"'
+  when: ansible_os_family == "OSMC"

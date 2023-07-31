@@ -1,0 +1,17 @@
+# https://github.com/pyinvoke/invoke
+- name: "invoke: Install with pipx"
+  command: "pipx install invoke"
+  register: result
+  failed_when:
+    - result.rc > 0
+    - "'Not installing to existing directory' not in result.stderr"
+    - "'already seems to be installed' not in result.stdout"
+
+- name: "invoke: Inject pudb"
+  command: "pipx inject invoke pudb"
+
+- name: "invoke: Inject ipdb"
+  command: "pipx inject invoke ipdb"
+
+- name: "invoke: Bash completion"
+  shell: "invoke --print-completion-script=bash > {{ ansible_env.BASH_COMPLETION_USER_DIR }}/completions/invoke.bash-completion"

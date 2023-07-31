@@ -1,0 +1,450 @@
+# NOTE: The below 2 variables should not need to be changed if you cloned
+#   the dotfiles repo to '~/dotfiles'
+#  Local home directory
+dotfiles_user_home: "{{ '~' | expanduser }}"
+# Where your dotfiles live. Probably don't need to change this.
+dotfiles_home: "{{dotfiles_user_home}}/dotfiles"
+
+# Python tasks need the PYENV_ROOT environment variable set with this value
+pyenv_root: "~/.pyenv"
+
+# Root directory for projects
+project_root: "~/Code"
+
+backup_dir: "~/OneDrive/Backup/{{ ansible_hostname }}"
+
+github_username: andreoliwa
+
+git_personal:
+  # Name used in commit messages
+  user_name: W. Augusto Andreoli
+  # If you use GitHub, this should be the same as the email used on Github
+  user_email: andreoliwa@proton.me
+  # GPG Key ID used to sign git commits
+  # See https://github.com/pstadler/keybase-gpg-github setup instructions
+  # To see all keys:
+  # gpg --list-secret-keys --keyid-format LONG
+  user_signingkey: B9CAD8F36F84DBFC
+
+git_company:
+  user_name: Augusto Andreoli
+  user_email: augusto.andreoli@wolt.com
+  user_signingkey: 897562523E09FEE8
+
+# Vim
+
+# Whether to install plugins automatically. If not, just run
+# :PlugInstall while in vim.
+vim_install_plugins: no
+
+# Utilities that don't get installed by a role
+mac_homebrew_packages:
+  common:
+    - bash
+    - bash-completion2 # https://github.com/scop/bash-completion
+    - curl
+    - rg # https://github.com/BurntSushi/ripgrep Install with Brew to get shell completion
+    - jq # https://github.com/stedolan/jq
+    - yq # https://github.com/mikefarah/yq
+    - wget
+    - terminal-notifier
+    - htop-osx
+    - httpie
+    - diff-so-fancy
+    - gpg
+    - wdiff # https://www.gnu.org/software/wdiff/
+    - colordiff # https://www.colordiff.org/
+    - pidof # http://www.nightproductions.net/cli.htm
+    # Top for docker containers
+    - ctop
+    # User-contributed docs for Unix commands
+    - tldr
+    # For repeating commands
+    - watch
+    - fd # https://github.com/sharkdp/fd
+    - postgresql@14 # https://www.postgresql.org/ Needed by pgcli and other packages
+    - nmap
+    - ipcalc
+    - github/gh/gh # GitHub CLI https://github.com/cli/cli
+    - go # https://golang.org
+    - speedtest-cli # https://github.com/sivel/speedtest-cli
+    - procs # https://lib.rs/crates/procs
+    - dust # https://lib.rs/crates/du-dust
+    - shellcheck # https://github.com/koalaman/shellcheck#installing
+    - asciinema # https://github.com/asciinema/asciinema
+    - coreutils # https://www.gnu.org/software/coreutils
+    - blueutil # https://github.com/toy/blueutil
+    - svn # needed by font-ubuntu
+    - moreutils # https://joeyh.name/code/moreutils/ with the sponge command
+    - pipgrip # needed by brew update-python-resources
+    - jrnl # https://jrnl.sh/
+    - ansible-lint # https://github.com/ansible-community/ansible-lint
+    - starship # https://github.com/starship/starship
+    - telnet
+    - duplicity
+    - pinentry-mac
+    - cheat # https://github.com/cheat/cheat
+    - remake # https://bashdb.sourceforge.io/remake
+    - git-extras # https://github.com/tj/git-extras
+    - bitwarden-cli # https://bitwarden.com/
+    - jmespath/jmespath/jp # https://github.com/jmespath/jp
+    - topgrade # https://github.com/r-darwish/topgrade
+    - mr # https://myrepos.branchable.com/
+    - libsodium # can't be removed from personal_laptop, required by ffmpeg and zeromq
+    # TODO fix: this formula requires macFUSE. Please run `brew install --cask macfuse` first
+    - gromgit/fuse/sshfs-mac
+    - wmctrl # https://sites.google.com/site/tstyblo/wmctrl
+  personal_laptop:
+    - gromgit/fuse/ntfs-3g-mac # Read-write NTFS driver for FUSE https://www.tuxera.com/community/open-source-ntfs-3g/
+  company_laptop:
+    - awscli # https://aws.amazon.com/cli/ Newer versions 2.*
+    - aws-iam-authenticator # https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
+    - vault # Hashicorp https://www.vaultproject.io/
+    - actionlint # https://github.com/rhysd/actionlint
+    - protobuf # https://github.com/protocolbuffers/protobuf
+    - gradle-completion # https://github.com/gradle/gradle-completion
+    - goreleaser/tap/goreleaser # https://github.com/goreleaser/goreleaser
+    - mike-engel/jwt-cli/jwt-cli # https://github.com/mike-engel/jwt-cli
+  remove:
+    - heroku/brew/heroku
+    - highlight
+    - rename
+    # what's the wifi password?
+    - wifi-password
+    # Share tmux sessions
+    - tmate
+    # README rendering
+    - grip
+    # Prose linting
+    - ValeLint/vale/vale
+    - macvim
+    - pgbadger
+    - mysql-connector-c
+    - composer # https://getcomposer.org/
+    - kettle # Pentaho Data Integration software https://community.hitachivantara.com/docs/DOC-1009931-downloads
+    - s3cmd # https://s3tools.org/s3cmd
+    - mosh # https://mosh.org/
+    # It didn't work on macOS https://github.com/awslabs/amazon-ecr-credential-helper#mac-os
+    # Error saving credentials: error storing credentials - err: exit status 1, out: `not implemented`
+    # I tried this config: https://github.com/awslabs/amazon-ecr-credential-helper#Configuration
+    - docker-credential-helper-ecr
+    - helm # https://helm.sh/
+    - git-secret # https://git-secret.io/installation
+    - mailhog # https://github.com/mailhog/MailHog/
+    - gdal
+    - librdkafka
+    - dbeaver-community # Requires Java 8+
+    - graphviz # https://www.graphviz.org/
+    - python-yq # https://github.com/kislyuk/yq#installation
+    - terraform # https://www.terraform.io
+
+# Mac Apps to be installed with homebrew-cask
+mac_cask_packages:
+  common:
+    # Browsers
+    - brave-browser # https://brave.com/
+    - brave-browser-beta # https://brave.com/download-beta/
+    - finicky # https://github.com/johnste/finicky
+    # Development
+    - visual-studio-code
+    - docker
+    # Network
+    - teamviewer
+    - private-internet-access
+    - zerotier-one # https://www.zerotier.com/download.shtml
+    # Utilities
+    - iterm2
+    - keepingyouawake # maintained caffeinate wrapper
+    - appcleaner
+    - the-unarchiver
+    - authy # https://authy.com/
+    - flameshot # https://github.com/flameshot-org/flameshot#installation
+    - deepl
+    # To open Meld even with the security warning: https://github.com/yousseb/meld/issues/19#issuecomment-541239058
+    - meld # https://yousseb.github.io/meld/
+    - rescuetime # https://www.rescuetime.com/
+    # Chat
+    - telegram
+    - whatsapp
+    - skype
+    - signal
+    # Video conferencing
+    - zoom
+    # Media/Music
+    - spotify
+    - spotify-now-playing # https://github.com/davicorreiajr/spotify-now-playing
+    - beardedspice
+    - android-file-transfer # https://www.android.com/filetransfer/
+    - vlc
+    - kap
+    # Fonts
+    - font-ubuntu
+    - font-cousine
+    - font-hack
+    - font-jetbrains-mono # https://www.jetbrains.com/lp/mono/
+    - apppolice # https://github.com/AppPolice/AppPolice
+    - homebrew/cask-drivers/logitech-options # MX Keys for Mac external keyboard
+    - raindropio # https://raindrop.io/
+    - raycast # https://raycast.app/
+    - gnucash # https://gnucash.org/
+    - fujitsu-scansnap-home # https://www.fujitsu.com/global/products/computing/peripheral/scanners/soho/sshome/
+    - dupeguru # https://dupeguru.voltaicideas.net/
+  personal_laptop:
+    - hp-easy-start # https://support.hp.com/
+    - ccleaner # https://www.ccleaner.com/ccleaner-mac
+    - grandperspective # https://grandperspectiv.sourceforge.io/
+    - macfuse # https://osxfuse.github.io/ Read "The Best Free Third-Party Drivers: FUSE for macOS" on https://www.howtogeek.com/236055/how-to-write-to-ntfs-drives-on-a-mac/
+    - transmission-remote-gui # https://github.com/transmission-remote-gui/transgui
+    - onedrive # https://onedrive.live.com/
+  company_laptop:
+    - slack # https://slack.com/
+    - logitech-g-hub # http://logitechg.com/support/g305
+    - tunnelblick
+    - aws-vault # https://github.com/99designs/aws-vault#installing
+    - intellij-idea # https://www.jetbrains.com/idea/
+    - postman # https://www.postman.com/
+    - google-chrome
+    - jetbrains-toolbox # https://www.jetbrains.com/toolbox-app/
+    - lens # https://github.com/lensapp/lens
+    - microsoft-office # https://products.office.com/mac/microsoft-office-for-mac/
+    - cloudflare-warp # VPN client https://cloudflarewarp.com/
+    - virtualbox # https://www.virtualbox.org/
+    - findutils # https://www.gnu.org/software/findutils/
+    - mongodb-compass # https://www.mongodb.com/products/compass
+    - insomnia # REST client
+    - calibre # https://calibre-ebook.com/
+    - kindle # https://www.amazon.com/gp/digital/fiona/kcp-landing-page
+    - kindle-previewer # https://www.amazon.com/Kindle-Previewer/b?ie=UTF8&node=21381691011
+    - send-to-kindle # https://www.amazon.com/gp/sendtokindle/mac
+    - minikube # https://github.com/kubernetes/minikube
+  remove:
+    - dropbox
+    - imageoptim # optimizing images
+    - deckset
+    - epic
+    - freeplane
+    - licecap
+    - notion
+    - pdfsam-basic
+    - shift # https://tryshift.com/ Freemium: only one free app besides email
+    - franz # https://meetfranz.com/ Deceiving freemium: trial for 14 days only, not mentioned when you download the app
+    - itau # https://www.itau.com.br/computador/
+    - intellij-idea-ce # https://www.jetbrains.com/idea/ IntelliJ IDEA Community Edition
+    - powershell # https://github.com/PowerShell/PowerShell
+    - vivaldi # https://vivaldi.com/
+    - ngrok
+    - dashlane # https://www.dashlane.com/
+    - gmail-notifier
+    - zulip
+    - vagrant
+    - spectacle # Replaced by hammerspoon
+    - dissenter-browser
+    - flux
+    - freemind
+    - google-cloud-sdk
+    - iina
+    - java8
+    - jumpcut
+    - kivy
+    - macterm
+    - mia-for-gmail
+    - musixmatch
+    - selfcontrol
+    - simbl
+    - spotifree
+    - toggl
+    - toggl-track # Deprecated, now there is a macOS native app https://github.com/toggl-open-source/toggldesktop
+    - tor-browser
+    - pritunl # VPN https://client.pritunl.com/#install
+    - aws-vpn-client
+    - keepassxc # https://keepassxc.org/
+    - datagrip # https://www.jetbrains.com/datagrip/
+    - brave-browser-dev # https://brave.com/download-dev/
+
+# APT packages that don't get installed by a role
+apt_packages:
+  - xfce4
+  - python3-pip
+  - curl
+  - dos2unix
+  - wget
+  - gnupg2
+  - htop
+  - lsof
+  - strace
+  - gnupg-agent
+  - shotwell
+
+# Mac-App-Store-only apps to be installed with mas
+# Use App IDs found with `mas search <name>`
+mac_mas_packages:
+  common:
+    - 409203825 # Numbers https://itunes.apple.com/us/app/id409203825
+    - 585829637 # Todoist https://itunes.apple.com/us/app/id585829637
+    - 973134470 # Be Focused - Focus Timer https://apps.apple.com/us/app/be-focused-focus-timer/id973134470
+    # To enable biometric unlock, Bitwarden has to be installed from the App Store, not from a cask
+    - 1352778147 # Bitwarden https://itunes.apple.com/us/app/id1352778147
+    - 1291898086 # Toggl Track https://apps.apple.com/us/app/toggl-track-hours-time-log/id1291898086
+  personal_laptop:
+  company_laptop:
+  remove:
+    - 1153157709 # Speedtest by Ookla https://itunes.apple.com/us/app/id1153157709
+    - 526298438 # Lightshot Screenshot https://apps.apple.com/us/app/lightshot-screenshot/id526298438
+
+ruby_global_gems:
+  common:
+  personal_laptop:
+  company_laptop:
+  remove:
+    - lunchy
+    - travis
+    - jekyll # https://jekyllrb.com/ # Used by https://github.com/andreoliwa/online-cv
+
+# Python versions to install with pyenv and set as global
+# Especially useful when using tox
+# NOTE: 2.7 gets installed by Homebrew
+pyenv_global_versions:
+  - 3.9.0a6
+  - 3.8.3
+  - 3.7.7
+  - 3.6.10
+  - 3.5.9
+  - 2.7.15
+
+# Install Python 3 modules globally with pipx
+python3_pipx_modules:
+  common:
+    - cookiecutter # https://pypi.org/project/cookiecutter/
+    - cookiepatcher # https://pypi.org/project/cookiepatcher/
+    - gitup # https://github.com/earwig/git-repo-updater.git
+    - howdoi # https://pypi.org/project/howdoi/
+    - identify # https://github.com/chriskuehl/identify
+    - keyring # https://pypi.org/project/keyring/
+    - organize-tool # https://github.com/tfeldmann/organize
+    - pgcli # https://github.com/dbcli/pgcli
+    - litecli # SQLite CLI https://github.com/dbcli/litecli
+    - sqlite-utils # https://github.com/simonw/sqlite-utils
+    - tox # https://github.com/tox-dev/tox/
+    - black # https://github.com/ambv/black
+    - isort # https://github.com/PyCQA/isort
+    - yamllint # https://github.com/adrienverge/yamllint
+    - commitizen # https://github.com/commitizen-tools/commitizen
+    - youtube-dl # https://pypi.org/project/youtube_dl/
+  personal_laptop:
+    - subliminal # https://pypi.org/project/subliminal/
+  company_laptop:
+    - pipenv # https://github.com/pypa/pipenv
+  remove:
+    - bumpversion # https://pypi.org/project/bumpversion/
+    - twine # https://pypi.org/project/twine/
+    - awscli # https://pypi.org/project/awscli/ Older version 1.18.*
+    - aws-shell # https://github.com/awslabs/aws-shell
+
+# Node utilities
+npm_global_packages:
+  common:
+    - prettier
+  personal_laptop:
+  company_laptop:
+  remove:
+    - webpack
+    - eslint
+    - eslint-config-airbnb
+    - eslint-plugin-react
+    - babel-eslint
+    - np
+
+    # Conventional commits and semantic release
+    - conventional-changelog-cli # https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli
+    - semantic-release-cli # https://github.com/semantic-release/cli
+
+    # Sentry
+    - "@sentry/cli" # https://github.com/getsentry/sentry-cli
+
+    # MarkDown linter
+    - remark-cli # https://github.com/remarkjs/remark/tree/master/packages/remark-cli
+    - remark-preset-lint-recommended # https://github.com/remarkjs/remark-lint#cli
+    - remark-preset-lint-markdown-style-guide # https://github.com/remarkjs/remark-lint/tree/master/packages/remark-preset-lint-markdown-style-guide
+
+    - aws-es-kibana
+    - codeowners # https://github.com/beaugunderson/codeowners
+    - "@commitlint/cli" # https://github.com/conventional-changelog/commitlint/tree/master/@commitlint/cli
+    - "@commitlint/config-conventional"
+    - commitizen # https://github.com/commitizen/cz-cli
+
+rust_binaries:
+  - { pkg: cargo-update, bin: cargo-install-update } # https://github.com/nabijaczleweli/cargo-update
+  - { pkg: exa, bin: exa } # https://github.com/ogham/exa
+
+rust_git_repos:
+  - { bin: csv-query, git: https://github.com/jaysonsantos/csv-query-rs }
+  - { bin: toml, git: https://github.com/gnprice/toml-cli }
+
+# To list extensions: code --list-extensions
+vscode_extensions:
+  common:
+    - Gruntfuggly.todo-tree
+    - bibhasdn.unique-lines
+    - esbenp.prettier-vscode
+    - mikestead.dotenv
+    - ms-python.python
+    - ms-python.vscode-pylance
+    - zhouronghui.propertylist
+    - bungcip.better-toml
+    - jsynowiec.vscode-insertdatestring
+    - ms-azuretools.vscode-docker
+    - wolfmah.ansible-vault-inline
+    - redhat.vscode-yaml
+    - grapecity.gc-excelviewer
+    - vscode-org-mode.org-mode
+    - eamodio.gitlens
+    - lextudio.restructuredtext
+    - ms-vsliveshare.vsliveshare # https://docs.microsoft.com/en-us/visualstudio/liveshare/use/vscode
+    - editorconfig.editorconfig
+    - golang.go
+    - daohong-emilio.yash # Yet another syntax highlighter for lex/yacc & flex/bison.
+    - redhat.ansible
+    # - yzhang.markdown-all-in-one # This extension somehow disables Prettier on file save for .md files
+  personal_laptop:
+    - rust-lang.rust-analyzer # https://github.com/rust-lang/rust-analyzer
+    - vscode-ext.sync-rsync
+  company_laptop:
+    - redhat.vscode-xml # https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml
+    - jebbs.plantuml # https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
+    - zxh404.vscode-proto3 # https://marketplace.visualstudio.com/items?itemName=zxh404.vscode-proto3
+  remove:
+    - felixfbecker.php-intellisense
+    - bmewburn.vscode-intelephense-client
+    - crisward.riot-tag
+    - vscoss.vscode-ansible
+    - haaaad.ansible # Incompatible with YAML extension
+    - octref.vetur # Vue.js
+    - hashicorp.terraform
+
+# Chrome extensions used on Brave.
+# They cannot be automatically installed, but I will at least list them here.
+# TODO feat: open all extensions on the proper browser, so they can be manually installed
+chrome_extensions:
+  common:
+    - https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb
+    - https://chrome.google.com/webstore/detail/todoist-for-chrome/jldhpllghnbhlbpcmnajkpdmadaolakh
+    - https://chrome.google.com/webstore/detail/todoist-for-gmail/clgenfnodoocmhnlnpknojdbjjnmecff
+    - https://chrome.google.com/webstore/detail/toggl-button-productivity/oejgccbfbmkkpaidnkphaiaecficdnfn
+    - https://chrome.google.com/webstore/detail/grammarly-for-chrome/kbfnbcaeplbcioakkpcpgfkobkghlhen
+    - https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc
+    - https://chrome.google.com/webstore/detail/mate-translate-%E2%80%93-translat/ihmgiclibbndffejedjimfjmfoabpcke
+    - https://chrome.google.com/webstore/detail/private-internet-access/jplnlifepflhkbkgonidnobkakhmpnmh
+    - https://chrome.google.com/webstore/detail/pushbullet/chlffgpmiacpedhhbkiomidkjlcfhogd
+    - https://chrome.google.com/webstore/detail/take-webpage-screenshots/mcbpblocgmgfnpjjppndjkmgjaogfceg
+    - https://chrome.google.com/webstore/detail/copy-as-markdown/fkeaekngjflipcockcnpobkpbbfbhmdn # https://github.com/chitsaou/copy-as-markdown/
+    - https://chrome.google.com/webstore/detail/rescuetime-for-chrome-and/bdakmnplckeopfghnlpocafcepegjeap/related
+    - https://chrome.google.com/webstore/detail/raindropio/ldgfbffkinooeloadekpmfoklnobpien
+  personal_laptop:
+    - https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi
+    - https://chrome.google.com/webstore/detail/traktflix/ehlckfimahifadnbecobagimllmbdmde
+    - https://chrome.google.com/webstore/detail/trim-imdb-ratings-on-netf/lpgajkhkagnpdjklmpgjeplmgffnhhjj
+  company_laptop:
+  remove:
+    - https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd # https://github.com/vuejs/vue-devtools
+    - https://chrome.google.com/webstore/detail/graphql-developer-tools/hflnkihcpgldmkepajmpooacmmhglpff # GraphQL
+    - https://chrome.google.com/webstore/detail/lastpass-free-password-ma/hdokiejnpimakedhajhdlcegeplioahd

@@ -1,0 +1,52 @@
+- import_tasks: darwin.yml
+  when: ansible_os_family == "Darwin"
+- import_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: Install rustup
+  shell: "curl https://sh.rustup.rs -sSf | sh -s -- --no-modify-path  -y --default-toolchain nightly -v"
+  args:
+    creates: ~/.cargo/env
+
+# To avoid "error: no default toolchain configured" on cargo install
+- name: "rustup: Install stable toolchain"
+  command: "~/.cargo/bin/rustup install stable"
+
+- name: "rustup: Select stable toolchain"
+  command: "~/.cargo/bin/rustup default stable"
+
+- name: "rustup: Install/update toolchains"
+  command: "~/.cargo/bin/rustup toolchain add {{ item }}"
+  with_items:
+    - stable
+    - nightly
+  when: "'rust_update_toolchain' | run_only_after"
+
+- name: "Install Rust utils (binaries)"
+  command: "~/.cargo/bin/cargo +nightly install {{ item.pkg }}"
+  with_items: "{{ rust_binaries }}"
+  # when: "'rust_install_binaries' | run_only_after"
+
+- name: "Install Rust utils from Git"
+  command: "~/.cargo/bin/cargo install --force --git {{ item.git }}"
+  when: (rust_git_repos or False) and ('rust_install_from_git' | run_only_after)
+  with_items:
+    - "{{ rust_git_repos }}"
+
+- name: Update installed binaries
+  command: "~/.cargo/bin/cargo +nightly install-update -a"
+  when: "'rust_update_binaries' | run_only_after"
+
+- name: Install components
+  shell: "~/.cargo/bin/rustup component add {{ item }}"
+  when: (rust_components or False) and ('rust_install_components' | run_only_after)
+  with_items:
+    - "{{ rust_components }}"
+  tags: rust-components
+
+- name: Link .ripgreprc file
+  file:
+    src: "{{ role_path }}/files/.ripgreprc.link"
+    dest: "{{ dotfiles_user_home }}/.ripgreprc"
+    state: link
+    follow: false

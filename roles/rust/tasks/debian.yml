@@ -1,0 +1,6 @@
+- name: Install dependencies
+  apt:
+    name:
+    - libssl-dev
+    - cmake
+  become: true
