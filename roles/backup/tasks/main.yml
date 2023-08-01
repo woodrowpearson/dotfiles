@@ -21,17 +21,14 @@
   with_items: "{{ docker_compose_volumes.stdout_lines }}"
   when: last_execution_docker is not skipped
 
-- name: "Start the PostgreSQL Docker container ({{ role_path }})"
-  command: "docker-compose -f ~/container-apps/postgres/docker-compose.yml up -d"
+- name: "Copy Mackup default configuration from Ansible Mackup role to ~/.mackup.cfg"
+  copy:
+    src: "files/mackup.cfg"
+    dest: "~/.mackup.cfg"
+    force: true
+  when: not (lookup('file', '~/.mackup.cfg') is defined)
 
-# I had to create a symlink because psql was not working:
-# https://stackoverflow.com/questions/42356309/mac-psql-readline-library-not-loaded
-# $ psql
-# dyld: Library not loaded: /usr/local/opt/readline/lib/libreadline.7.dylib
-#   Referenced from: /usr/local/bin/psql
-#   Reason: image not found
-# Aborted
-# I ran:
-# ln -s /usr/local/opt/readline/lib/libreadline.8.dylib /usr/local/opt/readline/lib/libreadline.7.dylib
-- name: "Backup all local PostgreSQL 12 databases to .sql files: postgresx postgresql://postgres:$POSTGRES_PASSWORD@localhost:7712 backup {{ backup_dir }}"
-  command: "postgresx postgresql://postgres:$POSTGRES_PASSWORD@localhost:7712 backup {{ backup_dir }}"
+- name: "Run Mackup in {{ backup_dir }} as root"
+  command: "mackup backup -r --force --directory {{ backup_dir }}"
+  become: true
+  when: lookup('file', '~/.mackup.cfg') is defined

@@ -2,36 +2,8 @@
   apt: name="{{ apt_packages }}" state=latest
   become: true
   when:
-    - 'ansible_os_family == "OSMC" or (ansible_system_vendor is defined and ansible_system_vendor == "DigitalOcean")'
+    - 'ansible_os_family == "Ubuntu"''
     - "'apt_packages' | run_only_after"
 
-- import_tasks: osmc.yml
-  when: ansible_os_family == "OSMC"
-
 - import_tasks: pipx.yml
-  when: ansible_os_family == "OSMC"
-
-- import_tasks: video_subtitles.yml
-  when: ansible_os_family == "OSMC"
-
-- name: "Create ~/OneDrive/Backup"
-  file:
-    state: directory
-    path: ~/OneDrive/Backup
-  when: ansible_distribution == "Amazon" or (ansible_system_vendor is defined and ansible_system_vendor == "DigitalOcean")
-
-- name: Clone container-apps
-  git:
-    repo: https://github.com/andreoliwa/container-apps
-    dest: ~/container-apps
-    clone: yes
-    update: yes
-  when: ansible_distribution == "Amazon" or (ansible_system_vendor is defined and ansible_system_vendor == "DigitalOcean")
-
-- name: Clone container-apps-private
-  git:
-    repo: git@github.com:andreoliwa/container-apps-private.git
-    dest: ~/container-apps-private
-    clone: yes
-    update: yes
-  when: ansible_os_family == "OSMC"
+  when: ansible_os_family == "Ubuntu"

@@ -1,5 +1,4 @@
 dependencies:
-  # This role is currently failing because I'm using my pyenv fork locally: https://github.com/andreoliwa/pyenv/tree/add-xonsh-support
   - { role: suzuki-shunsuke.pyenv,
       pyenv_is_dependencies_installed: yes,
       ignore_errors: true }

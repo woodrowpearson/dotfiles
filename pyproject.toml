@@ -5,9 +5,9 @@ style = ["https://raw.githubusercontent.com/andreoliwa/nitpick/develop/nitpick-s
 name = "pydotfiles"
 version = "0.1.0"
 description = ""
-authors = ["W Augusto Andreoli <andreoliwa@proton.me>"]
+authors = ["Woody Pearson <woodrowpearson@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/andreoliwa/dotfiles"
+repository = "https://github.com/woodrowpearson/dotfiles"
 keywords = ["python3", "cli"]
 # Trove classifiers
 # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers

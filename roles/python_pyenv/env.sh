@@ -4,7 +4,7 @@ export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
 
 # Ansible Python tasks need this environment variable
-export PYENV_ROOT=~/.pyenv
+export PYENV_ROOT="$HOME/.pyenv"
 
 # Suggestions made by pyenv init:
 # WARNING: `pyenv init -` no longer sets PATH.

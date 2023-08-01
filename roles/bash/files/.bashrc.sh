@@ -49,7 +49,7 @@ eval "$(register-python-argcomplete pipx)"
 # ==================== END https://github.com/pipxproject/pipx#install-pipx
 
 # Add my private script toolbox as last on the PATH
-test -d "$HOME"/Code/toolbox/bin && export PATH="$PATH:$HOME/Code/toolbox/bin"
+test -d "$HOME"/code/toolbox/bin && export PATH="$PATH:$HOME/code/toolbox/bin"
 
 # Increase Bash history size
 # https://unix.stackexchange.com/questions/20861/is-there-a-way-to-set-the-size-of-the-history-list-in-bash-to-more-than-5000-lin#20925

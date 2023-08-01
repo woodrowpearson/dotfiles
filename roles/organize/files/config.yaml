@@ -1,16 +1,15 @@
 # https://organize.readthedocs.io/en/latest/page/config.html#configuration
 move_folders: &move
-  - path: ~/OneDrive/Documents/Mayan_Staging/Deutsch
-    ignore_errors: true
-  - path: ~/OneDrive/Documents/Mayan_Staging/Portugues
-    ignore_errors: true
+  # - path: ~/OneDrive/Documents/Mayan_Staging/Deutsch
+  #  ignore_errors: true
 
 slugify_folders: &slugify
   - ~/Documents
   - ~/Downloads/
   - ~/Desktop/
   - ~/Library/Mobile Documents/com~apple~QuickTimePlayerX/Documents
-  - ~/OneDrive/
+  - /Users/Shared/Mackup/localhost/
+  - ~/obsidian/
 
 mobile_upload_folders: &mobile_upload
   - path: ~/OneDrive/Pictures/Camera Roll/

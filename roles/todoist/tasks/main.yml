@@ -23,7 +23,7 @@
 
 - name: "Link todoist-bash-completion.sh"
   file:
-    src: "~/Code/todoist/todoist_functions_fzf_bash.sh"
+    src: "~/code/todoist/todoist_functions_fzf_bash.sh"
     dest: "{{ brew_prefix.stdout }}/etc/bash_completion.d/todoist-bash-completion.sh"
     state: link
     force: yes

@@ -5,7 +5,7 @@
     clone: yes
     update: "{{ update }}"
     accept_hostkey: yes
-  become: no
+  become: false
 
 - name: "{{ dir }}: Add gita project"
   command: "gita add {{ root }}/{{ dir }}"

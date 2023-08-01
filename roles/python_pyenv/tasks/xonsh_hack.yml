@@ -4,14 +4,14 @@
     chdir: "{{ pyenv_root }}"
   register: pyenv_list_remotes
 
-- name: Add andreoliwa remote
-  when: "'andreoliwa' not in pyenv_list_remotes.stdout"
-  command: "git remote add andreoliwa git@github.com:andreoliwa/pyenv.git"
+- name: Add woodrowpearson remote
+  when: "'woodrowpearson' not in pyenv_list_remotes.stdout"
+  command: "git remote add woodrowpearson git@github.com:woodrowpearson/pyenv.git"
   args:
     chdir: "{{ pyenv_root }}"
 
-- name: Fetch andreoliwa remote
-  command: "git fetch andreoliwa"
+- name: Fetch woodrowpearson remote
+  command: "git fetch woodrowpearson"
   args:
     chdir: "{{ pyenv_root }}"
 
@@ -26,7 +26,7 @@
   args:
     chdir: "{{ pyenv_root }}"
   register: checkout_xonsh_support
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Create a new local branch pointing to the remote one
   when: checkout_xonsh_support.failed

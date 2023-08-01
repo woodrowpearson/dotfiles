@@ -1,7 +1,3 @@
-# We need this for pyenv to work under xonsh (until my fork is finished, approved and merged; it's not ready for a pull request yet)
-- import_tasks: xonsh_hack.yml
-  when: "'xonsh' in ansible_user_shell"
-
 - name: Check if pytest.ini file exists
   stat: path="{{ dotfiles_user_home }}/pytest.ini"
   register: pytest_stat
@@ -48,15 +44,3 @@
 
 - name: "Install pipx"
   import_tasks: pipx.yml
-
-- name: "Install Invoke"
-  import_tasks: invoke.yml
-
-- name: "Install Conjuring"
-  import_tasks: invoke-conjuring.yml
-
-- name: "Install Conjuring (Private)"
-  import_tasks: invoke-conjuring-private.yml
-
-- name: "Install JetBrains PyCharm"
-  import_tasks: pycharm.yml

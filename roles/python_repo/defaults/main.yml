@@ -20,7 +20,7 @@ update: no
 
 # Python version for the pyenv virtualenv
 # If the version is not informed, a virtualenv will not be created
-python_version: ""
+python_version: "3.10.12"
 
 # Create a Poetry env when a pyproject.toml is found and a Python version is set
 poetry_env: yes
@@ -32,8 +32,8 @@ local: "{{ env }}"
 symlink_dir: ""
 
 # User name and email for the repo. Ignored when empty (will use the global git config)
-user_name: ""
-user_email: ""
+user_name: "woodrowpearson"
+user_email: "woodrowpearson@gmail.com"
 
 # gita group for the project
-gita_group: ""
+gita_group: "dev-env"

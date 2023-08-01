@@ -33,11 +33,6 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
-  # TODO style: use custom instead of default
-  # - repo: https://github.com/andreoliwa/nitpick
-  #   rev: v0.28.0
-  #   hooks:
-  #     - id: nitpick
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
