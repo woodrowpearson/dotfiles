@@ -1,0 +1,389 @@
+#!/usr/bin/env ruby
+
+# TODO: Replace macos path_helper with this.
+# https://raw.githubusercontent.com/yb66/path_helper/master/exe/path_helper
+# A better path helper - don't put the standard bins first.
+module PathHelper
+  # see semver https://semver.org/spec/v2.0.0.html
+  VERSION="4.0.0"
+end
+
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: path_helper.rb [options]"
+  opts.on("-p", "--path [PATH]", "To get a completely fresh PATH pass an empty string or nothing at all (the default).","  To append something to the generated path pass the current path, or a path you wish appended."
+  ) do |path|
+    options[:name] = "PATH"
+    options[:current_path] = path
+  end
+  opts.on("-m", "--man [MANPATH]", 'Run for man pages but perhaps read `man manpages` first', '  See `path\' instructions for argument options.'
+  ) do |path|
+    options[:name] = "MANPATH"
+    options[:current_path] = path
+  end
+  opts.on("-f", "--dyld-fram [DYLD]", 'DYLD_FALLBACK_FRAMEWORK_PATH env var', '  See `path\' instructions for argument options.'
+  ) do |path|
+    options[:name] = "DYLD_FALLBACK_FRAMEWORK_PATH"
+    options[:current_path] = path
+  end
+  opts.on("-l", "--dyld-lib [DYLD]", "DYLD_FALLBACK_LIBRARY_PATH env var", '  See `path\' instructions for argument options.'
+  ) do |path|
+    options[:name] = "DYLD_FALLBACK_LIBRARY_PATH"
+    options[:current_path] = path
+  end
+  opts.on("-c", "--c-include [C_INCLUDE]", 'C_INCLUDE_PATH env var', '  See `path\' instructions for argument options.'
+  ) do |path|
+    options[:name] = "C_INCLUDE_PATH"
+    options[:current_path] = path
+  end
+  opts.on("--pc [PKG_CONFIG_PATH]", 'PKG_CONFIG_PATH env var', '  See `path\' instructions for argument options.'
+  ) do |path|
+    options[:name] = "PKG_CONFIG_PATH"
+    options[:current_path] = path
+  end
+  opts.on("-q", "--quiet", "Quiet, no output") do |v|
+    options[:quiet] = true
+  end
+  opts.on("-d", "--debug", "Debug mode, even more output") do |v|
+    options[:debug] = v
+  end
+  opts.on("--setup","Set up directory structure, add specific switches", "  (see `--etc` `--lib` `--config`)", "  if specific setups required.", "  Else --setup own its own will do all of them."
+  ) do
+    options[:setup] = true
+  end
+  opts.on("--dry-run", "Use in conjuction with --setup to see what would happen if you ran it."
+  ) do
+    options[:dry_run] = true
+  end
+  opts.on("--[no-]etc", "This has two applications:", "  1. In combination with any of:", "    `--path`, `--man`, `--dyld-fram`, `--dyld-lib`, `--c-include`, `--pc`",  "    will add/remove it from consideration for building the path.", "  2. When combined with --setup will set up /etc/paths..., erm, etcetera.", "  The default is for it to be included."
+  ) do |v|
+    options[:etc] = v.nil? ? true : v
+  end
+  opts.on("--[no-]lib", "Adds ~/Library/Paths to the search/build path", "  Included by default on a Mac.", "  See `--etc` for more.") do |v|
+    options[:lib] = v.nil? ? true : v
+  end
+  opts.on("--[no-]config", "Adds ~/.config/paths", "  Included by default on Linux.", "  See `--etc` for more.") do |v|
+    options[:config] = v.nil? ? true : v
+  end
+  opts.on( '--version', 'Print version') do
+    warn PathHelper::VERSION
+    exit 0
+  end
+  opts.on_tail("-h", "--help", "Show this message") do
+    warn opts
+    exit
+  end
+  if ARGV.empty?
+    warn opts
+    exit 1
+  end
+end.parse!
+
+if ENV["DEBUG"]
+  options[:debug] = true
+end
+if options[:debug]
+  options[:verbose] = true
+end
+
+
+module PathHelper
+
+  HOME = Dir.home.freeze
+
+  SEGMENTS = [:lib,:config, :etc]
+
+
+	class Error < StandardError; end
+
+
+  module Helpers
+    class << self
+
+      def determine_search_order options
+        default_order = RUBY_PLATFORM =~ /darwin/ ?
+          [:lib,:config,:etc] :
+          [:config,:lib,:etc] # linux or other unix
+        default_order.reject{|k|
+          (options[k] == false) ||
+          ((k == default_order[1]) && (options[k] != true))
+        }
+      end
+
+
+      def create_section name
+        downcased = "#{name.downcase}s".freeze
+        {
+          name: name,
+          directories: {
+            lib:    "#{HOME}/Library/Paths/#{downcased}.d".freeze,
+            config: "#{HOME}/.config/paths/#{downcased}.d".freeze,
+            etc:    "/etc/#{downcased}.d".freeze,
+          },
+          files: {
+            lib:    "#{HOME}/Library/Paths/#{downcased}".freeze,
+            config: "#{HOME}/.config/paths/#{downcased}".freeze,
+            etc:    "/etc/#{downcased}".freeze,
+          },
+          found: {},
+          all_lines: {},
+        }
+      end
+    end
+  end
+
+
+  # There's only a CLI class for now.
+  # Note: found and all_lines are faster in this hash
+  #       than as instance variables.
+  class CLI
+
+    # @param [Hash] options The parsed CLI options.
+    def initialize options
+			fail Error, "You must declare the kind of path you wish to build e.g. --manpath or -m if you want MANPATH built" unless options.has_key? :name
+      @options = options
+      @current_path = options.fetch(:current_path, ENV[@options[:name]])
+    end
+
+    attr_reader :section, :options
+
+
+    # The plan:
+    # 1. Determine initial search graph
+    # 2. Find the files on each part of the graph
+    # 3. Read the files
+    # 4. Concatenate lines and remove duplicates
+    # 5. Join into env var format
+    def run
+      determine_initial_search_graph
+      find_files_in_graph
+      read_files # concat/uniq is taken care by the all_lines hash
+      join_into_env_var_format
+    end
+
+
+    def join_into_env_var_format
+      if !@current_path.nil? && !@current_path.empty?
+        components = @current_path.split(":")
+        components.each do |line|
+          next if @section[:all_lines].has_key? line
+          @section[:all_lines][line] = nil
+        end
+        @section[:found]["current path"] = components
+      end
+      @section[:all_lines].keys
+                          .join(":")
+                          .gsub( /\~/, HOME)
+    end
+
+
+    def read_files
+      @section[:found].each {|path, _|
+        next if ! File.file? path
+        @section[:found][path] = IO.readlines(path).map(&:chomp)
+        @section[:found][path].each do |line|
+          next if @section[:all_lines].has_key? line
+          @section[:all_lines][line] = nil
+        end
+      }
+    end
+
+
+    def find_files_in_graph
+      @search_order.each do |segment|
+        dirpath = @section[:directories][segment]
+        if Dir.exist? dirpath
+					Dir.entries(dirpath).sort.map do |file|
+						next if file =~ /^\./
+						@section[:found][File.join(dirpath,file).freeze] = nil
+					end
+				end
+        path = @section[:files][segment]
+        next unless File.exist? path
+        @section[:found][path.freeze] = nil
+      end
+    end
+
+
+    def determine_initial_search_graph
+      @search_order = Helpers.determine_search_order @options
+      @section = Helpers.create_section @options[:name]
+      [:directories, :files].each do |key|
+        @section[key].keep_if{|segment,_| @search_order.include? segment }
+      end
+      @section[:search_order] = @search_order
+    end
+  end
+
+
+  # Some colours for clarity.
+  module Colours
+    if STDOUT.isatty && %x{which tput} && $?.exitstatus == 0
+      Normal    = `tput sgr0`.freeze
+      Red       = `tput setaf 1`.freeze
+      Green     = `tput setaf 2`.freeze
+      Yellow    = `tput setaf 3`.freeze
+      Cyan      = `tput setaf 6`.freeze
+    else
+      Normal    = ''.freeze
+      Red       = Normal
+      Green     = Normal
+      Yellow    = Normal
+      Cyan      = Normal
+    end
+  end
+
+
+  # For when you're not sure why you got the path you did.
+  class Debug
+
+    # Symbol to use when there are more children to come.
+    T = " ├──".freeze
+
+    # Symol to use for last child.
+    L = " └──".freeze
+
+    # Symbol to use for a child while another branch is being displayed.
+    I = " │  ".freeze
+
+    # Space.
+    N = "    ".freeze
+
+
+    def initialize helper
+    	@helper = helper
+      @section = @helper.section
+    end
+
+
+    # tree style render
+    def render
+      output = []
+      findings = {}
+      dup_text = " #{Colours::Red}✗#{Colours::Normal}"
+      output << "Name: #{Colours::Green}#{@section[:name]}#{Colours::Normal}"
+      output << "Options: #{@helper.options}"
+      output << "Search order: #{@section[:search_order]}"
+      @section[:search_order].each do |segment|
+        output << "\t#{Colours::Yellow}#{@section[:directories][segment]}#{Colours::Normal}"
+        output << "\t#{Colours::Cyan}#{@section[:files][segment]}#{Colours::Normal}"
+      end
+      output << "\nResults: (duplicates marked by#{dup_text})\n"
+      @section[:found].each do |file,lines|
+      	if File.file?(file)
+					output << "#{Colours::Cyan}#{file}#{Colours::Normal}"
+				else
+					output << "#{Colours::Red}#{file} - does not exist!#{Colours::Normal}"
+					next
+				end
+				next if lines.nil?
+        lines.compact.reject(&:empty?).each_with_index do |line,i|
+          findings[line] = findings.fetch(line, 0) + 1
+          output << "#{i == lines.size - 1 ? L : T} #{findings[line] >= 2 ? Colours::Red : Colours::Green}#{line}#{Colours::Normal}#{findings[line] >= 2 ? dup_text : ''}"
+        end
+      end
+      output.join("\n")
+    end
+  end
+
+
+  module Setup
+
+    ENV_VARS = {
+      "C_INCLUDE_PATH".freeze => "-c",
+      "DYLD_FALLBACK_FRAMEWORK_PATH".freeze =>  "--dyld-fram",
+      "DYLD_FALLBACK_LIBRARY_PATH".freeze => "--dyld-lib",
+      "MANPATH".freeze  =>  "-m",
+      "PKG_CONFIG_PATH".freeze  => "-pc",
+      "PATH".freeze => "-p",
+    }
+
+    class << self
+
+      # {:setup=>true}
+      # {:setup=>true, :etc=>false, :lib=>false}
+      # {:setup=>true, :etc=>false, :lib=>true}
+      def setup! options
+        search_order = Helpers.determine_search_order options
+        permission_errors = []
+        ENV_VARS.each do |var,_|
+          section = Helpers.create_section var
+          [:directories,:files].each do |key|
+            section[key].keep_if{|segment,_| search_order.include? segment }
+            next unless section.has_key? key
+            section[key].each do |_,path|
+              if FileTest.exist?(path)
+                warn "#{Colours::Yellow}#{path} already exists, skipping#{Colours::Normal}" unless options[:quiet]
+                next
+              end
+              begin
+                unless options[:dry_run]
+                  key == :directories ? system("mkdir","-p",path) : File.new(path, "w").close
+                end
+                puts "#{Colours::Green}Created #{path}#{Colours::Normal}" unless options[:quiet]
+              rescue Errno::EACCES
+                warn "#{Colours::Red}Rescuing permission errors for #{path}#{Colours::Normal}"
+                permission_errors << path
+              end
+            end
+          end
+        end
+        unless permission_errors.empty?
+          warn "Your account does not have permissions for:"
+          permission_errors.each do |path|
+            warn "- #{path}"
+          end
+          warn <<~WARNING
+            Consider whether you need to install these.
+            For example are they needed system wide? If not, use the --no-etc switch.
+            Otherwise, try again with sudo or another account.
+          WARNING
+          return false
+        end
+
+        script_path = File.expand_path(__FILE__)
+        unless options[:quiet]
+          puts <<~SHENV
+
+
+          # Put this in your ~/.bashrc or your ~/.zshenv
+          if [ -x #{script_path} ]; then
+            #{ENV_VARS.map {|var,switch|
+								%Q!export #{var}=$(ruby #{script_path} #{switch})!
+							}.join("\n  ")
+            }
+          fi
+          SHENV
+        end
+        true
+      end
+
+    end
+  end
+end
+
+
+if options[:setup]
+  status_code = PathHelper::Setup.setup!(options) ? 0 : 1
+  exit status_code
+else
+	begin
+		helper = PathHelper::CLI.new options
+		if options[:debug]
+			env_var = helper.run
+			debugger = PathHelper::Debug.new helper
+			print debugger.render
+			puts "\n\nEnv var:\n"
+			print env_var << "\n\n"
+		else
+			print helper.run
+		end
+	rescue => e
+		warn e.message
+		warn "See --help for available options."
+		exit 1
+	end
+end
+exit 0

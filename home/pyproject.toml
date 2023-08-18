@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "home"
+version = "0.1.0"
+description = "homelab"
+authors = ["Woody Pearson <woodypearson@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+continuedev = {path = "/Users/w/code/continue/continuedev/dist/continuedev-0.1.2-py3-none-any.whl"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
