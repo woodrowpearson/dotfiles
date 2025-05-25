@@ -271,7 +271,7 @@ fi
 
 if [[ "$DRY_RUN" == "true" ]]; then
     echo "🔍 Would prompt to install recommended VS Code extensions"
-    echo "🔍 Would install extensions: ms-python.python, ms-python.black-formatter, etc."
+    echo "🔍 Would install extensions: ms-python.python, charliermarsh.ruff, rust-lang.rust-analyzer, etc."
 else
     echo -e "${BLUE}Install recommended VS Code extensions? (y/n)${NC}"
     read -r install_extensions
@@ -286,18 +286,18 @@ if [[ "$install_extensions" == "y" ]] && [[ "$DRY_RUN" != "true" ]] && command -
         "esbenp.prettier-vscode"
         "rust-lang.rust-analyzer"
         "golang.go"
-        "ms-vscode.vscode-json"
         "redhat.vscode-yaml"
         "ms-vscode.vscode-typescript-next"
         "GitLab.gitlab-workflow"
         "eamodio.gitlens"
-        "ms-vscode.vscode-markdown"
         "yzhang.markdown-all-in-one"
     )
     
     for ext in "${EXTENSIONS[@]}"; do
         echo "Installing $ext..."
-        code --install-extension "$ext" --force
+        if ! code --install-extension "$ext" --force; then
+            echo -e "${YELLOW}⚠️  Failed to install $ext, continuing...${NC}"
+        fi
     done
     
     echo -e "${GREEN}✅ VS Code extensions installed${NC}"
