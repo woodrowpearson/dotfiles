@@ -30,9 +30,17 @@
   homebrew: name={{item}} state=present
   with_items: "{{mac_homebrew_packages}}"
 
-- name: Install Mac apps with homebrew cask
-  homebrew_cask: name={{item}} state=present
+- name: Check which cask apps are already installed
+  shell: brew list --cask {{item}} 2>/dev/null || echo "not_installed"
   with_items: "{{mac_cask_packages}}"
+  register: cask_check_result
+  failed_when: false
+  changed_when: false
+
+- name: Install Mac apps with homebrew cask (only if not already installed)
+  homebrew_cask: name={{item.item}} state=present
+  with_items: "{{cask_check_result.results}}"
+  when: "'not_installed' in item.stdout"
 
 - name: Install mas
   homebrew: name=mas state=present
