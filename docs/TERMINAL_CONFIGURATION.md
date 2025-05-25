@@ -32,12 +32,15 @@ The dotfiles repository now includes a comprehensive terminal enhancement with A
 **Configuration**: `roles/starship/files/starship.toml`
 
 **Features**:
-- Cross-shell compatibility
+- Cross-shell compatibility with Apple logo (🍎) at start of each prompt line
 - Git integration with branch and status indicators
 - Programming language detection with version display
+- Background jobs indicator for active processes
+- Environment variable support for WORK_MODE and SESSION_NAME context
 - Custom icons using Nerd Font symbols
 - Dynamic coloring matching Alacritty theme
 - Execution time display for commands over 2 seconds
+- Clean design avoiding redundancy with macOS menu bar
 
 **Visual Elements**:
 
@@ -105,19 +108,23 @@ The configuration has been updated across all relevant files to use "Hack Nerd F
 
 ## Example Terminal Output
 
-The enhanced terminal provides immediate visual feedback:
+The enhanced terminal with Apple logo provides immediate visual feedback:
 
+![Enhanced Terminal with Apple Logo](terminal_apple_logo.png)
+
+The prompt format:
 ```
-┌─ w@MacBook-Pro ~/dotfiles main 📝🗃️ 🐍3.12.0 ⚡20.12.0
-└─ $ git status --short
- M CLAUDE.md
- M ansible/vars/local_settings.yml
- M local_env.yml
-?? roles/starship/
-
-┌─ w@MacBook-Pro ~/dotfiles main 📝🗃️ 🐍3.12.0 ⚡20.12.0 2.3s
+🍎 ┌─ w@MacBook-Pro ~/dotfiles main 📝🗃️ 🐍3.12.0 ─────── ⚙️1 took 2.3s
 └─ $ 
 ```
+
+Key elements:
+- 🍎 Apple logo in coral orange at the start
+- Git status with visual indicators
+- Programming language versions
+- Background jobs indicator (⚙️) when processes are running
+- Command execution time for performance awareness
+- Clean layout without redundant menu bar information
 
 ## Configuration Management
 
