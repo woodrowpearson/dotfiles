@@ -224,7 +224,242 @@ xattr -d com.apple.quarantine /Applications/YourApp.app
 # Or allow in System Preferences > Security & Privacy
 ```
 
+## 🔗 Bootstrap Dependency Chain Issues
+
+### Runtime Dependency Failures
+
+**Problem**: `npm: command not found` during bootstrap
+```bash
+TASK [dev-environment : Install Mac-CLI via npm]
+fatal: [localhost]: FAILED! => {"msg": "npm: command not found"}
+```
+
+**Root Cause**: `dev-environment` role running before `mise` role installs Node.js
+
+**Solution**:
+```bash
+# Check role execution order
+grep -A 20 "roles:" local_env.yml | head -10
+
+# Verify mise comes before dev-environment
+# Should see:
+# - { role: mise, tags: ["mise"] }
+# - { role: dev-environment, tags: ["dev-environment"] }
+
+# Run dependency validation test
+./bin/dot-test-bootstrap
+
+# Fix manually if needed
+mise install node
+npm install -g mac-cli
+```
+
+**Problem**: `uv: No Python installation found` during Python tool setup
+```bash
+TASK [python : Install global Python tools via uv]
+fatal: [localhost]: FAILED! => {"msg": "uv: No Python installation found"}
+```
+
+**Root Cause**: Python tools installed before Python runtime available
+
+**Solution**:
+```bash
+# Ensure Python runtime is available
+mise install python
+
+# Check Python tools installation
+uv tool list
+
+# Reinstall tools if needed
+for tool in pytest ruff black mypy poetry pyright jupyterlab; do
+    uv tool install $tool
+done
+```
+
+**Problem**: `externally-managed-environment` error during Python setup
+```bash
+error: externally-managed-environment
+× This environment is externally managed
+```
+
+**Root Cause**: System Python restricted from global package installation (PEP 668)
+
+**Solution**:
+```bash
+# Check if uv is installed
+which uv || brew install uv
+
+# Use isolated tool installation
+uv tool install pytest
+uv tool install ruff
+# etc.
+
+# Verify tools are available
+uv tool list
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### Tool Installation Conflicts
+
+**Problem**: Multiple installations of CLI tools (eza, bat, ripgrep)
+```bash
+# Command exists but behaves unexpectedly
+which eza  # Shows multiple paths
+```
+
+**Root Cause**: Tools installed via both Homebrew and dedicated roles
+
+**Solution**:
+```bash
+# Check for duplicate installations
+brew list | grep -E "^(eza|bat|ripgrep|fzf)$"
+ls -la ~/.dotfiles/roles/{eza,bat,rg,fzf}/tasks/main.yml
+
+# Remove Homebrew versions (roles provide configuration)
+brew uninstall eza bat ripgrep fzf
+
+# Reinstall via roles only
+ansible-playbook -i hosts local_env.yml --tags eza,bat,rg,fzf
+
+# Update PATH
+source ~/.zshrc
+```
+
+**Problem**: `command not found` after successful installation
+```bash
+# Tool installed but not in PATH
+eza --version  # command not found
+```
+
+**Root Cause**: PATH not updated or shell configuration not reloaded
+
+**Solution**:
+```bash
+# Check if tool actually installed
+find /opt/homebrew -name "eza" -type f
+find ~/.local -name "eza" -type f
+
+# Update PATH manually
+export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+
+# Reload shell configuration
+source ~/.zshrc
+
+# Or restart terminal completely
+```
+
+### Fresh Installation Scenarios
+
+**Problem**: Bootstrap fails immediately on brand new macOS system
+```bash
+❌ Ansible not found. Run ./bin/dot-install first.
+```
+
+**Root Cause**: Prerequisites not installed
+
+**Solution**:
+```bash
+# Run prerequisite installation first
+curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
+
+# Then run bootstrap
+cd ~/dotfiles
+./bin/dot-bootstrap
+```
+
+**Problem**: Role execution order causing dependency failures
+```bash
+# Multiple "command not found" errors during bootstrap
+```
+
+**Root Cause**: Dependencies not installed in correct order
+
+**Solution**:
+```bash
+# Test dependency order
+./bin/dot-test-bootstrap
+
+# Check role execution order in playbook
+cat local_env.yml | grep -A 30 "roles:"
+
+# Manually fix if needed
+ansible-playbook -i hosts local_env.yml --tags mise
+ansible-playbook -i hosts local_env.yml --tags dev-environment
+```
+
 ## 💾 Backup & Recovery Issues
+
+### Backup Checkpoint Failures
+
+**Problem**: `backup-checkpoint: No such file or directory` during bootstrap
+```bash
+TASK [backup : Execute backup checkpoint creation]
+fatal: [localhost]: FAILED! => {
+  "msg": "non-zero return code", 
+  "rc": 127, 
+  "stderr": "/bin/sh: /Users/w/.local/bin/backup-checkpoint: No such file or directory"
+}
+```
+
+**Root Cause**: Backup infrastructure not yet installed when checkpoint attempted
+
+**Solution**: This is now handled gracefully - you should see:
+```bash
+⚠️  Backup infrastructure not yet available, skipping pre-ansible checkpoint
+```
+
+If you still see failures:
+```bash
+# Check if backup system installed
+ls -la ~/.local/bin/backup-*
+
+# Install backup system manually
+ansible-playbook -i hosts local_env.yml --tags backup
+
+# Create missing checkpoints
+backup-checkpoint manual bootstrap-complete
+```
+
+**Problem**: Backup system not initializing on fresh install
+```bash
+# Bootstrap completes but no backup commands available
+backup-create --help  # command not found
+```
+
+**Root Cause**: Backup role not executing or PATH not updated
+
+**Solution**:
+```bash
+# Check if backup role executed
+ansible-playbook -i hosts local_env.yml --tags backup -v
+
+# Check PATH includes ~/.local/bin
+echo $PATH | grep -o "$HOME/.local/bin"
+
+# Add to PATH if missing
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Verify backup system
+backup-create --help
+```
+
+**Problem**: Network storage not available during bootstrap
+```bash
+# Backup operations fail or timeout
+```
+
+**Root Cause**: External backup drive or network storage not connected
+
+**Solution**: This should now be handled gracefully:
+```bash
+# Check backup system status
+backup-list
+
+# Backup system works locally even without network storage
+# Connect external storage later and sync:
+backup-create --sync-external
+```
 
 ### Bootstrap Process Failures
 
@@ -326,6 +561,43 @@ brew update && brew upgrade
 
 ## 🔍 Diagnostic Commands
 
+### Comprehensive Bootstrap Testing
+
+**Use the built-in testing framework for thorough validation:**
+
+```bash
+# Run complete bootstrap validation
+./bin/dot-test-bootstrap
+
+# This tests:
+# - Prerequisites (Xcode, Homebrew, Git, Python, Ansible)
+# - Script functionality (dot-install, dot-bootstrap)
+# - Ansible playbook syntax and inventory
+# - Bootstrap role execution in check mode
+# - Dependency order validation
+# - Configuration file integrity
+# - Role structure validation
+# - Remote URL accessibility
+```
+
+**Understanding test results:**
+- ✅ **Green checkmarks**: Tests passed successfully
+- ⚠️ **Yellow warnings**: Non-critical issues (e.g., incomplete roles)
+- ❌ **Red failures**: Critical issues requiring attention
+
+**Test specific components:**
+```bash
+# Test only dependency chain
+grep -A 20 "test_dependency_order" bin/dot-test-bootstrap
+
+# Test only backup system
+grep -A 20 "test_backup" bin/dot-test-bootstrap
+
+# Test role execution manually
+ansible-playbook -i hosts local_env.yml --tags mise --check
+ansible-playbook -i hosts local_env.yml --tags dev-environment --check
+```
+
 ### Health Check Script
 ```bash
 #!/bin/bash
@@ -333,25 +605,51 @@ brew update && brew upgrade
 
 echo "=== Dotfiles Health Check ==="
 
+# Run comprehensive bootstrap test first
+echo "Running comprehensive test suite..."
+./bin/dot-test-bootstrap
+
+echo ""
+echo "=== Quick Manual Checks ==="
+
 # Check shell
 echo "Shell: $SHELL"
 echo "ZSH version: $(zsh --version)"
 
-# Check key tools
-commands=("git" "brew" "ansible" "mise" "eza" "bat" "rg")
+# Check key tools with version info
+commands=("git" "brew" "ansible" "mise" "eza" "bat" "rg" "uv")
 for cmd in "${commands[@]}"; do
     if command -v $cmd >/dev/null 2>&1; then
-        echo "✅ $cmd: $(which $cmd)"
+        version=$(eval "$cmd --version 2>/dev/null | head -1" || echo "unknown")
+        echo "✅ $cmd: $(which $cmd) ($version)"
     else
         echo "❌ $cmd: Not found"
     fi
 done
 
+# Check mise-managed tools
+echo ""
+echo "=== Runtime Versions ==="
+mise list 2>/dev/null || echo "❌ mise not configured"
+
+# Check backup system
+echo ""
+echo "=== Backup System ==="
+if [[ -f "$HOME/.local/bin/backup-list" ]]; then
+    echo "✅ Backup system available"
+    backup-list 2>/dev/null | head -5 || echo "ℹ️  No backups created yet"
+else
+    echo "❌ Backup system not installed"
+fi
+
 # Check configurations
+echo ""
+echo "=== Configuration Files ==="
 configs=(
     "$HOME/.zshrc"
     "$HOME/.gitconfig"
-    "$HOME/.config/alacritty/alacritty.yml"
+    "$HOME/.config/alacritty/alacritty.toml"
+    "$HOME/.local/bin/backup-create"
 )
 
 for config in "${configs[@]}"; do
@@ -361,6 +659,12 @@ for config in "${configs[@]}"; do
         echo "❌ Missing config: $config"
     fi
 done
+
+# Check PATH setup
+echo ""
+echo "=== PATH Configuration ==="
+echo "PATH contains:"
+echo "$PATH" | tr ':' '\n' | grep -E "(homebrew|local)" | sort | uniq
 ```
 
 ### Environment Information
