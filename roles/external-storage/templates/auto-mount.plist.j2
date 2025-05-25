@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.woodrow.external-storage-mount</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>
+        # Wait for system to be ready
+        sleep 10
+        
+        # Check if already mounted
+        if [ ! -d "{{ external_storage.mount_point }}" ] || [ -z "$(ls -A "{{ external_storage.mount_point }}" 2>/dev/null)" ]; then
+            # Try to detect and mount external storage
+            DEVICE=$(diskutil list external | grep -E "^\s*/dev/disk[0-9]+" | head -1)
+            if [ -n "$DEVICE" ]; then
+                # Create mount point if it doesn't exist
+                sudo mkdir -p "{{ external_storage.mount_point }}"
+                # Mount the device
+                sudo diskutil mount -mountPoint "{{ external_storage.mount_point }}" "$DEVICE"
+                # Fix ownership
+                sudo chown {{ ansible_user }}:{{ ansible_user }} "{{ external_storage.mount_point }}"
+                # Log success
+                echo "$(date): External storage mounted at {{ external_storage.mount_point }}" >> "{{ ansible_env.HOME }}/Library/Logs/external-storage-mount.log"
+            else
+                echo "$(date): No external storage device found" >> "{{ ansible_env.HOME }}/Library/Logs/external-storage-mount.log"
+            fi
+        else
+            echo "$(date): External storage already mounted" >> "{{ ansible_env.HOME }}/Library/Logs/external-storage-mount.log"
+        fi
+        </string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+    <key>StandardOutPath</key>
+    <string>{{ ansible_env.HOME }}/Library/Logs/external-storage-mount.log</string>
+    <key>StandardErrorPath</key>
+    <string>{{ ansible_env.HOME }}/Library/Logs/external-storage-mount.log</string>
+</dict>
+</plist>

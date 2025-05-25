@@ -41,3 +41,171 @@ mac_cask_packages:
 
 ollama_models: []
 
+# =============================================================================
+# 🏠 MAC MINI HOME SERVER CONFIGURATION
+# =============================================================================
+# User-configurable deployment profiles and service selection
+
+# Deployment profile selection (user choice)
+deployment_profile: "balanced"  # enhanced | balanced | lightweight
+
+# Service selection matrix based on profile
+service_profiles:
+  enhanced:
+    description: "Full-featured server with AI cameras and comprehensive monitoring"
+    camera_service: "frigate"
+    monitoring_service: "grafana_prometheus"
+    containers: ["homeassistant", "frigate", "grafana", "prometheus", "adguard", "vaultwarden"]
+    estimated_ram_usage: "3GB"
+    estimated_cpu_usage: "3.0 cores"
+    
+  balanced:
+    description: "Optimized server with native cameras and simple monitoring"
+    camera_service: "scrypted"
+    monitoring_service: "uptime_kuma"
+    containers: ["homeassistant", "scrypted", "uptime-kuma", "adguard", "vaultwarden"]
+    estimated_ram_usage: "1.5GB"
+    estimated_cpu_usage: "2.0 cores"
+    
+  lightweight:
+    description: "Minimal server with essential services only"
+    camera_service: "scrypted"
+    monitoring_service: "uptime_kuma"
+    containers: ["homeassistant", "uptime-kuma", "adguard"]
+    estimated_ram_usage: "1GB"
+    estimated_cpu_usage: "1.5 cores"
+
+# Automatic service enablement based on profile
+camera_choice: "{{ service_profiles[deployment_profile].camera_service }}"
+monitoring_choice: "{{ service_profiles[deployment_profile].monitoring_service }}"
+containers_to_deploy: "{{ service_profiles[deployment_profile].containers }}"
+
+# Storage configuration with external drive
+external_storage:
+  enabled: true
+  mount_point: "/Volumes/HomeServerStorage"
+  auto_mount: true
+  health_monitoring: true
+
+# Network storage for Time Machine and file sharing
+network_sharing:
+  enabled: true
+  protocols:
+    smb_enabled: true      # Windows/Linux compatibility
+    afp_enabled: true      # macOS Time Machine
+    nfs_enabled: false     # Advanced users only
+  security:
+    authentication_required: true
+    guest_access: false
+    vpn_only: false        # Set to true for Tailscale-only access
+
+# Intel Mac Mini optimization settings
+intel_optimization:
+  enabled: true
+  thermal_monitoring: true
+  performance_mode: "balanced"  # balanced | performance | efficiency
+  cpu_cores_reserved: 4         # Reserve 4 cores for macOS
+  memory_gb_reserved: 10        # Reserve 10GB for macOS + overhead
+
+# Container runtime configuration (OrbStack optimized for Intel)
+container_runtime:
+  engine: "orbstack"             # orbstack | docker
+  cpu_cores: 4                   # Total cores allocated to containers
+  memory_gb: 6                   # Total memory allocated to containers
+  disk_gb: 40                    # Container storage allocation
+  thermal_throttling: true       # Reduce resources during high temps
+
+# Home Assistant configuration
+homeassistant:
+  enabled: true
+  port: 8123
+  # Config stored on external storage for persistence
+  config_dir: "{{ external_storage.mount_point }}/ContainerData/HomeAssistant"
+  backup_enabled: true
+  backup_schedule: "daily"
+
+# Camera service configuration (based on user choice)
+cameras:
+  frigate:
+    enabled: "{{ camera_choice == 'frigate' }}"
+    port: 5000
+    ai_detection: true
+    # Recordings stored on external storage
+    recordings_dir: "{{ external_storage.mount_point }}/CameraFootage/Frigate"
+    
+  scrypted:
+    enabled: "{{ camera_choice == 'scrypted' }}"
+    port: 11080
+    native_app: true             # Better performance on Intel Mac
+    homekit_integration: true
+    # Recordings stored on external storage
+    recordings_dir: "{{ external_storage.mount_point }}/CameraFootage/Scrypted"
+
+# Monitoring service configuration (based on user choice)
+monitoring:
+  grafana_prometheus:
+    enabled: "{{ monitoring_choice == 'grafana_prometheus' }}"
+    grafana_port: 3000
+    prometheus_port: 9090
+    comprehensive_metrics: true
+    
+  uptime_kuma:
+    enabled: "{{ monitoring_choice == 'uptime_kuma' }}"
+    port: 3001
+    simple_monitoring: true
+    service_checks: true
+
+# Network services
+adguard:
+  enabled: true
+  port: 3001
+  dns_port: 53
+
+# Security services
+vaultwarden:
+  enabled: "{{ 'vaultwarden' in containers_to_deploy }}"
+  port: 8080
+
+# Tailscale VPN (always enabled for remote access)
+tailscale:
+  enabled: true
+  auth_key: "{{ tailscale_auth_key | default('') }}"
+  hostname: "mac-mini-server"
+  accept_routes: true
+  accept_dns: true
+
+# Backup configuration
+backup_strategy:
+  time_machine_enabled: true
+  config_backups_enabled: true
+  container_backups_enabled: true
+  backup_schedule: "daily"
+  retention_days: 30
+
+# User customization examples (commented out - users can uncomment/modify)
+# 
+# Custom deployment profile example:
+# deployment_profile: "custom"
+# service_profiles:
+#   custom:
+#     description: "My custom configuration"
+#     camera_service: "frigate"
+#     monitoring_service: "uptime_kuma"
+#     containers: ["homeassistant", "frigate", "uptime-kuma", "adguard"]
+#
+# Custom container resource limits example:
+# container_runtime:
+#   cpu_cores: 6        # Use more cores if you have them
+#   memory_gb: 8        # Use more memory if available
+#
+# Custom storage paths example:
+# external_storage:
+#   mount_point: "/Volumes/MyCustomDrive"
+#
+# Custom camera configuration example:
+# cameras:
+#   frigate:
+#     ai_detection: false     # Disable AI for better performance
+#   scrypted:
+#     homekit_integration: false  # Disable if not using HomeKit
+

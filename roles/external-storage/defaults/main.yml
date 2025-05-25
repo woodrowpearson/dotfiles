@@ -1,0 +1,68 @@
+---
+# External Storage Configuration for Mac Mini Home Server
+# Designed for external drive connected via USB/Thunderbolt
+
+# Storage Detection and Mounting
+external_storage:
+  enabled: true
+  auto_detect: true
+  device_type: "auto"                           # auto | usb | thunderbolt | sata
+  device_path: "auto"                           # auto-detect or specific like "/dev/disk2s1"
+  mount_point: "/Volumes/HomeServerStorage"
+  filesystem: "apfs"                            # apfs | exfat | ext4
+  
+  # Auto-mounting configuration
+  auto_mount: true
+  mount_on_boot: true
+  mount_timeout: 30                             # seconds
+  
+  # Security and encryption
+  encryption_enabled: false                     # Enable if drive supports FileVault
+  ownership_fix: true                           # Fix permissions for ansible_user
+  
+  # Health monitoring
+  health_monitoring: true
+  space_monitoring: true
+  temperature_monitoring: true                  # If supported by drive
+
+# Storage Directory Structure
+# This creates the foundation for all services
+storage_structure:
+  camera_footage: "CameraFootage"
+  backups: "Backups" 
+  shared_files: "SharedFiles"
+  time_machine: "Backups/TimeMachine"
+  homeassistant_backups: "Backups/HomeAssistant"
+  container_data: "ContainerData"
+  logs: "Logs"
+  temp: "Temp"
+
+# Storage Quotas and Limits
+storage_quotas:
+  camera_footage_gb: 200                        # GB allocated for camera recordings
+  backups_gb: 300                               # GB for Time Machine and config backups
+  shared_files_gb: 100                          # GB for general file sharing
+  container_data_gb: 50                         # GB for persistent container data
+  reserve_gb: 50                                # GB kept free for system operations
+
+# Performance and Optimization
+storage_performance:
+  enable_spotlight_indexing: false              # Disable to reduce I/O load
+  enable_time_machine_exclusions: true          # Exclude temp files from TM
+  io_scheduler_optimization: true               # Optimize for server workloads
+  cache_optimization: true                      # Enable disk caching optimizations
+
+# Cleanup and Maintenance
+storage_maintenance:
+  auto_cleanup_enabled: true
+  cleanup_schedule: "0 2 * * 0"                 # Weekly at 2 AM Sunday
+  log_retention_days: 30
+  temp_file_cleanup_days: 7
+  camera_retention_days: 30                     # Default camera footage retention
+
+# Intel Mac Mini Specific Optimizations
+intel_optimizations:
+  thermal_aware_io: true                        # Reduce I/O during high temps
+  usb_power_management: false                   # Prevent USB drive sleep
+  thunderbolt_optimization: true               # Optimize Thunderbolt performance
+  buffer_size_mb: 64                           # I/O buffer size for Intel

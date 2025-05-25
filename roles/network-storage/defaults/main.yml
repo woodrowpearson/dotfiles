@@ -1,0 +1,154 @@
+---
+# Network Storage Configuration for Mac Mini Home Server
+# Provides SMB, AFP, and NFS sharing from external storage
+
+# Network sharing protocols configuration
+network_sharing:
+  enabled: true
+  
+  # Protocol selection (user configurable)
+  protocols:
+    smb_enabled: true      # Windows/Linux compatibility + macOS
+    afp_enabled: true      # macOS Time Machine optimization  
+    nfs_enabled: false     # High performance option (advanced)
+  
+  # Security settings
+  security:
+    authentication_required: true
+    guest_access: false                     # Disable anonymous access
+    vpn_only: false                        # Require Tailscale VPN (optional)
+    encryption_enabled: true               # Enable protocol encryption
+  
+  # Network advertisement
+  discovery:
+    bonjour_enabled: true                  # macOS service discovery
+    netbios_enabled: true                  # Windows discovery
+    custom_hostname: "homeserver"          # Network name
+
+# SMB (Samba) Configuration
+smb_config:
+  enabled: "{{ network_sharing.protocols.smb_enabled }}"
+  port: 445
+  workgroup: "WORKGROUP"
+  server_string: "Mac Mini Home Server"
+  security_level: "user"                   # user | share | domain
+  encrypt_passwords: true
+  client_min_protocol: "SMB2"              # Security: disable SMB1
+  client_max_protocol: "SMB3"
+  log_level: 1                             # 0=none, 3=debug
+  
+  # Performance optimizations for Intel Mac
+  performance:
+    socket_options: "TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072"
+    read_raw: true
+    write_raw: true
+    max_xmit: 65535
+    dead_time: 15
+    use_sendfile: true
+
+# AFP (Apple Filing Protocol) Configuration
+afp_config:
+  enabled: "{{ network_sharing.protocols.afp_enabled }}"
+  port: 548
+  server_name: "{{ network_sharing.discovery.custom_hostname }}"
+  time_machine_enabled: true
+  guest_access: false
+  security: "DHX2"                         # Strong authentication
+  
+  # Time Machine specific settings
+  time_machine:
+    max_size_gb: 500                       # Limit Time Machine backup size
+    advertise_on_network: true
+    backup_to_path: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.time_machine }}"
+
+# NFS Configuration (Advanced/Optional)
+nfs_config:
+  enabled: "{{ network_sharing.protocols.nfs_enabled }}"
+  port: 2049
+  version: 4                               # NFSv4 for security
+  security: "sys"                          # sys | krb5 | krb5i | krb5p
+  
+  # Performance settings
+  performance:
+    rsize: 32768
+    wsize: 32768
+    timeo: 14
+    intr: true
+
+# Shared directories configuration
+shared_directories:
+  # Camera footage sharing (read-only for most users)
+  camera_footage:
+    enabled: true
+    path: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.camera_footage }}"
+    name: "CameraFootage"
+    description: "Security camera recordings"
+    read_only: true
+    protocols: ["smb", "afp"]
+    
+  # General file sharing
+  shared_files:
+    enabled: true
+    path: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.shared_files }}"
+    name: "SharedFiles"
+    description: "General file sharing"
+    read_only: false
+    protocols: ["smb", "afp", "nfs"]
+    
+  # Time Machine backups (AFP only)
+  time_machine:
+    enabled: "{{ afp_config.time_machine_enabled }}"
+    path: "{{ afp_config.time_machine.backup_to_path }}"
+    name: "TimeMachine"
+    description: "Time Machine backup destination"
+    read_only: false
+    protocols: ["afp"]
+    time_machine_share: true
+    
+  # HomeAssistant backups (admin access only)
+  homeassistant_backups:
+    enabled: true
+    path: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.homeassistant_backups }}"
+    name: "HomeAssistantBackups"
+    description: "Home Assistant configuration backups"
+    read_only: false
+    protocols: ["smb"]
+    admin_only: true
+
+# User account configuration
+network_users:
+  # Main user account
+  - username: "{{ ansible_user }}"
+    password: "{{ homeserver_main_password | default('changeme123!') }}"
+    groups: ["admin", "users"]
+    shares: ["SharedFiles", "CameraFootage", "TimeMachine", "HomeAssistantBackups"]
+    
+  # Read-only guest account (if enabled)
+  - username: "guest"
+    password: "guest"
+    groups: ["users"]
+    shares: ["SharedFiles"]
+    enabled: "{{ network_sharing.security.guest_access }}"
+    read_only: true
+
+# Network interface configuration
+network_interface:
+  bind_interfaces: true
+  interfaces: ["en0", "tailscale0"]         # Physical + Tailscale VPN
+  restrict_anonymous: true
+  
+# Logging and monitoring
+logging:
+  enabled: true
+  log_dir: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}/network-storage"
+  log_level: "INFO"                        # DEBUG | INFO | WARN | ERROR
+  max_log_size_mb: 100
+  backup_count: 5
+
+# Intel Mac Mini optimizations
+intel_optimizations:
+  # Reduce CPU load during transfers
+  cpu_throttling: false
+  io_nice_level: 3                         # Lower I/O priority (0-7, 7=lowest)
+  max_concurrent_connections: 20           # Limit concurrent connections
+  buffer_cache_size: "128MB"               # File transfer buffer size

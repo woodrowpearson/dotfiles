@@ -1,0 +1,116 @@
+---
+- name: Install network storage services
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - samba
+    - netatalk  # AFP support
+  when: ansible_os_family == "Darwin"
+
+- name: Create network storage log directory
+  file:
+    path: "{{ logging.log_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  when: logging.enabled
+
+- name: Ensure external storage is mounted
+  stat:
+    path: "{{ external_storage.mount_point }}"
+  register: storage_check
+  failed_when: not storage_check.stat.exists
+  
+- name: Verify shared directories exist
+  file:
+    path: "{{ item.value.path }}"
+    state: directory
+    mode: "{{ '0755' if item.value.read_only else '0775' }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop: "{{ shared_directories | dict2items }}"
+  when: item.value.enabled
+
+- name: Configure SMB/Samba server
+  include_tasks: smb.yml
+  when: smb_config.enabled
+
+- name: Configure AFP server
+  include_tasks: afp.yml
+  when: afp_config.enabled
+
+- name: Configure NFS server
+  include_tasks: nfs.yml
+  when: nfs_config.enabled
+
+- name: Create network storage monitoring script
+  template:
+    src: network-storage-monitor.sh.j2
+    dest: /usr/local/bin/network-storage-monitor
+    mode: '0755'
+  when: logging.enabled
+
+- name: Schedule network storage monitoring
+  cron:
+    name: "Network storage monitoring"
+    minute: "*/10"  # Every 10 minutes
+    job: "/usr/local/bin/network-storage-monitor >> {{ logging.log_dir }}/network-storage-monitor.log 2>&1"
+    user: "{{ ansible_user }}"
+  when: logging.enabled
+
+- name: Configure Bonjour/mDNS advertisement
+  template:
+    src: network-services.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.network-services.plist"
+    mode: '0644'
+  when: network_sharing.discovery.bonjour_enabled
+  notify: load network services
+
+- name: Create network storage status script
+  template:
+    src: network-storage-status.sh.j2
+    dest: /usr/local/bin/network-storage-status
+    mode: '0755'
+
+- name: Display network storage setup summary
+  debug:
+    msg: |
+      ✅ Network Storage Setup Complete!
+      
+      🌐 Network Access:
+      {% if smb_config.enabled %}
+      📁 SMB: smb://{{ ansible_default_ipv4.address }}/
+      {% endif %}
+      {% if afp_config.enabled %}
+      🍎 AFP: afp://{{ ansible_default_ipv4.address }}/
+      {% endif %}
+      {% if nfs_config.enabled %}
+      🗂️ NFS: nfs://{{ ansible_default_ipv4.address }}/
+      {% endif %}
+      
+      📂 Available Shares:
+      {% for name, config in shared_directories.items() %}
+      {% if config.enabled %}
+      - {{ config.name }}: {{ config.description }}
+        Path: {{ config.path }}
+        Protocols: {{ config.protocols | join(', ') }}
+        Access: {{ 'Read-only' if config.read_only else 'Read/Write' }}
+      {% endif %}
+      {% endfor %}
+      
+      👤 Access Credentials:
+      - Username: {{ ansible_user }}
+      - Use your macOS account password
+      
+      🔧 Management:
+      - Status: /usr/local/bin/network-storage-status
+      - Logs: {{ logging.log_dir if logging.enabled else 'N/A' }}
+      
+      📱 Connection Examples:
+      - macOS Finder: Cmd+K → {{ 'smb' if smb_config.enabled else 'afp' }}://{{ ansible_default_ipv4.address }}/
+      - Time Machine: {{ 'Enabled' if afp_config.time_machine_enabled else 'Disabled' }}
+      
+      🔒 Security: {{ 'VPN Only' if network_sharing.security.vpn_only else 'Local Network' }}
+      🔍 Discovery: {{ 'Enabled' if network_sharing.discovery.bonjour_enabled else 'Disabled' }}

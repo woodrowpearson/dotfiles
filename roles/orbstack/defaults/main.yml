@@ -1,0 +1,211 @@
+---
+# OrbStack Configuration for Intel Mac Mini
+# Optimized container runtime for Intel i7 with 16GB RAM
+
+# OrbStack installation and configuration
+orbstack_config:
+  # Resource allocation optimized for Intel Mac mini
+  cpu_cores: 4                          # Use 4 cores, leave 4 for macOS
+  memory_gb: 6                          # Use 6GB, leave 10GB for macOS + overhead
+  disk_gb: 40                           # Container storage allocation
+  
+  # Intel-specific optimizations
+  intel_optimizations:
+    virtualization_engine: "intel-vt"   # Intel VT-x virtualization
+    performance_mode: "balanced"        # balanced | performance | efficiency
+    thermal_monitoring: true
+    turbo_boost_aware: true
+    rosetta_emulation: false            # Not needed on Intel
+    
+  # Performance settings
+  performance:
+    enable_experimental_features: false # Stability over bleeding edge
+    memory_pressure_handling: true      # Better memory management
+    auto_resource_scaling: true         # Dynamic resource adjustment
+    background_optimization: true       # Optimize during idle
+    
+  # Network configuration
+  networking:
+    mode: "bridged"                     # bridged | host | custom
+    dns_forwarding: true
+    vpn_integration: true               # Work with Tailscale
+    port_forwarding_optimization: true
+    
+  # Security settings
+  security:
+    container_isolation: "strict"       # strict | balanced | permissive
+    network_isolation: true
+    file_system_isolation: true
+    secure_boot_verification: false    # Not critical for home server
+
+# Container runtime optimization
+container_runtime:
+  # Default container resource limits (Intel optimized)
+  default_limits:
+    cpu: "0.5"                          # Default CPU limit per container
+    memory: "512m"                      # Default memory limit
+    
+  # Maximum limits per container
+  max_limits:
+    cpu: "2.0"                          # Max CPU per container
+    memory: "2048m"                     # Max memory per container
+    
+  # Container efficiency settings
+  efficiency:
+    image_optimization: true            # Optimize image layers
+    startup_acceleration: true          # Faster container startup
+    resource_sharing: true              # Share resources between containers
+    automatic_cleanup: true             # Clean unused containers/images
+    
+  # Storage optimization
+  storage:
+    storage_driver: "overlay2"          # Best for Intel Mac
+    image_compression: true
+    layer_caching: true
+    automatic_pruning: true
+    prune_schedule: "0 2 * * 0"         # Weekly at 2 AM Sunday
+
+# Service management
+service_management:
+  # OrbStack service configuration
+  auto_start: true                      # Start OrbStack on boot
+  background_mode: true                 # Run in background
+  gui_on_demand: true                   # Show GUI only when needed
+  system_integration: true             # Integrate with macOS
+  
+  # Health monitoring
+  health_monitoring:
+    enabled: true
+    check_interval: 60                  # seconds
+    restart_on_failure: true
+    max_restart_attempts: 3
+    
+  # Logging
+  logging:
+    level: "INFO"                       # DEBUG | INFO | WARN | ERROR
+    log_dir: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}/orbstack"
+    max_log_size: "100MB"
+    log_retention_days: 30
+
+# Intel thermal management integration
+thermal_integration:
+  enabled: true
+  temperature_monitoring: true
+  thermal_throttling:
+    warning_temp: 75                    # °C - start reducing resources
+    critical_temp: 85                   # °C - pause non-essential containers
+    recovery_temp: 65                   # °C - restore normal operation
+    
+  # Actions during thermal events
+  thermal_actions:
+    warning:
+      reduce_container_cpu: 0.7         # Reduce to 70% of allocated CPU
+      limit_new_containers: true
+      log_thermal_event: true
+    critical:
+      pause_low_priority_containers: true
+      reduce_container_cpu: 0.5         # Reduce to 50% of allocated CPU
+      emergency_notification: true
+    recovery:
+      restore_normal_limits: true
+      resume_paused_containers: true
+
+# Container profiles for different service types
+container_profiles:
+  # Home automation services (critical)
+  homeautomation:
+    priority: "high"
+    cpu_guarantee: "1.0"
+    memory_guarantee: "512m"
+    restart_policy: "always"
+    thermal_protection: false          # Keep running during thermal events
+    
+  # Camera services (high I/O)
+  cameras:
+    priority: "high"
+    cpu_guarantee: "1.5"
+    memory_guarantee: "1024m"
+    io_priority: "high"
+    thermal_protection: true           # Can be throttled if needed
+    
+  # Monitoring services (medium)
+  monitoring:
+    priority: "medium"
+    cpu_guarantee: "0.5"
+    memory_guarantee: "256m"
+    restart_policy: "unless-stopped"
+    thermal_protection: true
+    
+  # Utility services (low)
+  utilities:
+    priority: "low"
+    cpu_guarantee: "0.25"
+    memory_guarantee: "128m"
+    thermal_protection: true           # First to be throttled
+    can_be_paused: true
+
+# Integration with external storage
+storage_integration:
+  external_storage_path: "{{ external_storage.mount_point }}"
+  
+  # Container data storage
+  container_data_dir: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.container_data }}"
+  
+  # Bind mount optimizations
+  bind_mounts:
+    enable_caching: true
+    cache_mode: "cached"               # cached | delegated | consistent
+    optimize_for_intel: true
+    
+  # Volume management
+  volume_management:
+    auto_backup: true
+    backup_schedule: "0 3 * * *"       # Daily at 3 AM
+    compression: true
+    encryption: false                  # Performance over encryption
+
+# Resource monitoring and alerting
+monitoring:
+  enabled: true
+  metrics_collection:
+    cpu_usage: true
+    memory_usage: true
+    disk_usage: true
+    network_usage: true
+    container_count: true
+    thermal_metrics: true
+    
+  # Alert thresholds
+  alerts:
+    cpu_usage_warning: 80              # %
+    memory_usage_warning: 80           # %
+    disk_usage_warning: 85             # %
+    temperature_warning: 75            # °C
+    
+  # Reporting
+  reporting:
+    daily_reports: true
+    weekly_summary: true
+    performance_trends: true
+    optimization_suggestions: true
+
+# Backup and disaster recovery
+backup_strategy:
+  # Container backup
+  container_backup:
+    enabled: true
+    backup_configs: true
+    backup_volumes: true
+    backup_images: false               # Images can be re-pulled
+    
+  # OrbStack configuration backup
+  config_backup:
+    enabled: true
+    backup_location: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.container_data }}/orbstack-backups"
+    retention_days: 30
+    
+  # Restore capabilities
+  restore:
+    automated_restore: true
+    restore_verification: true
+    rollback_capability: true

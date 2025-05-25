@@ -1,0 +1,184 @@
+---
+# Intel Mac Mini Optimization Configuration
+# Optimized for Intel i7 Mac mini with 16GB RAM
+
+# Hardware specifications
+intel_hardware:
+  cpu_model: "Intel i7"
+  memory_gb: 16
+  thermal_design_power: 65              # TDP for Intel i7
+  max_operating_temp: 85                # °C
+  optimal_temp_range: [45, 75]          # °C range for best performance
+
+# Thermal management configuration
+thermal_management:
+  monitoring_enabled: true
+  thermal_throttling_enabled: true
+  cpu_temp_threshold_warning: 75        # °C
+  cpu_temp_threshold_critical: 85       # °C
+  fan_control_enabled: false            # Mac controls this automatically
+  thermal_aware_scheduling: true        # Reduce load during high temps
+  
+  # Thermal response actions
+  thermal_responses:
+    warning_temp:
+      reduce_container_cpu: 0.5          # Reduce by 50%
+      reduce_background_tasks: true
+      log_thermal_event: true
+    critical_temp:
+      pause_non_essential_containers: true
+      emergency_thermal_log: true
+      reduce_container_cpu: 0.25         # Reduce to 25%
+
+# System optimization settings
+system_optimization:
+  # Power management for always-on operation
+  power_management:
+    disable_sleep: true
+    disable_display_sleep_on_battery: false
+    disable_disk_sleep: true
+    disable_power_nap: true
+    hibernation_mode: 0                  # Disable hibernation
+    autopoweroff_enabled: false
+    
+  # Memory management
+  memory_optimization:
+    swap_reduction: true
+    vm_swappiness: 10                    # Reduce swap usage (0-100)
+    memory_pressure_handling: true
+    purge_memory_on_high_pressure: true
+    
+  # File system optimization
+  filesystem_optimization:
+    increase_file_limits: true
+    max_files: 65536
+    max_processes: 2048
+    optimize_io_scheduler: true
+    
+  # Network optimization
+  network_optimization:
+    tcp_keepalive_optimization: true
+    network_buffer_optimization: true
+    tcp_window_scaling: true
+
+# Container runtime optimization
+container_optimization:
+  # Resource allocation for Intel Mac mini
+  total_cpu_cores: 4                     # Reserve 4 for macOS
+  total_memory_gb: 6                     # Reserve 10GB for macOS + overhead
+  
+  # Container resource limits
+  resource_limits:
+    default_cpu_limit: "0.5"
+    default_memory_limit: "512m"
+    max_cpu_per_container: "2.0"
+    max_memory_per_container: "2048m"
+    
+  # Intel-specific optimizations
+  intel_optimizations:
+    use_intel_quicksync: false           # Not available on older Intel Macs
+    optimize_for_intel_chipset: true
+    intel_memory_protection: true
+    intel_performance_scaling: true
+    
+  # I/O optimization for containers
+  io_optimization:
+    use_native_overlayfs: true
+    optimize_docker_storage: true
+    container_log_rotation: true
+    max_log_size: "10m"
+    max_log_files: 3
+
+# Background service optimization
+background_services:
+  # Disable resource-heavy macOS services
+  disable_services:
+    spotlight_indexing: true             # Disable for external storage only
+    software_update_daemon: false       # Keep for security
+    metadata_server: false              # Keep for system stability
+    
+  # Optimize remaining services
+  service_optimization:
+    reduce_log_verbosity: true
+    optimize_launch_agents: true
+    cleanup_temp_files: true
+
+# Intel performance monitoring
+performance_monitoring:
+  enabled: true
+  monitoring_interval: 30                # seconds
+  
+  # Metrics to track
+  metrics:
+    cpu_temperature: true
+    cpu_usage: true
+    memory_usage: true
+    disk_io: true
+    network_io: true
+    container_performance: true
+    thermal_throttling_events: true
+    
+  # Performance thresholds
+  thresholds:
+    cpu_usage_warning: 80                # %
+    memory_usage_warning: 80             # %
+    disk_io_warning: 100                 # MB/s
+    temperature_monitoring: true
+    
+  # Logging configuration
+  logging:
+    log_dir: "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}/intel-optimization"
+    log_level: "INFO"
+    log_rotation_size: "50MB"
+    log_retention_days: 30
+
+# Intel-specific tools installation
+intel_tools:
+  # Monitoring tools
+  monitoring_tools:
+    - osx-cpu-temp                       # CPU temperature monitoring
+    - htop                               # Enhanced process monitoring
+    - iotop                              # Disk I/O monitoring
+    - smartmontools                      # Drive health monitoring
+    
+  # Performance tools
+  performance_tools:
+    - sysbench                           # System benchmarking
+    - stress                             # System stress testing
+    
+  # Optional Intel-specific tools
+  optional_tools:
+    - intel-power-gadget                 # Intel power monitoring (if available)
+
+# Automated optimization schedules
+automation:
+  # Regular optimization tasks
+  scheduled_tasks:
+    memory_cleanup:
+      enabled: true
+      schedule: "0 */2 * * *"            # Every 2 hours
+      command: "purge && echo 'Memory purged'"
+      
+    temp_file_cleanup:
+      enabled: true
+      schedule: "0 3 * * *"              # Daily at 3 AM
+      command: "find /tmp -type f -atime +1 -delete"
+      
+    performance_report:
+      enabled: true
+      schedule: "0 6 * * 0"              # Weekly on Sunday at 6 AM
+      command: "/usr/local/bin/intel-performance-report"
+      
+    thermal_log_rotation:
+      enabled: true
+      schedule: "0 0 * * 0"              # Weekly log rotation
+      command: "/usr/local/bin/rotate-thermal-logs"
+
+# Emergency thermal protection
+emergency_thermal_protection:
+  enabled: true
+  critical_temp_shutdown: 90             # °C - emergency shutdown temp
+  emergency_actions:
+    - "docker pause $(docker ps -q)"    # Pause all containers
+    - "killall -STOP chrome"             # Stop resource-heavy apps
+    - "pmset sleepnow"                   # Force sleep if too hot

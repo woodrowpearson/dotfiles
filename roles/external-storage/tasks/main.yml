@@ -1,0 +1,181 @@
+---
+- name: Install storage management tools
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - diskutil
+    - smartmontools  # For drive health monitoring
+  when: ansible_os_family == "Darwin"
+
+- name: Check if external storage is already mounted
+  stat:
+    path: "{{ external_storage.mount_point }}"
+  register: storage_mount_check
+
+- name: Detect external storage devices
+  shell: |
+    diskutil list external | grep -E "^\s*/dev/disk[0-9]+" | head -1
+  register: external_device_detection
+  when: external_storage.auto_detect and external_storage.device_path == "auto"
+  changed_when: false
+  failed_when: false
+
+- name: Set detected device path
+  set_fact:
+    detected_device: "{{ external_device_detection.stdout.strip() if external_device_detection.stdout else '' }}"
+  when: external_storage.auto_detect and external_storage.device_path == "auto"
+
+- name: Verify external storage device exists
+  fail:
+    msg: "No external storage device detected. Please connect an external drive or specify device_path manually."
+  when: 
+    - external_storage.auto_detect 
+    - external_storage.device_path == "auto"
+    - detected_device == ""
+
+- name: Set final device path
+  set_fact:
+    final_device_path: "{{ detected_device if external_storage.device_path == 'auto' else external_storage.device_path }}"
+
+- name: Get device information
+  shell: |
+    diskutil info "{{ final_device_path }}" | grep -E "(Volume Name|File System|Total Size)"
+  register: device_info
+  changed_when: false
+  failed_when: false
+
+- name: Display device information
+  debug:
+    msg: |
+      External Storage Device Information:
+      Device: {{ final_device_path }}
+      {{ device_info.stdout }}
+
+- name: Create mount point directory
+  file:
+    path: "{{ external_storage.mount_point }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: yes
+
+- name: Mount external storage device
+  shell: |
+    diskutil mount -mountPoint "{{ external_storage.mount_point }}" "{{ final_device_path }}"
+  become: yes
+  when: not storage_mount_check.stat.exists
+  register: mount_result
+
+- name: Verify mount was successful
+  stat:
+    path: "{{ external_storage.mount_point }}"
+  register: mount_verification
+
+- name: Fix ownership and permissions on mounted storage
+  file:
+    path: "{{ external_storage.mount_point }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+    recurse: no
+  become: yes
+  when: external_storage.ownership_fix and mount_verification.stat.exists
+
+- name: Create storage directory structure
+  file:
+    path: "{{ external_storage.mount_point }}/{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ external_storage.storage_structure.camera_footage }}"
+    - "{{ external_storage.storage_structure.backups }}"
+    - "{{ external_storage.storage_structure.shared_files }}"
+    - "{{ external_storage.storage_structure.time_machine }}"
+    - "{{ external_storage.storage_structure.homeassistant_backups }}"
+    - "{{ external_storage.storage_structure.container_data }}"
+    - "{{ external_storage.storage_structure.logs }}"
+    - "{{ external_storage.storage_structure.temp }}"
+  when: mount_verification.stat.exists
+
+- name: Create auto-mount launch agent
+  template:
+    src: auto-mount.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.external-storage-mount.plist"
+    mode: '0644'
+  when: external_storage.auto_mount
+  notify: load external storage mount agent
+
+- name: Create storage health monitoring script
+  template:
+    src: storage-health.sh.j2
+    dest: /usr/local/bin/storage-health-check
+    mode: '0755'
+  when: external_storage.health_monitoring
+
+- name: Create storage cleanup script
+  template:
+    src: storage-cleanup.sh.j2
+    dest: /usr/local/bin/storage-cleanup
+    mode: '0755'
+  when: external_storage.storage_maintenance.auto_cleanup_enabled
+
+- name: Schedule storage health monitoring
+  cron:
+    name: "Storage health monitoring"
+    minute: "0"
+    hour: "*/4"  # Every 4 hours
+    job: "/usr/local/bin/storage-health-check >> {{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}/storage-health.log 2>&1"
+    user: "{{ ansible_user }}"
+  when: external_storage.health_monitoring
+
+- name: Schedule storage cleanup
+  cron:
+    name: "Storage cleanup"
+    minute: "0"
+    hour: "2"
+    weekday: "0"  # Sunday at 2 AM
+    job: "/usr/local/bin/storage-cleanup >> {{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}/storage-cleanup.log 2>&1"
+    user: "{{ ansible_user }}"
+  when: external_storage.storage_maintenance.auto_cleanup_enabled
+
+- name: Disable Spotlight indexing on external storage
+  shell: |
+    mdutil -i off "{{ external_storage.mount_point }}"
+  become: yes
+  when: 
+    - external_storage.storage_performance.enable_spotlight_indexing == false
+    - mount_verification.stat.exists
+  changed_when: false
+
+- name: Configure Time Machine exclusions
+  shell: |
+    tmutil addexclusion "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.temp }}"
+    tmutil addexclusion "{{ external_storage.mount_point }}/{{ external_storage.storage_structure.logs }}"
+  when: 
+    - external_storage.storage_performance.enable_time_machine_exclusions
+    - mount_verification.stat.exists
+  changed_when: false
+  failed_when: false
+
+- name: Display storage setup summary
+  debug:
+    msg: |
+      ✅ External Storage Setup Complete!
+      
+      📁 Mount Point: {{ external_storage.mount_point }}
+      💽 Device: {{ final_device_path }}
+      📊 Storage Structure Created:
+        📹 Camera Footage: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.camera_footage }}
+        💾 Backups: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.backups }}
+        📁 Shared Files: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.shared_files }}
+        ⏰ Time Machine: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.time_machine }}
+        🏠 HA Backups: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.homeassistant_backups }}
+        📦 Container Data: {{ external_storage.mount_point }}/{{ external_storage.storage_structure.container_data }}
+      
+      🔧 Auto-mount: {{ 'Enabled' if external_storage.auto_mount else 'Disabled' }}
+      📈 Health Monitoring: {{ 'Enabled' if external_storage.health_monitoring else 'Disabled' }}
+      🧹 Auto Cleanup: {{ 'Enabled' if external_storage.storage_maintenance.auto_cleanup_enabled else 'Disabled' }}

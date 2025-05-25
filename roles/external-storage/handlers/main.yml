@@ -1,0 +1,21 @@
+---
+- name: load external storage mount agent
+  shell: |
+    launchctl unload "{{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.external-storage-mount.plist" 2>/dev/null || true
+    launchctl load "{{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.external-storage-mount.plist"
+  changed_when: false
+  
+- name: restart storage monitoring
+  shell: |
+    pkill -f storage-health-check || true
+    /usr/local/bin/storage-health-check &
+  changed_when: false
+  when: external_storage.health_monitoring
+
+- name: remount external storage
+  shell: |
+    diskutil unmount "{{ external_storage.mount_point }}" || true
+    sleep 2
+    diskutil mount -mountPoint "{{ external_storage.mount_point }}" "{{ final_device_path }}"
+  become: yes
+  changed_when: false
