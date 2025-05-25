@@ -1,173 +1,153 @@
-# dotfiles
+# 🏠 dotfiles
 
-woodrow pearson's dotfiles, forked from [sloria's dotfiles](https://github.com/sloria/dotfiles-old) and rewritten as Ansible roles. Sets up a complete development environment with **automated setup and configuration.**
+<div align="center">
 
-**As of 2025, this repo only supports macOS.** There's still remnants of Red Hat and Debian support, but they are not maintained.
+```ascii
+     ██████╗  ██████╗ ████████╗███████╗██╗██╗     ███████╗███████╗
+     ██╔══██╗██╔═══██╗╚══██╔══╝██╔════╝██║██║     ██╔════╝██╔════╝
+     ██║  ██║██║   ██║   ██║   █████╗  ██║██║     █████╗  ███████╗
+     ██║  ██║██║   ██║   ██║   ██╔══╝  ██║██║     ██╔══╝  ╚════██║
+     ██████╔╝╚██████╔╝   ██║   ██║     ██║███████╗███████╗███████║
+     ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
+```
 
-## features
+**From fresh macOS to productive development environment in < 30 minutes** ⚡
 
-**🚀 Zero-to-Productive Development Environment:**
-- **One-command setup**: Fresh macOS to fully configured in <30 minutes
-- **Smart project scaffolding**: `newproject python my-api` → Complete project with CI/CD
-- **Interactive configuration**: Guided setup of API keys, SSH, GPG
-- **Modern toolchain**: Alacritty + ZSH + Prezto + Pure theme with pastel colors
+[![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](docs/CONTRIBUTING.md)
 
-**🛠️ Development Tools:**
-- **Languages**: Python (uv), Node.js 20, Rust, Go via mise
-- **Editors**: VS Code with Claude Code extension, comprehensive language support
-- **CLI Tools**: 15+ modern replacements (eza, bat, ripgrep, fzf, etc.)
-- **Git**: Extensive aliases and GitHub CLI integration
+*Started as a [sloria](https://github.com/sloria/dotfiles) fork, grew into something more powerful. Because manual setup is so 2023.* 😏
 
-**⚡ Automation & Quality:**
-- **CI/CD Templates**: GitHub Actions for Python, Node.js, Rust
-- **Pre-commit hooks**: Automated code quality and formatting
-- **Secrets management**: Global + per-project environment variables
-- **macOS integration**: System settings, Dock, Finder, screenshots
+</div>
 
-## quick start
+## 🚀 TL;DR - Get Started Now
 
-**🎯 One-Command Setup (Fresh macOS):**
+**One command. Seriously.**
+
 ```bash
 curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
 ```
-This installs prerequisites (Xcode tools, Homebrew, Ansible, Git, GitHub CLI) and clones the repository.
 
-**🔧 Complete Installation:**
+*Then grab a coffee ☕ while your Mac transforms into a developer powerhouse.*
+
+---
+
+## ✨ What Makes This Special
+
+| 🎯 **Feature** | 🔥 **Why You'll Love It** |
+|----------------|---------------------------|
+| **Zero-to-Hero Setup** | Fresh macOS → Fully configured dev environment in one command |
+| **Smart Project Scaffolding** | `newproject python my-api` → Complete project with CI/CD ready |
+| **Interactive Configuration** | Guided setup for API keys, SSH, GPG (no more googling!) |
+| **Modern Everything** | Alacritty + ZSH + 15+ CLI tool upgrades with smart aliases |
+| **Professional CI/CD** | GitHub Actions templates that actually work |
+| **Secrets That Make Sense** | Global + per-project environment management done right |
+
+## 🗂️ Repository Explorer
+
+Click around and explore! Each 📁 links to detailed documentation.
+
+```
+dotfiles/
+├── 📁 [bin/](bin/README.md)                    # 🛠️  Automation scripts that do the magic
+│   ├── dot-install                           # 🚀 One-command fresh macOS setup  
+│   ├── dot-bootstrap                         # ⚙️  Complete environment installation
+│   ├── dot-configure                         # 🔧 Interactive post-setup wizard
+│   ├── newproject                            # 📦 Smart project scaffolding
+│   └── upgrades                              # 🔄 Keep everything fresh
+├── 📁 [roles/](roles/README.md)                # 🎭 Ansible roles (the real workhorses)
+│   ├── 🏠 alacritty/                         # Terminal that doesn't suck
+│   ├── 🐍 python/                            # Python done right (uv + tools)
+│   ├── 🦀 rust/                              # Systems programming goodness
+│   ├── 🚀 vscode/                            # Editor config + extensions
+│   ├── 🐚 zsh/                               # Shell that makes you productive
+│   └── 🎨 macos/                             # System settings automation
+├── 📁 [templates/](templates/README.md)        # 🏗️  CI/CD templates for new projects
+│   ├── .github/workflows/                   # GitHub Actions that work
+│   └── .pre-commit-config.yaml              # Code quality automation
+├── 📁 [docs/](docs/)                          # 📚 Deep-dive documentation
+│   ├── 📖 [INSTALLATION.md](docs/INSTALLATION.md)  # Detailed setup guide
+│   ├── ⭐ [FEATURES.md](docs/FEATURES.md)           # Comprehensive feature list
+│   ├── 🎨 [CUSTOMIZATION.md](docs/CUSTOMIZATION.md) # Make it truly yours
+│   └── 🔧 [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) # When things go sideways
+├── ⚙️  [group_vars/local](group_vars/)         # Configuration that matters
+├── 🎬 [CLAUDE.md](CLAUDE.md)                  # Claude Code integration guide
+└── 📜 [CHANGELOG.md](CHANGELOG.md)            # What's new and noteworthy
+```
+
+## 🎮 Quick Demos
+
+### **Fresh Mac Setup**
 ```bash
-cd ~/dotfiles
-./bin/dot-bootstrap    # Install everything
-./bin/dot-configure    # Interactive setup (API keys, SSH, etc.)
+# Literally one command from App Store Mac to development powerhouse
+curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
+cd ~/dotfiles && ./bin/dot-bootstrap && ./bin/dot-configure
 ```
 
-**⚡ Create Your First Project:**
+### **Create a Project**
 ```bash
-newproject python my-api  # Scaffolds complete project with CI/CD
-cd ~/code/my-api
-code .  # Opens in VS Code with all extensions
+# Smart scaffolding with CI/CD, pre-commit hooks, and best practices
+newproject python my-awesome-api
+cd ~/code/my-awesome-api
+code .  # Opens with all the right extensions
 ```
 
-## manual installation
-
-If you prefer manual setup:
-
-1. **Prerequisites**: Homebrew, Git, Ansible
-2. **Clone**: `git clone https://github.com/woodrowpearson/dotfiles.git ~/dotfiles`
-3. **Configure**: Update personal info in `group_vars/local`
-4. **Install**: `./bin/dot-bootstrap`
-5. **Configure**: `./bin/dot-configure`
-
-## authenticating with github
-
-You won't be able to push to repos until you authenticate with GitHub.
-You can use `gh` for this, which should have been installed by `dot-bootstrap` above.
-
-```
-gh auth login
-```
-
-## updating your local environment
-
-Once you have the dotfiles installed you can run the following command to rerun the ansible playbook:
-
+### **Modern CLI Tools**
 ```bash
-dot-update
+# Your new superpowers (all included)
+ls        # → eza (with icons!)
+cat file  # → bat (syntax highlighting)
+grep "x"  # → rg (ripgrep - stupid fast)
+find      # → fd (sensible defaults)
 ```
 
-You can optionally pass role names
+## 🏗️ Architecture
 
-```bash
-dot-update git python
-```
+**Built on battle-tested foundations:**
+- **Ansible**: Declarative, idempotent, reliable automation
+- **Homebrew**: Package management that doesn't fight you  
+- **Modern CLI Tools**: Because life's too short for ancient Unix tools
+- **Opinionated Defaults**: Sensible choices you can override
 
-## updating your dotfiles repo
+**Philosophy: Automate Everything Possible, Guide Through What Can't Be**
 
-To keep your fork up to date with the original:
+## 🤝 Community & Credits
 
-```bash
-git remote add upstream https://github.com/woodrowpearson/dotfiles.git
-git pull upstream main
-```
+### **Standing on the Shoulders of Giants**
+Huge props to [Steven Loria](https://github.com/sloria) for the original dotfiles that inspired this. What started as a simple fork has evolved into something much more comprehensive, but the core philosophy remains: *make developer setup painless*.
 
-## commands
+### **Contributing**
+Found a bug? Have an idea? Want to add your favorite tool? 
 
-**Setup & Configuration:**
-- `dot-install`: One-command fresh macOS setup (prerequisites + clone)
-- `dot-bootstrap`: Complete environment setup (all roles)
-- `dot-configure`: Interactive configuration (API keys, SSH, GPG, VS Code)
-- `dot-update`: Update environment (skip bootstrap roles)
-- `dot-update <role>`: Update specific roles
+**[👥 Contributing Guide →](docs/CONTRIBUTING.md)**
 
-**Development:**
-- `newproject <language> <name>`: Create project with templates (python, node, rust, go, web)
-- `code ~/code/.env`: Edit global environment variables
+### **Support**
+- 🐛 **Issues**: [GitHub Issues](https://github.com/woodrowpearson/dotfiles/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/woodrowpearson/dotfiles/discussions)
+- ⭐ **Star this repo** if it saved you time!
 
-**System Management (Mac-CLI aliases):**
-- `sysinfo`: System performance details
-- `speedtest`: Internet speed test
-- `gitlog`: Recent git commits
-- `updateall`: Update macOS, Homebrew, npm, gems
+## 📊 Stats & Recognition
 
-## special files
+<!-- GitHub stats will be inserted here -->
+<div align="center">
 
-All configuration is done in `~/dotfiles`. Each role may contain (in addition to the typical ansible directories and files) a number of special files
+![GitHub stars](https://img.shields.io/github/stars/woodrowpearson/dotfiles?style=social)
+![GitHub forks](https://img.shields.io/github/forks/woodrowpearson/dotfiles?style=social)
+![GitHub issues](https://img.shields.io/github/issues/woodrowpearson/dotfiles)
+![GitHub last commit](https://img.shields.io/github/last-commit/woodrowpearson/dotfiles)
 
-- **role/\*.zsh**: Any files ending in `.zsh` get loaded into your environment.
-- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made available everywhere.
+</div>
 
-## notes
+---
 
-**vscode**
+<div align="center">
 
-Use built-in Settings Sync to sync VSCode settings.
+**Made with ❤️ and way too much coffee** ☕
 
-**macOS keyboard settings**
+*Your terminal will thank you. Your productivity will soar. Your coworkers will be jealous.* 😎
 
-There are a few keyboard customizations that must be done manually:
+**[🚀 Get Started Now](#-tldr---get-started-now) • [📚 Read the Docs](docs/) • [🤝 Contribute](docs/CONTRIBUTING.md)**
 
-- System Settings > Keyboard > Turn "Key repeat rate" and "Delay until repeat" to their highest settings.
-
-![Keyboard settings](https://github.com/user-attachments/assets/0c0e9ed6-3e5b-4996-b1e0-4aa4e9de3725 "Key repeat settings")
-
-- System Settings > Keyboard > Keyboard Shortcuts > Modifier Keys > Change Caps Lock key to Control.
-
-![Modifier keys](https://github.com/user-attachments/assets/79a883cd-9eec-472e-bdb6-0b4c2efeea9d)
-
-**mac mini**
-
-I also use this repo to configure my Mac Mini server which I have running in headless mode. My setup is documented in [docs/MAC_MINI.md](docs/MAC_MINI.md).
-
-## what if I only want your vim?
-
-First make sure you have a sane vim compiled. On macOS, the following will do:
-
-```
-brew install vim
-```
-
-The following commands will install vim-plug and download my `.vimrc`.
-
-After backing up your `~/.vim` directory and `~/.vimrc`:
-
-```
-mkdir -p ~/.vim/autoload
-curl -fLo ~/.vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-curl -fLo ~/.vimrc https://raw.githubusercontent.com/sloria/dotfiles/master/roles/vim/files/vimrc
-```
-
-You will now be able to open vim and run `:PlugInstall` to install all plugins.
-
-## troubleshooting
-
-If you get an error about Xcode command-line tools, you may need to run
-
-```
-sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-```
-
-[homebrew]: http://brew.sh/
-[homebrew-cask]: https://github.com/caskroom/homebrew-cask
-[mas]: https://github.com/mas-cli/mas
-
-## license
-
-[MIT Licensed](http://sloria.mit-license.org/).
+</div>
