@@ -1,0 +1,28 @@
+[storage]
+engine = file_system
+path = {{ backup_local_dir }}/mackup
+
+[applications_to_sync]
+{% for app, config in backup_applications.items() %}
+{% if config.enabled %}
+{{ app }}
+{% endif %}
+{% endfor %}
+
+[applications_to_ignore]
+# Large applications we handle separately
+docker
+virtualbox
+xcode
+
+[configuration_files]
+# Custom configuration files to include
+{% for app, config in backup_applications.items() %}
+{% if config.enabled and config.paths is defined %}
+# {{ app | title }} configurations
+{% for path in config.paths %}
+{{ path }}
+{% endfor %}
+
+{% endif %}
+{% endfor %}

@@ -1,0 +1,18 @@
+---
+# Checkpoint creation task for bootstrap integration
+
+- name: Execute backup checkpoint creation
+  shell: |
+    {{ ansible_env.HOME }}/.local/bin/backup-checkpoint auto {{ checkpoint_phase }}
+  args:
+    creates: "{{ backup_local_dir }}/checkpoints/{{ checkpoint_phase }}_*"
+  when: 
+    - backup_enabled | default(true)
+    - checkpoint_phase is defined
+  register: checkpoint_result
+  failed_when: checkpoint_result.rc != 0
+  
+- name: Display checkpoint creation result
+  debug:
+    msg: "✅ Checkpoint created: {{ checkpoint_phase }}"
+  when: checkpoint_result is defined and checkpoint_result.changed

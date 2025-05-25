@@ -1,6 +1,19 @@
 - name: Set up local development environment
   hosts: local
+  pre_tasks:
+    - name: Create pre-ansible checkpoint
+      include_role:
+        name: backup
+        tasks_from: checkpoint
+      vars:
+        checkpoint_phase: "pre-ansible"
+      tags: ["backup", "checkpoint", "always"]
+      when: backup_enabled | default(true)
+
   roles:
+    # Backup system (initialize first)
+    - { role: backup, tags: ["backup"], when: backup_enabled | default(true) }
+    
     # Bootstrap roles (system foundation)
     - { role: package_manager, tags: ["package_manager", "bootstrap"] }
     - { role: macos, tags: ["macos"], when: ansible_os_family == "Darwin" }
@@ -26,3 +39,36 @@
     - { role: alacritty, tags: ["alacritty"] }
     - { role: vscode, tags: ["vscode"] }
     - { role: vim, tags: ["vim"] }
+
+  post_tasks:
+    - name: Create post-setup checkpoint
+      include_role:
+        name: backup
+        tasks_from: checkpoint
+      vars:
+        checkpoint_phase: "post-setup"
+      tags: ["backup", "checkpoint", "always"]
+      when: backup_enabled | default(true)
+    
+    - name: Show backup and checkpoint information
+      debug:
+        msg: |
+          🎉 Bootstrap complete!
+          
+          Backup system configured with checkpoints at:
+          - pre-ansible: Before any Ansible tasks
+          - pre-homebrew: Before package manager setup
+          - pre-dotfiles: Before dotfiles installation  
+          - pre-applications: Before application installation
+          - post-setup: After complete setup
+          
+          Available backup commands:
+          - backup-create: Create new backup
+          - backup-restore: Restore from backup
+          - backup-checkpoint: Manage checkpoints
+          - backup-list: List backups and checkpoints
+          - backup-rollback: Roll back changes
+          
+          For help: backup-create --help
+      when: backup_enabled | default(true)
+      tags: ["backup", "always"]

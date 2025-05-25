@@ -1,0 +1,145 @@
+---
+# Backup & Recovery Configuration
+
+# Backup Storage Configuration
+backup_base_dir: "/Volumes/Backup/dotfiles-backups"
+backup_local_dir: "{{ ansible_env.HOME }}/.dotfiles-backups"
+backup_retention_days: 30
+backup_compression: true
+
+# Time Machine Integration
+time_machine_enabled: true
+time_machine_exclude_paths:
+  - "{{ backup_local_dir }}"
+  - "{{ ansible_env.HOME }}/.cache"
+  - "{{ ansible_env.HOME }}/Library/Caches"
+
+# Backup Components
+backup_components:
+  full_system: true          # Use Time Machine for full backup
+  applications: true         # Application settings and preferences
+  development: true          # Development environment configs
+  security: true            # SSH keys, certificates (encrypted)
+  projects: false           # User projects (optional, can be large)
+
+# Application-Specific Backups
+backup_applications:
+  vscode:
+    enabled: true
+    paths:
+      - "~/Library/Application Support/Code/User/settings.json"
+      - "~/Library/Application Support/Code/User/keybindings.json"
+      - "~/Library/Application Support/Code/User/snippets"
+      - "~/Library/Application Support/Code/User/extensions"
+    extensions_list: true
+    
+  terminal:
+    enabled: true
+    paths:
+      - "~/.config/alacritty"
+      - "~/.zshrc"
+      - "~/.zpreztorc"
+      - "~/.aliases"
+    
+  git:
+    enabled: true
+    paths:
+      - "~/.gitconfig"
+      - "~/.gitignore_global"
+      - "~/.git-credentials"  # If using credential helper
+    
+  ssh:
+    enabled: true
+    encrypted: true
+    paths:
+      - "~/.ssh/config"
+      - "~/.ssh/known_hosts"
+      - "~/.ssh/*.pub"       # Public keys only by default
+    private_keys: false      # Set to true to backup private keys (encrypted)
+    
+  homebrew:
+    enabled: true
+    export_lists: true       # Export package lists vs. full backup
+    paths:
+      - "/opt/homebrew/etc"  # Config files only
+    
+  macos:
+    enabled: true
+    domains:
+      - "com.apple.dock"
+      - "com.apple.finder"
+      - "com.apple.screencapture"
+      - "NSGlobalDomain"
+
+# Development Environment Backup
+backup_development:
+  languages:
+    python:
+      enabled: true
+      items:
+        - "pip list --freeze"           # Package list
+        - "~/.pypirc"                   # PyPI config
+    node:
+      enabled: true
+      items:
+        - "npm list -g --depth=0"      # Global packages
+        - "~/.npmrc"                    # NPM config
+    rust:
+      enabled: true
+      items:
+        - "cargo install --list"       # Installed packages
+        - "~/.cargo/config.toml"       # Cargo config
+        
+  tools:
+    mise:
+      enabled: true
+      paths:
+        - "~/.config/mise"
+        - "~/.tool-versions"
+    docker:
+      enabled: true
+      export_images: false            # Export image lists only
+      paths:
+        - "~/.docker/config.json"
+
+# Security & Encryption
+backup_encryption:
+  enabled: true
+  method: "gpg"                       # gpg or openssl
+  key_id: "{{ backup_encryption_key | default('') }}"
+  
+# Checkpoint System
+checkpoint_enabled: true
+checkpoint_before_roles:
+  - "package_manager"
+  - "macos"
+  - "homebrew"
+  - "vscode"
+checkpoint_retention: 7               # Keep last 7 checkpoints
+
+# Recovery Configuration
+restore_options:
+  interactive: true                   # Prompt before overwriting
+  backup_existing: true              # Backup current before restore
+  verify_checksums: true             # Verify backup integrity
+  
+# Monitoring & Notifications
+backup_monitoring:
+  health_checks: true
+  log_file: "{{ backup_local_dir }}/backup.log"
+  max_log_size: "10MB"
+  notify_on_failure: true
+  
+# Cloud Sync (Optional)
+cloud_sync:
+  enabled: false
+  provider: ""                        # s3, dropbox, icloud, etc.
+  path: ""
+  encryption_required: true
+
+# Backup Schedule
+backup_schedule:
+  automatic: true
+  frequency: "daily"                  # daily, weekly, manual
+  time: "02:00"                      # 2 AM
+  only_when_connected: true          # Only when backup drive connected

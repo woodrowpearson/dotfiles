@@ -1,0 +1,163 @@
+---
+- name: Install backup dependencies
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - mackup        # Application backup tool
+    - gpg           # Encryption for sensitive data
+    - rsync         # Efficient file sync
+    - rclone        # Cloud sync (optional)
+
+- name: Create backup directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ backup_local_dir }}"
+    - "{{ backup_local_dir }}/checkpoints"
+    - "{{ backup_local_dir }}/configs"
+    - "{{ backup_local_dir }}/security"
+    - "{{ backup_local_dir }}/logs"
+
+- name: Check if external backup drive is connected
+  stat:
+    path: "{{ backup_base_dir | dirname }}"
+  register: backup_drive_status
+
+- name: Create external backup directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ backup_base_dir }}"
+    - "{{ backup_base_dir }}/full"
+    - "{{ backup_base_dir }}/configs"
+    - "{{ backup_base_dir }}/checkpoints"
+  when: backup_drive_status.stat.exists
+
+- name: Generate backup encryption key
+  shell: |
+    if ! gpg --list-secret-keys "dotfiles-backup" >/dev/null 2>&1; then
+      gpg --batch --gen-key <<EOF
+      Key-Type: RSA
+      Key-Length: 4096
+      Subkey-Type: RSA
+      Subkey-Length: 4096
+      Name-Real: Dotfiles Backup
+      Name-Email: backup@localhost
+      Expire-Date: 0
+      %no-protection
+      EOF
+    fi
+  when: backup_encryption.enabled
+  tags: ['backup', 'security']
+
+- name: Create mackup configuration
+  template:
+    src: mackup.cfg.j2
+    dest: "{{ ansible_env.HOME }}/.mackup.cfg"
+    mode: '0644'
+  when: backup_components.applications
+
+- name: Ensure .local/bin directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Create backup scripts
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0755'
+  loop:
+    - src: backup-create.sh.j2
+      dest: "{{ ansible_env.HOME }}/.local/bin/backup-create"
+    - src: backup-restore.sh.j2  
+      dest: "{{ ansible_env.HOME }}/.local/bin/backup-restore"
+    - src: backup-checkpoint.sh.j2
+      dest: "{{ ansible_env.HOME }}/.local/bin/backup-checkpoint"
+    - src: backup-list.sh.j2
+      dest: "{{ ansible_env.HOME }}/.local/bin/backup-list"
+    - src: backup-rollback.sh.j2
+      dest: "{{ ansible_env.HOME }}/.local/bin/backup-rollback"
+
+- name: Ensure .local/bin is in PATH
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    insertafter: "# User configuration"
+    create: yes
+
+- name: Create backup monitoring script
+  template:
+    src: backup-monitor.sh.j2
+    dest: "{{ ansible_env.HOME }}/.local/bin/backup-monitor"
+    mode: '0755'
+
+- name: Schedule automatic backups
+  cron:
+    name: "Dotfiles configuration backup"
+    minute: "0"
+    hour: "{{ backup_schedule.time.split(':')[0] }}"
+    job: "{{ ansible_env.HOME }}/.local/bin/backup-create --config-only --quiet"
+    user: "{{ ansible_user }}"
+  when: backup_schedule.automatic
+
+- name: Create dotfiles bin directory
+  file:
+    path: "{{ ansible_env.HOME }}/.dotfiles/bin"
+    state: directory
+    mode: '0755'
+
+- name: Create pre-bootstrap backup hook
+  template:
+    src: pre-bootstrap-backup.sh.j2
+    dest: "{{ ansible_env.HOME }}/.dotfiles/bin/pre-bootstrap-backup"
+    mode: '0755'
+
+- name: Setup Time Machine exclusions
+  command: |
+    tmutil addexclusion {{ item }}
+  loop: "{{ time_machine_exclude_paths }}"
+  when: time_machine_enabled
+  ignore_errors: yes
+
+- name: Create backup verification script
+  template:
+    src: backup-verify.sh.j2
+    dest: "{{ ansible_env.HOME }}/.local/bin/backup-verify"
+    mode: '0755'
+
+- name: Initialize backup system
+  command: "{{ ansible_env.HOME }}/.local/bin/backup-create --initialize"
+  args:
+    creates: "{{ backup_local_dir }}/initialized"
+
+- name: Display backup system status
+  debug:
+    msg: |
+      ╭──────────────────────────────────────────────────────────────╮
+      │  📦 BACKUP SYSTEM INITIALIZED                                │
+      ├──────────────────────────────────────────────────────────────┤
+      │                                                              │
+      │  🛡️  Full System: Time Machine ({{ 'enabled' if time_machine_enabled else 'disabled' }})
+      │  ⚙️  Configurations: {{ backup_local_dir }}
+      │  💾  External Drive: {{ 'connected' if backup_drive_status.stat.exists else 'not found' }}
+      │  🔐  Encryption: {{ 'enabled' if backup_encryption.enabled else 'disabled' }}
+      │                                                              │
+      │  📋 Available Commands:                                       │
+      │  • backup-create --full        # Complete backup            │
+      │  • backup-create --config-only # Config files only         │
+      │  • backup-checkpoint "name"    # Create checkpoint          │
+      │  • backup-list                 # Show available backups     │
+      │  • backup-restore --help       # Restore options            │
+      │                                                              │
+      │  🚀 Integration:                                              │
+      │  • Pre-bootstrap backup: ./bin/pre-bootstrap-backup        │
+      │  • Bootstrap with checkpoints: ./bin/dot-bootstrap --safe  │
+      │                                                              │
+      ╰──────────────────────────────────────────────────────────────╯
