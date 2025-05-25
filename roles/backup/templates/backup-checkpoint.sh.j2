@@ -543,6 +543,10 @@ auto_checkpoint() {
             description="After complete setup"
             create_checkpoint "post-setup" "$description" "true" "false" "false"
             ;;
+        bootstrap-complete)
+            description="Bootstrap process completed successfully"
+            create_checkpoint "bootstrap-complete" "$description" "true" "false" "false"
+            ;;
         *)
             error "Unknown bootstrap phase: $phase"
             ;;

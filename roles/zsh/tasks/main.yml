@@ -13,9 +13,7 @@
 
 - name: Back up zshrc if it exists
   command: mv ~/.zshrc ~/.zshrc.bak
-  args:
-    creates: "{{dotfiles_user_home}}/.zshrc.bak"
-  when: zshrc_stat.stat.exists
+  when: zshrc_stat.stat.exists and not (ansible_check_mode | default(false))
 
 # Ensure the dotfiles repository gets cloned in remote hosts, like my mac mini, but not on localhost
 - name: Clone dotfiles repository

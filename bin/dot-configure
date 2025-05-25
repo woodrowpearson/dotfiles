@@ -4,6 +4,19 @@
 
 set -e
 
+# Parse command line arguments
+DRY_RUN=false
+for arg in "$@"; do
+    case $arg in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            ;;
+    esac
+done
+
 # Show help if requested
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo "dot-configure - Interactive post-setup configuration"
@@ -15,11 +28,18 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo "  • VS Code extensions installation"
     echo "  • Git user configuration"
     echo ""
+    echo "Options:"
+    echo "  --dry-run    Show what would be done without making changes"
+    echo "  -h, --help   Show this help message"
+    echo ""
     echo "Run this after dot-bootstrap for complete setup."
     exit 0
 fi
 
 echo "🔧 dotfiles Post-Setup Configuration"
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo "🔍 DRY RUN MODE - No changes will be made"
+fi
 echo "This script will help configure personal settings and API keys."
 echo ""
 
@@ -64,21 +84,28 @@ prompt_sensitive() {
 # SSH Key Setup
 echo -e "${GREEN}=== SSH Configuration ===${NC}"
 if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
-    echo "No SSH key found. Generating new SSH key..."
-    prompt_with_default "Email for SSH key" "woodrowpearson@gmail.com" "ssh_email"
-    
-    ssh-keygen -t ed25519 -C "$ssh_email" -f "$HOME/.ssh/id_ed25519" -N ""
-    echo -e "${GREEN}✅ SSH key generated${NC}"
-    
-    # Start ssh-agent and add key
-    eval "$(ssh-agent -s)"
-    ssh-add "$HOME/.ssh/id_ed25519"
-    
-    echo -e "${YELLOW}📋 Your public SSH key:${NC}"
-    cat "$HOME/.ssh/id_ed25519.pub"
-    echo ""
-    echo -e "${BLUE}Add this key to GitHub: https://github.com/settings/ssh/new${NC}"
-    read -p "Press Enter when you've added the key to GitHub..."
+    echo "No SSH key found."
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "🔍 Would generate new SSH key with email: woodrowpearson@gmail.com"
+        echo "🔍 Would start ssh-agent and add key"
+        echo "🔍 Would display public key for GitHub configuration"
+    else
+        echo "Generating new SSH key..."
+        prompt_with_default "Email for SSH key" "woodrowpearson@gmail.com" "ssh_email"
+        
+        ssh-keygen -t ed25519 -C "$ssh_email" -f "$HOME/.ssh/id_ed25519" -N ""
+        echo -e "${GREEN}✅ SSH key generated${NC}"
+        
+        # Start ssh-agent and add key
+        eval "$(ssh-agent -s)"
+        ssh-add "$HOME/.ssh/id_ed25519"
+        
+        echo -e "${YELLOW}📋 Your public SSH key:${NC}"
+        cat "$HOME/.ssh/id_ed25519.pub"
+        echo ""
+        echo -e "${BLUE}Add this key to GitHub: https://github.com/settings/ssh/new${NC}"
+        read -p "Press Enter when you've added the key to GitHub..."
+    fi
 else
     echo -e "${GREEN}✅ SSH key already exists${NC}"
 fi
@@ -88,46 +115,65 @@ echo -e "${GREEN}=== API Keys Configuration ===${NC}"
 ENV_FILE="$HOME/code/.env"
 
 if [[ -f "$ENV_FILE" ]]; then
-    echo "Configuring API keys in $ENV_FILE"
-    
-    # Backup existing .env
-    cp "$ENV_FILE" "$ENV_FILE.backup"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "🔍 Would configure API keys in $ENV_FILE"
+        echo "🔍 Would backup existing .env file"
+    else
+        echo "Configuring API keys in $ENV_FILE"
+        
+        # Backup existing .env
+        cp "$ENV_FILE" "$ENV_FILE.backup"
+    fi
     
     # Anthropic API Key
     if grep -q "ANTHROPIC_API_KEY=" "$ENV_FILE" && [[ $(grep "ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
-        echo -e "${BLUE}Configure Anthropic Claude API key? (y/n)${NC}"
-        read -r configure_anthropic
-        if [[ "$configure_anthropic" == "y" ]]; then
-            prompt_sensitive "Enter Anthropic API key" "anthropic_key"
-            sed -i.bak "s/ANTHROPIC_API_KEY=.*/ANTHROPIC_API_KEY=$anthropic_key/" "$ENV_FILE"
-            echo -e "${GREEN}✅ Anthropic API key configured${NC}"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "🔍 Would prompt to configure Anthropic Claude API key"
+        else
+            echo -e "${BLUE}Configure Anthropic Claude API key? (y/n)${NC}"
+            read -r configure_anthropic
+            if [[ "$configure_anthropic" == "y" ]]; then
+                prompt_sensitive "Enter Anthropic API key" "anthropic_key"
+                sed -i.bak "s/ANTHROPIC_API_KEY=.*/ANTHROPIC_API_KEY=$anthropic_key/" "$ENV_FILE"
+                echo -e "${GREEN}✅ Anthropic API key configured${NC}"
+            fi
         fi
     fi
     
     # OpenAI API Key
     if grep -q "OPENAI_API_KEY=" "$ENV_FILE" && [[ $(grep "OPENAI_API_KEY=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
-        echo -e "${BLUE}Configure OpenAI API key? (y/n)${NC}"
-        read -r configure_openai
-        if [[ "$configure_openai" == "y" ]]; then
-            prompt_sensitive "Enter OpenAI API key" "openai_key"
-            sed -i.bak "s/OPENAI_API_KEY=.*/OPENAI_API_KEY=$openai_key/" "$ENV_FILE"
-            echo -e "${GREEN}✅ OpenAI API key configured${NC}"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "🔍 Would prompt to configure OpenAI API key"
+        else
+            echo -e "${BLUE}Configure OpenAI API key? (y/n)${NC}"
+            read -r configure_openai
+            if [[ "$configure_openai" == "y" ]]; then
+                prompt_sensitive "Enter OpenAI API key" "openai_key"
+                sed -i.bak "s/OPENAI_API_KEY=.*/OPENAI_API_KEY=$openai_key/" "$ENV_FILE"
+                echo -e "${GREEN}✅ OpenAI API key configured${NC}"
+            fi
         fi
     fi
     
     # GitHub Token
     if grep -q "GITHUB_TOKEN=" "$ENV_FILE" && [[ $(grep "GITHUB_TOKEN=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
-        echo -e "${BLUE}Configure GitHub token? (y/n)${NC}"
-        read -r configure_github
-        if [[ "$configure_github" == "y" ]]; then
-            prompt_sensitive "Enter GitHub token" "github_token"
-            sed -i.bak "s/GITHUB_TOKEN=.*/GITHUB_TOKEN=$github_token/" "$ENV_FILE"
-            echo -e "${GREEN}✅ GitHub token configured${NC}"
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "🔍 Would prompt to configure GitHub token"
+        else
+            echo -e "${BLUE}Configure GitHub token? (y/n)${NC}"
+            read -r configure_github
+            if [[ "$configure_github" == "y" ]]; then
+                prompt_sensitive "Enter GitHub token" "github_token"
+                sed -i.bak "s/GITHUB_TOKEN=.*/GITHUB_TOKEN=$github_token/" "$ENV_FILE"
+                echo -e "${GREEN}✅ GitHub token configured${NC}"
+            fi
         fi
     fi
     
     # Clean up backup files
-    rm -f "$ENV_FILE.bak"
+    if [[ "$DRY_RUN" != "true" ]]; then
+        rm -f "$ENV_FILE.bak"
+    fi
 fi
 
 # Git Configuration
@@ -136,19 +182,33 @@ current_name=$(git config --global user.name 2>/dev/null || echo "")
 current_email=$(git config --global user.email 2>/dev/null || echo "")
 
 if [[ -z "$current_name" ]]; then
-    prompt_with_default "Git user name" "woodrow pearson" "git_name"
-    git config --global user.name "$git_name"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "🔍 Would set git user name to: woodrow pearson"
+    else
+        prompt_with_default "Git user name" "woodrow pearson" "git_name"
+        git config --global user.name "$git_name"
+    fi
 fi
 
 if [[ -z "$current_email" ]]; then
-    prompt_with_default "Git user email" "woodrowpearson@gmail.com" "git_email"
-    git config --global user.email "$git_email"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "🔍 Would set git user email to: woodrowpearson@gmail.com"
+    else
+        prompt_with_default "Git user email" "woodrowpearson@gmail.com" "git_email"
+        git config --global user.email "$git_email"
+    fi
 fi
 
 # GPG Signing Setup (optional)
-echo -e "${BLUE}Set up GPG commit signing? (y/n)${NC}"
-read -r setup_gpg
-if [[ "$setup_gpg" == "y" ]]; then
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo "🔍 Would prompt to set up GPG commit signing"
+    echo "🔍 Would check for existing GPG keys"
+    echo "🔍 Would generate GPG key if none exists"
+else
+    echo -e "${BLUE}Set up GPG commit signing? (y/n)${NC}"
+    read -r setup_gpg
+fi
+if [[ "$setup_gpg" == "y" ]] && [[ "$DRY_RUN" != "true" ]]; then
     if ! command -v gpg &> /dev/null; then
         echo -e "${RED}GPG not found. Install with: brew install gnupg${NC}"
     else
@@ -190,9 +250,33 @@ fi
 
 # VS Code Extensions
 echo -e "${GREEN}=== VS Code Extensions ===${NC}"
-echo -e "${BLUE}Install recommended VS Code extensions? (y/n)${NC}"
-read -r install_extensions
-if [[ "$install_extensions" == "y" ]]; then
+
+# Check if VS Code is installed and code command is available
+if [[ ! -d "/Applications/Visual Studio Code.app" ]]; then
+    echo -e "${YELLOW}⚠️  VS Code not found. Skipping extension installation.${NC}"
+elif ! command -v code &> /dev/null; then
+    echo "Setting up VS Code command line tool..."
+    # Try to create symlink for code command
+    if [[ -w "/opt/homebrew/bin" ]]; then
+        ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" /opt/homebrew/bin/code
+        echo -e "${GREEN}✅ VS Code command line tool linked${NC}"
+    elif [[ -w "/usr/local/bin" ]]; then
+        ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" /usr/local/bin/code
+        echo -e "${GREEN}✅ VS Code command line tool linked${NC}"
+    else
+        echo -e "${RED}❌ Could not link VS Code command line tool. Please run VS Code and use Command Palette > 'Shell Command: Install code command in PATH'${NC}"
+        echo "Skipping extension installation."
+    fi
+fi
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo "🔍 Would prompt to install recommended VS Code extensions"
+    echo "🔍 Would install extensions: ms-python.python, ms-python.black-formatter, etc."
+else
+    echo -e "${BLUE}Install recommended VS Code extensions? (y/n)${NC}"
+    read -r install_extensions
+fi
+if [[ "$install_extensions" == "y" ]] && [[ "$DRY_RUN" != "true" ]] && command -v code &> /dev/null; then
     EXTENSIONS=(
         "ms-python.python"
         "ms-python.black-formatter"
