@@ -45,6 +45,7 @@
     state: present
   with_items: "{{ cask_check_result.results }}"
   when: "'not_installed' in item.stdout"
+  failed_when: false
 
 - name: Install mas
   homebrew: 
