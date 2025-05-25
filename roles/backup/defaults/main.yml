@@ -104,9 +104,12 @@ backup_development:
 
 # Security & Encryption
 backup_encryption:
-  enabled: true
+  enabled: true                       # Try to enable encryption by default
+  required: false                     # Don't fail bootstrap if encryption unavailable
+  auto_generate_key: true             # Auto-generate GPG key if needed
   method: "gpg"                       # gpg or openssl
-  key_id: "{{ backup_encryption_key | default('') }}"
+  key_id: "{{ backup_encryption_key | default('dotfiles-backup') }}"
+  graceful_fallback: true             # Fall back to unencrypted if encryption fails
   
 # Checkpoint System
 checkpoint_enabled: true

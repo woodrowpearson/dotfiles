@@ -38,10 +38,25 @@
     - "{{ backup_base_dir }}/checkpoints"
   when: backup_drive_status.stat.exists
 
-- name: Generate backup encryption key
-  shell: |
-    if ! gpg --list-secret-keys "dotfiles-backup" >/dev/null 2>&1; then
-      gpg --batch --gen-key <<EOF
+- name: Check if GPG is available
+  command: gpg --version
+  register: gpg_check
+  failed_when: false
+  when: backup_encryption.enabled | default(true)
+  tags: ['backup', 'security']
+
+- name: Check for existing backup encryption key
+  command: gpg --list-secret-keys "{{ backup_encryption.key_id | default('dotfiles-backup') }}"
+  register: gpg_key_check
+  failed_when: false
+  when: 
+    - backup_encryption.enabled | default(true)
+    - gpg_check.rc == 0
+  tags: ['backup', 'security']
+
+- name: Create GPG key configuration file
+  copy:
+    content: |
       Key-Type: RSA
       Key-Length: 4096
       Subkey-Type: RSA
@@ -50,9 +65,81 @@
       Name-Email: backup@localhost
       Expire-Date: 0
       %no-protection
-      EOF
-    fi
-  when: backup_encryption.enabled
+    dest: "{{ backup_local_dir }}/gpg-key-config"
+    mode: '0600'
+  when: 
+    - backup_encryption.enabled | default(true)
+    - backup_encryption.auto_generate_key | default(true)
+    - gpg_check.rc == 0
+    - gpg_key_check.rc != 0
+  tags: ['backup', 'security']
+
+- name: Generate backup encryption key
+  command: gpg --batch --gen-key "{{ backup_local_dir }}/gpg-key-config"
+  register: gpg_generation
+  failed_when: false
+  when: 
+    - backup_encryption.enabled | default(true)
+    - backup_encryption.auto_generate_key | default(true)
+    - gpg_check.rc == 0
+    - gpg_key_check.rc != 0
+  tags: ['backup', 'security']
+
+- name: Clean up GPG key configuration file
+  file:
+    path: "{{ backup_local_dir }}/gpg-key-config"
+    state: absent
+  when: 
+    - backup_encryption.enabled | default(true)
+    - backup_encryption.auto_generate_key | default(true)
+  tags: ['backup', 'security']
+
+- name: Set encryption status based on key availability
+  set_fact:
+    backup_encryption_available: "{{ (gpg_check.rc == 0) and ((gpg_key_check.rc == 0) or (gpg_generation.rc == 0)) }}"
+  when: backup_encryption.enabled | default(true)
+  tags: ['backup', 'security']
+
+- name: Set encryption disabled status
+  set_fact:
+    backup_encryption_available: false
+  when: not (backup_encryption.enabled | default(true))
+  tags: ['backup', 'security']
+
+- name: Display backup encryption status
+  debug:
+    msg: |
+      {% if backup_encryption.enabled | default(true) %}
+        {% if backup_encryption_available | default(false) %}
+          ✅ Backup encryption enabled with GPG key: {{ backup_encryption.key_id | default('dotfiles-backup') }}
+        {% else %}
+          {% if backup_encryption.required | default(false) %}
+            ❌ Backup encryption required but GPG setup failed
+          {% else %}
+            ⚠️  Backup encryption preferred but GPG unavailable - using unencrypted backups
+            💡 To enable encryption: brew install gnupg && backup-create --setup-encryption
+          {% endif %}
+        {% endif %}
+      {% else %}
+        ℹ️  Backup encryption disabled by configuration
+      {% endif %}
+  tags: ['backup', 'security']
+
+- name: Fail if encryption required but unavailable
+  fail:
+    msg: |
+      Backup encryption is required but could not be set up.
+      
+      Possible issues:
+      - GPG not installed: brew install gnupg
+      - GPG key generation failed: check GPG configuration
+      - Insufficient entropy: try moving mouse/typing during key generation
+      
+      To disable encryption requirement, set: backup_encryption.required: false
+  when: 
+    - backup_encryption.enabled | default(true)
+    - backup_encryption.required | default(false)
+    - not (backup_encryption_available | default(false))
   tags: ['backup', 'security']
 
 - name: Create mackup configuration

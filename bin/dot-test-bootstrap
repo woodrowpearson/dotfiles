@@ -255,6 +255,20 @@ test_dependency_order() {
     else
         test_failed "backup checkpoint missing graceful error handling"
     fi
+    
+    # Check backup encryption graceful handling
+    if grep -q "backup_encryption_available" roles/backup/tasks/main.yml; then
+        test_passed "backup encryption handles GPG setup failures gracefully"
+    else
+        test_failed "backup encryption missing graceful error handling"
+    fi
+    
+    # Check backup encryption configuration options
+    if grep -q "backup_encryption.required.*default.*false" roles/backup/tasks/main.yml; then
+        test_passed "backup encryption defaults to non-required (bootstrap friendly)"
+    else
+        test_failed "backup encryption should default to non-required"
+    fi
 }
 
 # Test 7: Configuration files validation

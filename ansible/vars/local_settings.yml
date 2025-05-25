@@ -236,6 +236,32 @@ mas_installed_apps: [] # User did not specify any MAS-exclusive apps.
 # vercel_cli_enabled: true # Q47 (Vercel selected)
 # aws_credentials_method: "none" # Q48
 
+# Section 8: Backup System Configuration
+# Controls backup encryption behavior during bootstrap
+backup_encryption:
+  enabled: true          # Try to enable encryption (recommended for security)
+  required: false        # Don't fail bootstrap if encryption setup fails
+  auto_generate_key: true  # Auto-generate GPG key if needed
+  # key_id: "dotfiles-backup"  # Use specific GPG key (optional)
+
+# Backup encryption options (uncomment to customize):
+# Option 1: Disable encryption entirely (not recommended)
+# backup_encryption:
+#   enabled: false
+
+# Option 2: Require encryption (fail bootstrap if GPG setup fails)
+# backup_encryption:
+#   enabled: true
+#   required: true
+#   auto_generate_key: true
+
+# Option 3: Use existing GPG key only (don't auto-generate)
+# backup_encryption:
+#   enabled: true
+#   required: false
+#   auto_generate_key: false
+#   key_id: "your-existing-key-id"
+
 # Section 9: Customization (Vim, Shell Aliases)
 vim_color_scheme: "hybrid" # Q55
 vim_enable_relative_line_numbers: true # Q56
