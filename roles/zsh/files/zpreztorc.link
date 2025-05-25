@@ -35,7 +35,9 @@ zstyle ':prezto:load' pmodule \
   'prompt' \
   'git'  \
   'python' \
-  'autosuggestions'
+  'autosuggestions' \
+  'syntax-highlighting' \
+  'history-substring-search'
 #
 # Editor
 #

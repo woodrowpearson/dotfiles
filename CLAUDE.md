@@ -30,18 +30,31 @@ Each role in `roles/` may contain:
 
 ### Key Roles
 - `package_manager` - Homebrew setup and package installation
-- `zsh` - Shell configuration with Prezto
+- `macos` - macOS system settings (Dock, Finder, trackpad, screenshots)
 - `git` - Git configuration and aliases
-- `python` - Python environment with uv
+- `zsh` - Shell configuration with Prezto, syntax highlighting, autosuggestions
+- `dev-environment` - ~/code directory with API key stubs
+- `mise` - Multi-language runtime management (Node.js 20, Go)
+- `python` - Python environment with uv and tools (pytest, ruff, black, mypy, poetry, pyright, jupyterlab)
+- `rust` - Rust toolchain via rustup
+- `alacritty` - Terminal emulator with custom theme and Hack font
+- `vscode` - VS Code configuration with Claude Code extension
 - `vim` - Vim configuration with vim-plug
-- `macos` - macOS-specific settings and defaults
 
 ### Configuration Variables
 Primary configuration in `group_vars/local`:
-- `full_name`, `git_user`, `git_email` - Personal information
-- `mac_homebrew_packages` - CLI tools to install
-- `mac_cask_packages` - GUI applications to install
-- `mac_mas_packages` - Mac App Store applications
+- `full_name`, `git_user`, `git_email` - Personal information (woodrow pearson, woodrowpearson@gmail.com)
+- `mac_homebrew_packages` - Modern CLI tools (eza, bat, ripgrep, fzf, etc.)
+- `mac_cask_packages` - Essential apps (Chrome, VS Code, Alacritty, Spotify, OrbStack, BetterTouchTool, Tailscale)
+- `icloud_enabled: true` - Enable iCloud Drive symlink
+
+### Custom Features
+- Modern CLI tool replacements with aliases (ls→eza, cat→bat, grep→rg, etc.)
+- Custom Alacritty theme with pastel colors and contrasting background
+- ~/code directory with API key stub templates
+- Direnv integration for environment management
+- GNU coreutils prioritized over BSD versions
+- ZSH with Prezto, Pure theme, syntax highlighting, and autosuggestions
 
 ## Development Notes
 

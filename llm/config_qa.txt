@@ -1,0 +1,401 @@
+Configuration Questionnaire
+Section 1: Personal Identity & Authentication
+Q1 What is your full name? [text] (e.g., "John Doe") woodrow pearson
+ Q2 What is your primary email address? [email] (e.g., "john.doe@example.com") woodrowpearson@gmail.com
+ Q3 What is your Apple ID email? [email] (for Mac App Store installs) woody123@u.washington.edu
+ Q4 What is your GitHub username? [text] (e.g., "johndoe") woodrowpearson
+ Q5 Do you have existing SSH keys? [yes/no/generate] no
+ Q6 Do you use GPG signing for Git commits? [yes/no/generate] no
+ Q7 If yes to Q6, what is your GPG key ID? [text] (e.g., "ABCD1234")
+ Q8 What should be your default Git editor? [choice: vim/nvim/vscode/sublime/nano/other] vscode
+Section 2: System & Hardware
+Q9 What is your Mac's hostname? [text] (default: "mac") w-mbp (scutil --set HostName "w-mbp" and scutil --set LocalHostName "w-mbp)
+ Q10 What is your local domain? [text] (default: "local", for Bonjour) w-mbp.local
+ Q11 Do you want to enable iCloud Drive symlink to ~/iCloud? [yes/no] Yes
+ Q12 Enable FileVault disk encryption? [yes/no] (default: yes) no
+ Q13 Enable macOS firewall? [yes/no] (default: yes) yes
+ Q14 What is your preferred Dock size? [number: 24-128] (default: 48) 48
+ Q15a Do you want to autohide the Dock? [yes/no] (default: yes) no
+Q15b Do you want to place dock at bottom/left/right? left
+ Q16 Enable tap-to-click on trackpad? [yes/no] (default: yes) no
+ Q17 Show path bar in Finder? [yes/no] (default: yes) yes
+ Q18 Show hidden files in Finder by default? [yes/no] (default: no) yes
+ Q19 Hot corner actions? [multi-select] NO
+[ ] Top-left: Mission Control 
+[ ] Top-right: Desktop
+[ ] Bottom-left: Start Screen Saver
+[ ] Bottom-right: Disable Screen Saver 
+Q20 Number of Mission Control spaces? [number: 1-16] (default: 1)
+Section 3: Regional Settings
+Q21 Your timezone? [text] (e.g., "America/New_York") America/Los_Angeles
+ Q22 Keyboard layout? [text] (default: "US")
+ Q23 System locale? [text] (default: "en_US.UTF-8")
+ Q24 NTP time server? [text] (default: "time.apple.com")
+Section 4: Development Environment
+Q25 Install Rosetta 2 for x86 compatibility? [yes/no] (default: yes)
+ Q26 Install full Xcode.app or just Command Line Tools? [xcode/clt] (default: clt)
+ Q27 Use corporate proxy for package downloads? [yes/no] no
+ Q28 If yes to Q27, proxy URL? [text] (e.g., "http://proxy.company.com:8080")
+Q29 Which programming languages do you actively use? [multi-select]
+Language
+Select
+Language
+Select
+Python
+[X ]
+Ruby
+[ ]
+JavaScript/TypeScript
+[X ]
+Java
+[ ]
+Rust
+[X ]
+Swift
+[ ]
+Go
+[X ]
+C/C++
+[ ]
+Other: _________
+
+
+
+
+
+
+
+Q30 Use asdf for multi-language runtime management? [yes/no] (mature alternative to mise) yes
+Q31 For Python development, which tools do you need? [multi-select]
+Web / API Back‑end dev → pytest, ruff, black, mypy, poetry. IPython for shells, Jupyter optional.
+Data science / ML → add Jupyter (or JupyterLab) plus black‑compatible formatter, keep pytest for model tests.
+Legacy projects → consider flake8 + isort if entangled CI relies on them; otherwise migrate to ruff.
+Large typed codebases → trial pyright alongside mypy; may deliver faster CI.
+Tool
+Select
+Tool
+Select
+ipython
+[ ]
+black
+[X ]
+pytest
+[X ]
+ruff
+[ X]
+mypy
+[X ]
+poetry
+[ X]
+pipenv
+pyright
+[ ]
+[ X]
+jupyterLab
+[X ]
+
+pyright [X]
+Q32 Default Node.js version? [text] (default: "20")
+ Q33 Do you need Docker? [yes/no] yes
+ Q34 If yes to Q33, prefer Docker Desktop or OrbStack? [docker/orbstack] (default: orbstack)
+Section 5: Terminal & Shell
+Q35 Shell framework? [choice: prezto/oh-my-zsh/zinit/none] (default: prezto)
+ Q36 Shell theme? [choice: pure/powerlevel10k/starship/none] (default: pure)
+ Q37 Default login shell path? [choice: /bin/zsh/homebrew-zsh] (default: homebrew-zsh) /bin/zsh
+ Q38 Which terminal emulator? [choice: terminal/iterm2/warp/kitty/alacritty] (default: terminal) alacritty
+ Q39 Enable shell autosuggestions? [yes/no] (default: yes) yes
+ Q40 Preferred terminal font? [choice: hack/fira-code/jetbrains-mono/sf-mono/other] (default: hack)
+Section 6: Applications & Tools
+Q41 Auto-sign into Mac App Store? [yes/no/skip] (skip if corporate-managed) yes
+Q42 Which browsers do you use? [multi-select]
+Browser
+Select
+Browser
+Select
+Safari
+[x]
+Chrome
+[x ]
+Firefox
+[ ]
+Arc
+[ ]
+Brave
+[ ]
+Edge
+[ ]
+
+Q43 Which productivity apps? [multi-select]
+App
+Select
+App
+Select
+1Password
+[ ]
+Raycast
+[ ]
+Alfred
+[ ]
+Obsidian
+[ ]
+Notion
+[ ]
+Things 3
+[ ]
+Todoist
+[ ]
+Fantastical
+[ ]
+Slack
+[ ]
+Discord
+[ ]
+Zoom
+[ ]
+Spotify
+[ x]
+
+Q44 Which development tools? [multi-select]
+Tool
+Select
+Tool
+Select
+Visual Studio Code
+[X ]
+Sublime Text
+[ ]
+TablePlus
+[ ]
+Insomnia
+[ ]
+Postman
+[ ]
+Tower
+[ ]
+Fork
+[ ]
+Dash
+[ ]
+
+Q45 Install BetterTouchTool? [yes/no] (default: no) yes
+ Q46a If yes to Q45, upload preset file? [file/skip] (optional) skip
+Q46b If yes to Q45 explain what you want in your preset file? 
+- 4 fingers down opens my default screenshots folder (icloud drive --> 02 - screenshots
+Section 7: Cloud Services & APIs
+Q47 Which cloud providers do you use? [multi-select]
+Provider
+Select
+Provider
+Select
+AWS
+[ X]
+Google Cloud
+[X ]
+Azure
+[ ]
+DigitalOcean
+[ ]
+Vercel
+[X ]
+Netlify
+[ ]
+Heroku
+[ ]
+
+
+
+
+
+Q48 AWS credentials method? [choice: keys/saml/1password-cli/none] (default: none)
+ Q49 Install Tailscale VPN? [yes/no] (default: no) yes
+ Q50 Install Ollama for local AI models? [yes/no] (default: no)
+ Q51 If yes to Q50, which models? [text] (comma-separated, e.g., "llama2,codellama")
+Section 8: Optional Services
+Q52 Install AdGuard Home? [yes/no] (default: no) no
+ Q53 Install Beszel monitoring? [yes/no] (default: no) no
+ Q54 Configure as home server? [yes/no] (default: no)
+Section 9: Customization
+Q55 Vim color scheme? [choice: hybrid/gruvbox/nord/dracula/one-dark/custom] (default: hybrid)
+ Q56 Enable Vim relative line numbers? [yes/no] (default: yes)
+ Q57 Screenshot format? [choice: png/jpg/pdf] (default: png)
+ Q58 Screenshot location? [choice: desktop/downloads/pictures/custom] (default: desktop) custom (Icloud Drive --> 02 - screenshots
+ Q59 Any other customizations? [text] (free-form, optional) 
+1. i want the terminal shell to have icons to help inform me about tasks. i like themes with color palettes that use a background that contrasts (black/white) well with text and icons and stuff using a pastel palette: bright-blue #4381DF.  #B3FFE1 gradient light, (coral-orange #FF9A6F, salmon-pink #FFC4B4, cream-yellow #FFEDB9
+2. install direnv and zshrc direnv hook
+3. create folder ~/code and place system wide config and secrets and env  dot files/folders in here.
+4. create stubs in the .env for common api keys for AI and cloud providers (anthropic, perplexity, gemini, chatgpt, aws, gcp, vertex, GITHUB_TOKEN, etc.)
+5. default browser: chrome
+6. analyze attached screenshots of system and app settings i want included in the dot files repository if possible.
+7. install claude-code
+8. install https://github.com/guarinogabriel/Mac-CLI
+9. add the below utilities/tools/config choices if not already present:
+1 – macOS‑Specific Utilities (Essential)
+Package
+Purpose
+Why It’s Handy on macOS
+mas
+CLI for Mac App Store
+Automate MAS app installs/updates in scripts & dotfiles.
+dockutil
+Edit Dock items via CLI
+Lets Ansible/zsh scripts declaratively set Dock layout.
+m-cli (brew install m-cli)
+Swiss‑army knife for macOS settings (Bluetooth, Wi‑Fi, Gatekeeper, etc.)
+One unified m command instead of multiple defaults write incantations.
+switchaudio‑osx
+Switch audio input/output devices
+Great for meeting setups; bind to hotkeys.
+blueutil
+Toggle/query Bluetooth
+Automate AirPods connect/disconnect in shell scripts.
+trash
+Safe rm wrapper moving files to Trash
+Undo accidental deletes from CLI.
+
+
+Default Cmd
+Replacement
+Brew Package
+Suggested Alias
+Why Upgrade
+ls
+eza
+eza
+alias ls='eza -alh --icons'
+Git‑aware, colors, icons, human sizes.
+cat
+bat
+bat
+alias cat='bat --paging=never'
+Syntax‑highlight + line numbers.
+grep
+ripgrep (rg)
+ripgrep
+alias grep='rg --color=auto'
+Fast recursive search, respects .gitignore.
+find
+fd
+fd
+alias find='fd'
+Simpler syntax, ripgrep‑style patterns.
+du
+dust
+dust
+alias du='dust -r'
+Colored, better tree visual.
+top
+htop / btop
+htop or btop
+—
+Interactive, CPU temp, mouse.
+ps aux
+procs
+procs
+—
+Colorized ps replacement with Git info.
+diff
+delta
+git-delta
+alias diff='delta'
+Syntax‑aware side‑by‑side diffs.
+sed
+gnu‑sed (gsed)
+gnu-sed
+alias sed='gsed'
+Full GNU features.
+tar
+gnu‑tar (gtar)
+gnu-tar
+alias tar='gtar'
+Handles long paths, xattrs reliably.
+coreutilsbundle
+—
+coreutils
+alias cp='gcp' etc. (prepend g‑)
+GNU versions of cp, mv, date, etc.
+Fuzzy search
+fzf
+fzf
+— (key‑bindings)
+Ctrl‑R history search, file pickers.
+Pager
+less → most or nvimpager
+mostnvimpager
+—
+Syntax‑highlighted paging.
+
+Tip: Include brew install coreutils gnu-sed gnu-tar findutils grep and add $(brew --prefix coreutils)/libexec/gnubin to $PATH before /usr/bin to transparently use GNU commands without gprefix.
+Plugin
+What It Adds
+Install Method
+zsh-autosuggestions
+Real‑time suggestion based on history.
+Prezto or antigen module.
+zsh-syntax-highlighting
+Colors invalid vs valid commands before run.
+Same as above.
+fzf-tab
+Fuzzy‑match tab‑completion menu.
+brew install fzf-tab + plugin loader.
+zsh-history-substring-search
+↑/↓ to cycle through history matching current prefix.
+Plugin loader.
+thefuck
+fuck auto‑correct previous command.
+brew install thefuck; add eval line in .zshrc.
+
+
+git‑open
+git open to open repo in browser.
+brew install git-open.
+
+# Navigation
+alias ..="cd .."; alias ...="cd ../.."; alias ....="cd ../../.."
+# Listing
+alias ll='ls -lh'
+alias la='ls -lAh'
+alias lsd='ls -l | grep ^d'   # only directories
+# Git shortcuts
+alias gs='git status -sb'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gco='git checkout'
+# Safety
+alias rm='trash'              # move to Trash instead of delete
+# Networking
+alias wget='curl -O'
+# Quick serve current dir
+alias serve='python3 -m http.server 8000'
+# Clipboard helpers
+alias pbcopy='pbcopy'          # default but documents
+alias pbpaste='pbpaste'
+alias copypath='pwd | tr -d "\n" | pbcopy'
+# `extract <file>` auto‑detect archive type
+extract() {
+  if [[ -f $1 ]]; then
+    case $1 in
+      *.tar.bz2) tar xjf $1 ;;
+      *.tar.gz)  tar xzf $1 ;;
+      *.bz2)     bunzip2 $1 ;;
+      *.rar)     unrar x $1 ;;
+      *.gz)      gunzip $1 ;;
+      *.tar)     tar xf $1 ;;
+      *.tbz2)    tar xjf $1 ;;
+      *.tgz)     tar xzf $1 ;;
+      *.zip)     unzip $1 ;;
+      *.Z)       uncompress $1 ;;
+      *.7z)      7z x $1 ;;
+      *)         echo "Cannot extract '$1'" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+GNU coreutils path shim: ensure /opt/homebrew/opt/coreutils/libexec/gnubin precedes /usr/bin.
+Autosuggestions + syntax‑highlighting not present—add Prezto/antigen modules.
+fzf key‑bindings & completion: run $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-bash. Document this.
+
+
+
+

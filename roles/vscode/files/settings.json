@@ -1,0 +1,50 @@
+{
+  // Editor settings optimized for development workflow
+  "editor.fontSize": 14,
+  "editor.fontFamily": "Hack, Monaco, 'Courier New', monospace",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.wordWrap": "on",
+  "editor.lineNumbers": "on",
+  "editor.renderWhitespace": "boundary",
+  "editor.rulers": [80, 120],
+  
+  // Terminal integration with Alacritty
+  "terminal.external.osxExec": "Alacritty.app",
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontFamily": "Hack",
+  
+  // Git integration
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  
+  // Language-specific settings
+  "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true,
+  "python.linting.ruffEnabled": true,
+  "python.linting.mypyEnabled": true,
+  
+  // JavaScript/TypeScript
+  "typescript.preferences.quoteStyle": "single",
+  "javascript.preferences.quoteStyle": "single",
+  
+  // File associations
+  "files.associations": {
+    "*.zsh": "shellscript",
+    "*.yml": "yaml",
+    "*.yaml": "yaml"
+  },
+  
+  // Workbench appearance
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "vs-seti",
+  
+  // Auto-save
+  "files.autoSave": "onFocusChange",
+  
+  // Extensions
+  "extensions.autoUpdate": true
+}

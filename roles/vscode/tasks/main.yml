@@ -1,0 +1,15 @@
+- name: Create VS Code user settings directory
+  file:
+    path: "{{ dotfiles_user_home }}/Library/Application Support/Code/User"
+    state: directory
+    mode: '0755'
+
+- name: Install VS Code settings
+  copy:
+    src: settings.json
+    dest: "{{ dotfiles_user_home }}/Library/Application Support/Code/User/settings.json"
+    mode: '0644'
+
+- name: Install Claude Code extension
+  command: code --install-extension Anthropic.claude-code
+  failed_when: false

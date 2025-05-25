@@ -1,2 +1,14 @@
 - name: Install uv
   homebrew: name=uv state=present
+
+- name: Install global Python tools
+  command: uv tool install {{ item }}
+  loop:
+    - pytest
+    - ruff
+    - black
+    - mypy
+    - poetry
+    - pyright
+    - jupyterlab
+  failed_when: false

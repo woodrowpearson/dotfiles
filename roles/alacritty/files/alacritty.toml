@@ -1,0 +1,57 @@
+# Alacritty configuration for modern development workflow
+# Questionnaire preferences: Hack font, pastel colors, contrasting background
+
+[window]
+decorations = "buttonless"
+startup_mode = "Windowed"
+opacity = 0.95
+
+[font]
+normal = { family = "Hack", style = "Regular" }
+bold = { family = "Hack", style = "Bold" }
+italic = { family = "Hack", style = "Italic" }
+bold_italic = { family = "Hack", style = "Bold Italic" }
+size = 14.0
+
+[colors]
+# Pastel color palette with contrasting black background (per Q59.1)
+[colors.primary]
+background = "#1a1a1a"  # Contrasting black background
+foreground = "#e0e0e0"  # Light text
+
+[colors.normal]
+black = "#2e2e2e"
+red = "#ff6b6b"
+green = "#b3ffe1"       # Gradient light from questionnaire
+blue = "#4381df"        # Bright blue from questionnaire
+yellow = "#ffedb9"      # Cream yellow from questionnaire
+magenta = "#ffc4b4"     # Salmon pink from questionnaire
+cyan = "#87ceeb"
+white = "#ffffff"
+
+[colors.bright]
+black = "#555555"
+red = "#ff9999"
+green = "#d4ffed"
+blue = "#6ba3ff"
+yellow = "#fff4d1"
+magenta = "#ffd7c9"     # Lighter salmon
+cyan = "#b3e5fc"
+white = "#ffffff"
+
+[colors.cursor]
+text = "#1a1a1a"
+cursor = "#4381df"
+
+[selection]
+text = "#1a1a1a"
+background = "#b3ffe1"
+
+[scrolling]
+history = 10000
+
+[mouse]
+hide_when_typing = true
+
+[terminal]
+shell = { program = "/bin/zsh", args = ["-l"] }

@@ -1,0 +1,11 @@
+- name: Create Alacritty config directory
+  file:
+    path: "{{ dotfiles_user_home }}/.config/alacritty"
+    state: directory
+    mode: '0755'
+
+- name: Install Alacritty configuration
+  copy:
+    src: alacritty.toml
+    dest: "{{ dotfiles_user_home }}/.config/alacritty/alacritty.toml"
+    mode: '0644'

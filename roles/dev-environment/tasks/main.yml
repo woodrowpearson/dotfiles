@@ -1,0 +1,31 @@
+- name: Create ~/code directory
+  file:
+    path: "{{ dotfiles_user_home }}/code"
+    state: directory
+    mode: '0755'
+
+- name: Create .env template with API key stubs
+  template:
+    src: .env.template
+    dest: "{{ dotfiles_user_home }}/code/.env"
+    mode: '0600'
+    force: no  # Don't overwrite existing file
+
+- name: Create .gitignore for ~/code
+  copy:
+    content: |
+      # Environment files
+      .env
+      .env.local
+      .env.*.local
+      
+      # Secrets
+      *.key
+      *.pem
+      credentials.json
+      
+      # IDE
+      .vscode/settings.json
+      .idea/
+    dest: "{{ dotfiles_user_home }}/code/.gitignore"
+    mode: '0644'
