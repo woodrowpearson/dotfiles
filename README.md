@@ -1,50 +1,60 @@
 # dotfiles
 
-[sloria's dotfiles](https://github.com/sloria/dotfiles-old), rewritten as Ansible roles. Sets up a full local development environment with a **single command.**
+woodrow pearson's dotfiles, forked from [sloria's dotfiles](https://github.com/sloria/dotfiles-old) and rewritten as Ansible roles. Sets up a complete development environment with **automated setup and configuration.**
 
 **As of 2025, this repo only supports macOS.** There's still remnants of Red Hat and Debian support, but they are not maintained.
 
-## a few neat features
+## features
 
-- zsh configured with [prezto](https://github.com/sorin-ionescu/prezto).
-- nice fonts for the terminal and coding.
-- python managed with [uv](https://docs.astral.sh/uv/)
-- vim with [vim-plug](https://github.com/junegunn/vim-plug) for plugin management. All configuration in a single file [.vimrc](https://github.com/sloria/dotfiles/blob/master/roles/vim/files/vimrc).
-- pluggable. Everything is optional. Fork this. Remove what you don't use. Configure what you do use.
-- Mac packages installed with [homebrew][]. Mac apps installed with [homebrew cask][] and [mas][].
-- Useful git aliases
+**🚀 Zero-to-Productive Development Environment:**
+- **One-command setup**: Fresh macOS to fully configured in <30 minutes
+- **Smart project scaffolding**: `newproject python my-api` → Complete project with CI/CD
+- **Interactive configuration**: Guided setup of API keys, SSH, GPG
+- **Modern toolchain**: Alacritty + ZSH + Prezto + Pure theme with pastel colors
 
-## prerequisites
+**🛠️ Development Tools:**
+- **Languages**: Python (uv), Node.js 20, Rust, Go via mise
+- **Editors**: VS Code with Claude Code extension, comprehensive language support
+- **CLI Tools**: 15+ modern replacements (eza, bat, ripgrep, fzf, etc.)
+- **Git**: Extensive aliases and GitHub CLI integration
 
-- homebrew (If on macOS) - **Install this first**
-- git: `brew install git`
-- ansible >= 1.6: `brew install ansible`
+**⚡ Automation & Quality:**
+- **CI/CD Templates**: GitHub Actions for Python, Node.js, Rust
+- **Pre-commit hooks**: Automated code quality and formatting
+- **Secrets management**: Global + per-project environment variables
+- **macOS integration**: System settings, Dock, Finder, screenshots
 
-## install
+## quick start
 
-- [Fork](https://github.com/sloria/dotfiles/fork) this repo.
-- Clone your fork.
-
+**🎯 One-Command Setup (Fresh macOS):**
 ```bash
-# Replace git url with your fork
-# NOTE: It is important that you clone to ~/dotfiles
-git clone https://github.com/YOU/dotfiles.git ~/dotfiles
+curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
+```
+This installs prerequisites (Xcode tools, Homebrew, Ansible, Git, GitHub CLI) and clones the repository.
+
+**🔧 Complete Installation:**
+```bash
 cd ~/dotfiles
+./bin/dot-bootstrap    # Install everything
+./bin/dot-configure    # Interactive setup (API keys, SSH, etc.)
 ```
 
-- Update the following variables in `group_vars/local` (at a minimum)
-  - `full_name`: Your name, which will be attached to commit messages, e.g. "Steven Loria"
-  - `git_user`: Your Github username.
-  - `git_email`: Your git email address.
-- Optional, but recommended: Update `group_vars/local` with the programs you want installed by [homebrew][], [homebrew-cask][], and npm.
-  - `mac_homebrew_packages`: Utilities that don't get installed by the roles.
-  - `mac_cask_packages`: Mac Apps you want installed with [homebrew-cask][].
-- Edit `local_env.yml` as you see fit. Remove any roles you don't use. Edit roles that you do use.
-- Run the installation script.
-
+**⚡ Create Your First Project:**
 ```bash
-./bin/dot-bootstrap
+newproject python my-api  # Scaffolds complete project with CI/CD
+cd ~/code/my-api
+code .  # Opens in VS Code with all extensions
 ```
+
+## manual installation
+
+If you prefer manual setup:
+
+1. **Prerequisites**: Homebrew, Git, Ansible
+2. **Clone**: `git clone https://github.com/woodrowpearson/dotfiles.git ~/dotfiles`
+3. **Configure**: Update personal info in `group_vars/local`
+4. **Install**: `./bin/dot-bootstrap`
+5. **Configure**: `./bin/dot-configure`
 
 ## authenticating with github
 
@@ -71,19 +81,31 @@ dot-update git python
 
 ## updating your dotfiles repo
 
-To keep your fork up to date with the `sloria` fork:
+To keep your fork up to date with the original:
 
-```
-git remote add sloria https://github.com/sloria/dotfiles.git
-git pull sloria master
+```bash
+git remote add upstream https://github.com/woodrowpearson/dotfiles.git
+git pull upstream main
 ```
 
 ## commands
 
-There are three main commands in the `bin` directory for setting up and updating development environments:
+**Setup & Configuration:**
+- `dot-install`: One-command fresh macOS setup (prerequisites + clone)
+- `dot-bootstrap`: Complete environment setup (all roles)
+- `dot-configure`: Interactive configuration (API keys, SSH, GPG, VS Code)
+- `dot-update`: Update environment (skip bootstrap roles)
+- `dot-update <role>`: Update specific roles
 
-- `dot-bootstrap`: sets up local environment by executing all roles in `local_env.yml`.
-- `dot-update`: updates local environment by executing all roles in `local_env.yml` except for the ones tagged with "bootstrap".
+**Development:**
+- `newproject <language> <name>`: Create project with templates (python, node, rust, go, web)
+- `code ~/code/.env`: Edit global environment variables
+
+**System Management (Mac-CLI aliases):**
+- `sysinfo`: System performance details
+- `speedtest`: Internet speed test
+- `gitlog`: Recent git commits
+- `updateall`: Update macOS, Homebrew, npm, gems
 
 ## special files
 

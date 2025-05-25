@@ -4,6 +4,21 @@
 
 set -e
 
+# Show help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "dot-configure - Interactive post-setup configuration"
+    echo ""
+    echo "This script guides you through configuring:"
+    echo "  • SSH keys and GitHub authentication"
+    echo "  • API keys for development (Anthropic, OpenAI, GitHub)"
+    echo "  • GPG commit signing setup"
+    echo "  • VS Code extensions installation"
+    echo "  • Git user configuration"
+    echo ""
+    echo "Run this after dot-bootstrap for complete setup."
+    exit 0
+fi
+
 echo "🔧 dotfiles Post-Setup Configuration"
 echo "This script will help configure personal settings and API keys."
 echo ""
@@ -32,7 +47,7 @@ prompt_with_default() {
         input="$default"
     fi
     
-    eval "$var_name='$input'"
+    declare -g "$var_name=$input"
 }
 
 # Function to prompt for sensitive input
@@ -42,7 +57,7 @@ prompt_sensitive() {
     
     echo -e "${YELLOW}$prompt (input hidden):${NC}"
     read -s input
-    eval "$var_name='$input'"
+    declare -g "$var_name=$input"
     echo ""
 }
 

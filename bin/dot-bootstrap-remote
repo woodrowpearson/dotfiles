@@ -2,7 +2,7 @@
 set -e
 
 echo "Setting up remote environment(s)..."
-ansible-playbook -i ~/dotfiles/hosts ~/dotfiles/mac-mini.yml --ask-become-pass
+ansible-playbook -i ~/dotfiles/hosts ~/dotfiles/remote_env.yml --ask-become-pass
 
 # If terminal-notifier is installed, use it to display a notification
 if command -v terminal-notifier 1>/dev/null 2>&1; then

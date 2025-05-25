@@ -4,6 +4,24 @@
 
 set -e
 
+# Show help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "dot-install - One-command fresh macOS setup"
+    echo ""
+    echo "This script installs prerequisites for dotfiles:"
+    echo "  • Xcode Command Line Tools"
+    echo "  • Homebrew package manager"
+    echo "  • Git, Python, Ansible"
+    echo "  • GitHub CLI authentication"
+    echo "  • Clones dotfiles repository"
+    echo ""
+    echo "Usage: curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash"
+    echo "   or: ./bin/dot-install"
+    echo ""
+    echo "After installation, run: ./bin/dot-bootstrap"
+    exit 0
+fi
+
 echo "🚀 dotfiles Installation Script"
 echo "This will install prerequisites and set up your development environment."
 echo ""
@@ -89,6 +107,12 @@ if [[ ! -d "$DOTFILES_DIR" ]]; then
     echo "Enter your GitHub username (default: woodrowpearson):"
     read -r github_user
     github_user=${github_user:-woodrowpearson}
+    
+    # Validate GitHub username format
+    if [[ ! "$github_user" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$ ]]; then
+        echo "Error: Invalid GitHub username format"
+        exit 1
+    fi
     
     git clone "https://github.com/$github_user/dotfiles.git" "$DOTFILES_DIR"
     echo -e "${GREEN}✅ Dotfiles repository cloned${NC}"

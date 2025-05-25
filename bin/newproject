@@ -4,14 +4,35 @@
 
 set -e
 
+# Show help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "newproject - Create a new project with templates and CI/CD"
+    echo ""
+    echo "Usage: newproject <language> <project-name> [template]"
+    echo ""
+    echo "Languages:"
+    echo "  python    - Python project with uv, pytest, ruff, black, mypy"
+    echo "  node      - Node.js project with npm, eslint, prettier"
+    echo "  rust      - Rust project with cargo"
+    echo "  go        - Go project with go modules"
+    echo "  web       - Static web project with HTML/CSS/JS"
+    echo ""
+    echo "Templates: basic, api, cli, web"
+    echo ""
+    echo "Examples:"
+    echo "  newproject python my-api"
+    echo "  newproject node my-app"
+    echo "  newproject rust my-tool"
+    exit 0
+fi
+
 LANGUAGE=$1
 PROJECT_NAME=$2
 TEMPLATE=${3:-"basic"}
 
 if [[ -z "$LANGUAGE" || -z "$PROJECT_NAME" ]]; then
     echo "Usage: newproject <language> <project-name> [template]"
-    echo "Languages: python, node, rust, go, web"
-    echo "Templates: basic, api, cli, web"
+    echo "Run 'newproject --help' for more information."
     exit 1
 fi
 
@@ -30,8 +51,12 @@ cd "$PROJECT_DIR"
 
 # Initialize git
 git init
-git config user.name "woodrow pearson"
-git config user.email "woodrowpearson@gmail.com"
+
+# Use existing git config or fallback to defaults
+GIT_NAME=$(git config --global user.name 2>/dev/null || echo "woodrow pearson")
+GIT_EMAIL=$(git config --global user.email 2>/dev/null || echo "woodrowpearson@gmail.com")
+git config user.name "$GIT_NAME"
+git config user.email "$GIT_EMAIL"
 
 # Copy base .env template
 cp "$HOME/code/.env" ./.env

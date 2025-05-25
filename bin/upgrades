@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
+set -e
 
 echo "==> Upgrading Homebrew packages..."
-brew upgrade
+if command -v brew >/dev/null 2>&1; then
+    brew update && brew upgrade && brew cleanup
+else
+    echo "Homebrew not found, skipping..."
+fi
 echo "==> Upgrading Vim plugins..."
 vim +PlugUpdate +qall
 

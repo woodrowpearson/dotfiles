@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Fuzzy commit finder
 # Requires fzf
 # https://github.com/junegunn/fzf/wiki/Examples
