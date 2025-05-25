@@ -26,14 +26,7 @@ defaults write com.apple.finder ShowPathbar -bool true
 echo "  › Show hidden files"
 defaults write com.apple.finder AppleShowAllFiles -bool true
 
-echo "  › Set Dock size to 48 pixels"
-defaults write com.apple.dock tilesize -int 48
-
-echo "  › Position Dock on left side"
-defaults write com.apple.dock orientation -string "left"
-
-echo "  › Disable Dock autohide (user preference)"
-defaults write com.apple.dock autohide -bool false
+# Dock configuration is now handled by configure-dock.sh template
 
 echo "  › Disable trackpad tap-to-click"
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool false
@@ -44,9 +37,6 @@ defaults write com.apple.screencapture type -string "png"
 
 echo "  › Set screenshot location to iCloud Drive screenshots folder"
 defaults write com.apple.screencapture location -string "~/Library/Mobile Documents/com~apple~CloudDocs/02 - screenshots"
-
-echo "  › Apply Dock changes"
-killall Dock
 
 echo "  › Apply Finder changes"
 killall Finder

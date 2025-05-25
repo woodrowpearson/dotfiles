@@ -1,3 +1,27 @@
 ---
 icloud_enabled: true
 mac_mas_packages: []
+
+# Dock configuration
+dock_apps:
+  - name: "Google Chrome"
+    path: "/Applications/Google Chrome.app"
+  - name: "Alacritty"
+    path: "/Applications/Alacritty.app"
+  - name: "Terminal"
+    path: "/Applications/Utilities/Terminal.app"
+  - name: "Visual Studio Code"
+    path: "/Applications/Visual Studio Code.app"
+  - name: "Messages"
+    path: "/Applications/Messages.app"
+  - name: "Find My"
+    path: "/Applications/Find My.app"
+  - name: "Notes"
+    path: "/Applications/Notes.app"
+  - name: "System Settings"
+    path: "/Applications/System Settings.app"
+    fallback_path: "/Applications/System Preferences.app"
+  - name: "iPhone Mirroring"
+    path: "/Applications/iPhone Mirroring.app"
+  - name: "TextEdit"
+    path: "/Applications/TextEdit.app"

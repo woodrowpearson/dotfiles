@@ -2,6 +2,23 @@
   script: set-defaults.sh
   changed_when: false
 
+- name: Configure dock applications
+  template:
+    src: configure-dock.sh.j2
+    dest: /tmp/configure-dock.sh
+    mode: '0755'
+  register: dock_script
+
+- name: Apply dock configuration
+  shell: /tmp/configure-dock.sh
+  when: dock_script.changed
+  changed_when: true
+
+- name: Clean up dock configuration script
+  file:
+    path: /tmp/configure-dock.sh
+    state: absent
+
 - name: Ensure iCloud Drive is linked to ~/iCloud
   file:
     src: "{{dotfiles_user_home}}/Library/Mobile Documents/com~apple~CloudDocs"

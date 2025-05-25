@@ -150,6 +150,13 @@ cd ~/code/my-awesome-api
 code .  # Opens with all the right extensions
 ```
 
+### **Customize Your Dock**
+```bash
+# Edit dock applications in roles/macos/defaults/main.yml
+# Then apply changes:
+ansible-playbook -i hosts local_env.yml --tags macos
+```
+
 ### **Modern CLI Tools**
 ```bash
 # Your new superpowers (all included)

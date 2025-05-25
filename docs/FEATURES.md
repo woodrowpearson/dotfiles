@@ -161,9 +161,26 @@ newproject my-tool rust     # Rust project template
 
 ### System Preferences
 - **macOS Optimization**: Performance and usability tweaks
-- **Dock Configuration**: Clean, minimal dock setup
+- **Customizable Dock**: Automated dock setup with configurable applications
 - **Finder Enhancement**: Show hidden files, better defaults
 - **Security Settings**: Privacy and security optimizations
+
+### macOS Dock Configuration
+- **Template-driven Setup**: Easily customizable dock applications via YAML
+- **Smart Application Detection**: Graceful handling of missing applications
+- **Version Compatibility**: Automatic macOS version detection and fallbacks
+- **Optimized Layout**: Left positioning, 48px size, clean minimal appearance
+- **Default Applications**: Chrome, Alacritty, Terminal, VS Code, Messages, Find My, Notes, System Settings, iPhone Mirroring, TextEdit
+
+```yaml
+# Customize dock applications in roles/macos/defaults/main.yml
+dock_apps:
+  - name: "Your App"
+    path: "/Applications/Your App.app"
+  - name: "Fallback App"
+    path: "/Applications/New App.app"
+    fallback_path: "/Applications/Old App.app"
+```
 
 ## 📱 Application Management
 

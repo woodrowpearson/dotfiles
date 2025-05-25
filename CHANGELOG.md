@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🖥️ Added - Customizable macOS Dock Configuration
+- **Automated Dock Setup**: Clear existing dock items and configure with specified applications
+- **Template-based Configuration**: Easily customizable dock applications via Ansible variables
+- **macOS Version Compatibility**: Automatic handling of System Settings vs System Preferences
+- **Smart Application Detection**: Graceful handling of missing applications with warnings
+- **Optimized Dock Settings**: Left positioning, 48px size, disabled autohide and recent apps
+- **Flexible Application Paths**: Support for fallback paths and custom application locations
+
+#### 🎯 Default Dock Applications
+- Google Chrome, Alacritty, Terminal, VS Code, Messages, Find My, Notes, System Settings, iPhone Mirroring, TextEdit
+
+#### ⚙️ Configuration Location
+- Dock applications defined in `roles/macos/defaults/main.yml` under `dock_apps`
+- Dock behavior settings in `roles/macos/templates/configure-dock.sh.j2`
+
 ### 💾 Added - Multi-Layer Backup & Recovery System
 - **Comprehensive Backup Role**: Complete backup strategy for safe development environment management
 - **Bootstrap Safety Checkpoints**: Automatic safety points during environment setup process
