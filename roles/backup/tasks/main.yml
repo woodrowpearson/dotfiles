@@ -25,6 +25,7 @@
   stat:
     path: "{{ backup_base_dir | dirname }}"
   register: backup_drive_status
+  failed_when: false
 
 - name: Create external backup directories
   file:
@@ -191,7 +192,7 @@
     minute: "0"
     hour: "{{ backup_schedule.time.split(':')[0] }}"
     job: "{{ ansible_env.HOME }}/.local/bin/backup-create --config-only --quiet"
-    user: "{{ ansible_user }}"
+    user: "{{ ansible_env.USER }}"
   when: backup_schedule.automatic
 
 - name: Create dotfiles bin directory
@@ -210,8 +211,11 @@
   command: |
     tmutil addexclusion {{ item }}
   loop: "{{ time_machine_exclude_paths }}"
-  when: time_machine_enabled
+  when: 
+    - time_machine_enabled
+    - ansible_system == "Darwin"
   ignore_errors: yes
+  failed_when: false
 
 - name: Create backup verification script
   template:
