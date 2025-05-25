@@ -1,6 +1,14 @@
 ---
 # Checkpoint creation task for bootstrap integration
 
+- name: Check if backup infrastructure exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/backup-checkpoint"
+  register: backup_script_status
+  when: 
+    - backup_enabled | default(true)
+    - checkpoint_phase is defined
+
 - name: Execute backup checkpoint creation
   shell: |
     {{ ansible_env.HOME }}/.local/bin/backup-checkpoint auto {{ checkpoint_phase }}
@@ -9,6 +17,7 @@
   when: 
     - backup_enabled | default(true)
     - checkpoint_phase is defined
+    - backup_script_status.stat.exists
   register: checkpoint_result
   failed_when: checkpoint_result.rc != 0
   
@@ -16,3 +25,11 @@
   debug:
     msg: "✅ Checkpoint created: {{ checkpoint_phase }}"
   when: checkpoint_result is defined and checkpoint_result.changed
+
+- name: Display backup infrastructure not ready message
+  debug:
+    msg: "⚠️  Backup infrastructure not yet available, skipping {{ checkpoint_phase }} checkpoint"
+  when: 
+    - backup_enabled | default(true)
+    - checkpoint_phase is defined
+    - not backup_script_status.stat.exists

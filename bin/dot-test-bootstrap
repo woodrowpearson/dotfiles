@@ -248,6 +248,13 @@ test_dependency_order() {
     else
         test_failed "python role missing Python dependency check"
     fi
+    
+    # Check backup checkpoint graceful handling
+    if grep -q "backup_script_status.stat.exists" roles/backup/tasks/checkpoint.yml; then
+        test_passed "backup checkpoint handles missing infrastructure gracefully"
+    else
+        test_failed "backup checkpoint missing graceful error handling"
+    fi
 }
 
 # Test 7: Configuration files validation
