@@ -53,11 +53,12 @@ Each role in `roles/` may contain:
 - `macos` - macOS system settings (Dock, Finder, trackpad, screenshots)
 - `git` - Git configuration and aliases
 - `zsh` - Shell configuration with Prezto, syntax highlighting, autosuggestions
+- `starship` - Next-generation shell prompt with git integration, icons, and dynamic coloring
 - `dev-environment` - ~/code directory with API key stubs
 - `mise` - Multi-language runtime management (Node.js 20, Go)
 - `python` - Python environment with uv and tools (pytest, ruff, black, mypy, poetry, pyright, jupyterlab)
 - `rust` - Rust toolchain via rustup
-- `alacritty` - Terminal emulator with custom theme and Hack font
+- `alacritty` - Terminal emulator with custom theme and Hack Nerd Font
 - `vscode` - VS Code configuration with Claude Code extension
 - `vim` - Vim configuration with vim-plug
 
@@ -75,7 +76,7 @@ Primary configuration in `group_vars/local`:
 - **Interactive Setup**: Guided configuration of API keys, SSH, and GPG with `dot-configure`
 - **One-Command Install**: From fresh macOS to fully configured in minutes with backup safety
 - **Modern CLI Tools**: 15+ replacements with intuitive aliases (ls→eza, cat→bat, grep→rg)
-- **Custom Terminal**: Alacritty with pastel theme, Hack font, contrasting background
+- **Custom Terminal**: Alacritty with pastel theme, Hack Nerd Font, Starship prompt with git integration and icons
 - **Smart Secrets**: Global .env template, per-project configurations, direnv integration
 - **Enhanced VS Code**: Language-specific settings, recommended extensions, integrated terminal
 - **CI/CD Templates**: GitHub Actions workflows for Python, Node.js, Rust

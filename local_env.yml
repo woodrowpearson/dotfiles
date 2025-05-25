@@ -21,6 +21,7 @@
     # Core development tools
     - { role: git, tags: ["git"] }
     - { role: zsh, tags: ["zsh", "bootstrap"] }
+    - { role: starship, tags: ["starship"] }
     
     # Programming languages (mise must come before dev-environment)
     - { role: mise, tags: ["mise"] }

@@ -1,0 +1,21 @@
+- name: Install Starship prompt
+  homebrew:
+    name: starship
+    state: present
+
+- name: Install Hack Nerd Font for Starship icons
+  homebrew_cask:
+    name: font-hack-nerd-font
+    state: present
+
+- name: Ensure config directory exists
+  file:
+    path: "{{ dotfiles_user_home }}/.config"
+    state: directory
+    mode: '0755'
+
+- name: Install Starship configuration
+  copy:
+    src: starship.toml
+    dest: "{{ dotfiles_user_home }}/.config/starship.toml"
+    mode: '0644'

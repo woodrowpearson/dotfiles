@@ -82,6 +82,7 @@ dotfiles/
 │   ├── 📖 [INSTALLATION.md](docs/INSTALLATION.md)  # Detailed setup guide
 │   ├── ⭐ [FEATURES.md](docs/FEATURES.md)           # Comprehensive feature list
 │   ├── 🎨 [CUSTOMIZATION.md](docs/CUSTOMIZATION.md) # Make it truly yours
+│   ├── 💻 [TERMINAL_CONFIGURATION.md](docs/TERMINAL_CONFIGURATION.md) # Enhanced terminal setup
 │   └── 🔧 [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) # When things go sideways
 ├── ⚙️  [group_vars/local](group_vars/)         # Configuration that matters
 ├── 🎬 [CLAUDE.md](CLAUDE.md)                  # Claude Code integration guide

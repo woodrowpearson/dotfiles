@@ -131,7 +131,7 @@ shell_theme_preference: "pure" # Q36 (sloria/dotfiles uses 'pure' by Sorin for P
 default_shell_path: "/bin/zsh" # Q37. Note: Homebrew Zsh is /opt/homebrew/bin/zsh. This choice is specific.
 terminal_emulator_preference: "alacritty" # Q38
 shell_enable_autosuggestions: true # Q39 (Typically a Zsh plugin)
-terminal_font_preference: "Hack" # Q40 (Install via homebrew_cask_fonts)
+terminal_font_preference: "Hack Nerd Font" # Q40 (Install via homebrew_cask_fonts)
 
 # Custom shell items from Q59
 install_direnv_tool: true # Q59.2

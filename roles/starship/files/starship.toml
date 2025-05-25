@@ -1,0 +1,190 @@
+# Starship Configuration
+# Enhanced terminal prompt with git status, path, user, and icons
+# Using pastel color palette from Alacritty config
+
+# Main prompt format
+format = """
+[┌─](bold #87ceeb)\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$python\
+$nodejs\
+$rust\
+$golang\
+$package\
+$fill\
+$cmd_duration\
+$time
+[└─](bold #87ceeb)$character"""
+
+# Right-side prompt for less important info
+right_format = """$status"""
+
+# Fill character between left and right prompts
+[fill]
+symbol = "─"
+style = "bold #87ceeb"
+
+# Current user
+[username]
+style_user = "bold #4381df"
+style_root = "bold #ff6b6b"
+format = "[$user]($style)"
+disabled = false
+show_always = true
+
+# Hostname (for remote systems)
+[hostname]
+ssh_only = true
+format = "[@$hostname](bold #ffc4b4) "
+disabled = false
+
+# Current directory
+[directory]
+style = "bold #b3ffe1"
+format = "[ $path]($style)[$read_only]($read_only_style) "
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " "
+read_only_style = "bold #ff6b6b"
+
+[directory.substitutions]
+"Documents" = " "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"code" = " "
+"dotfiles" = " "
+
+# Git branch
+[git_branch]
+symbol = " "
+style = "bold #4381df"
+format = "[$symbol$branch]($style) "
+truncation_length = 20
+truncation_symbol = "…"
+
+# Git status
+[git_status]
+style = "bold #ffedb9"
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+conflicted = "⚡"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked = "?${count}"
+stashed = "$${count}"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
+
+# Git state (merge, rebase, etc.)
+[git_state]
+style = "bold #ff6b6b"
+format = "\\([$state( $progress_current/$progress_total)]($style)\\) "
+rebase = "REBASING"
+merge = "MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
+am = "AM"
+am_or_rebase = "AM/REBASE"
+
+# Programming languages
+[python]
+symbol = " "
+style = "bold #ffedb9"
+format = "[$symbol$pyenv_prefix($version )(\\($virtualenv\\) )]($style)"
+
+[nodejs]
+symbol = " "
+style = "bold #b3ffe1"
+format = "[$symbol($version )]($style)"
+
+[rust]
+symbol = " "
+style = "bold #ff6b6b"
+format = "[$symbol($version )]($style)"
+
+[golang]
+symbol = " "
+style = "bold #87ceeb"
+format = "[$symbol($version )]($style)"
+
+[package]
+symbol = " "
+style = "bold #ffc4b4"
+format = "[$symbol$version]($style) "
+
+# Command duration
+[cmd_duration]
+min_time = 2000
+style = "bold #ffedb9"
+format = "[took $duration]($style) "
+
+# Current time
+[time]
+disabled = false
+style = "bold #87ceeb"
+format = "[$time]($style)"
+time_format = "%T"
+
+# Exit status
+[status]
+style = "bold #ff6b6b"
+format = "[✘ $status]($style) "
+disabled = false
+
+# Prompt character
+[character]
+success_symbol = "[❯](bold #b3ffe1)"
+error_symbol = "[❯](bold #ff6b6b)"
+vicmd_symbol = "[❮](bold #4381df)"
+
+# Docker
+[docker_context]
+symbol = " "
+style = "bold #4381df"
+format = "[$symbol$context]($style) "
+
+# Kubernetes
+[kubernetes]
+symbol = "☸ "
+style = "bold #ffc4b4"
+format = "[$symbol$context( \\($namespace\\))]($style) "
+disabled = false
+
+# AWS
+[aws]
+symbol = " "
+style = "bold #ffedb9"
+format = "[$symbol($profile )(\\($region\\) )]($style)"
+
+# Memory usage
+[memory_usage]
+disabled = true
+threshold = 70
+symbol = " "
+style = "bold #ff6b6b"
+
+# Battery
+[battery]
+full_symbol = " "
+charging_symbol = " "
+discharging_symbol = " "
+unknown_symbol = " "
+empty_symbol = " "
+
+[[battery.display]]
+threshold = 10
+style = "bold #ff6b6b"
+
+[[battery.display]]
+threshold = 30
+style = "bold #ffedb9"

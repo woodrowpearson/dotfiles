@@ -98,7 +98,7 @@ Each role follows Ansible best practices:
 **What it configures:**
 - Modern terminal emulator with GPU acceleration
 - Custom color scheme (pastel theme with contrasting background)
-- Hack font integration
+- Hack Nerd Font integration with icon support
 - Optimized for development workflow
 
 **Why you'll love it:** Blazing fast, beautiful, and actually configurable
@@ -132,6 +132,22 @@ Each role follows Ansible best practices:
 - `functions.zsh` - Useful shell functions
 
 **Why you'll love it:** Beautiful, fast, and makes the command line actually enjoyable
+
+### ⭐ `starship/` - Next-Generation Shell Prompt
+**What it configures:**
+- Cross-shell prompt with git integration and status indicators
+- Programming language detection with version display
+- Custom icons and colors using Hack Nerd Font
+- Dynamic git status with branch, staged/unstaged changes, and stash indicators
+- Execution time display for long-running commands
+
+**Visual features:**
+- Git branch and status icons (🔄 for changes, ✨ for staged, 📦 for stash)
+- Programming language context (🐍 Python, 🦀 Rust, ⚡ Node.js, etc.)
+- Custom color palette matching Alacritty theme
+- Clean, informative layout with visual separators
+
+**Why you'll love it:** Instantly see your project status, git state, and environment context with beautiful icons
 
 ---
 
