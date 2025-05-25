@@ -8,9 +8,19 @@ This is an Ansible-based dotfiles repository that sets up a complete macOS devel
 
 ## Key Commands
 
-- `./bin/dot-bootstrap` - Initial setup of local environment (runs all roles in `local_env.yml`)
+### Setup Commands
+- `curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash` - One-command fresh macOS setup
+- `./bin/dot-bootstrap` - Initial setup of local environment (runs all roles)
+- `./bin/dot-configure` - Interactive post-setup configuration (API keys, SSH, GPG)
 - `dot-update` - Update local environment (skips bootstrap-tagged roles)
 - `dot-update <role>` - Update specific role(s), e.g., `dot-update git python`
+
+### Development Commands
+- `newproject <language> <name>` - Create new project with templates (python, node, rust, go, web)
+- `code ~/code/.env` - Edit global environment variables
+- Various Mac-CLI aliases: `sysinfo`, `speedtest`, `gitlog`, `updateall`
+
+### Advanced Commands
 - `ansible-playbook -i hosts local_env.yml --tags <tag>` - Run specific tagged roles
 - `ansible-playbook -i hosts remote_env.yml` - Set up remote environment
 
@@ -49,17 +59,35 @@ Primary configuration in `group_vars/local`:
 - `icloud_enabled: true` - Enable iCloud Drive symlink
 
 ### Custom Features
-- Modern CLI tool replacements with aliases (ls→eza, cat→bat, grep→rg, etc.)
-- Custom Alacritty theme with pastel colors and contrasting background
-- ~/code directory with API key stub templates
-- Direnv integration for environment management
-- GNU coreutils prioritized over BSD versions
-- ZSH with Prezto, Pure theme, syntax highlighting, and autosuggestions
+- **Project Scaffolding**: `newproject python my-api` creates fully configured projects with CI/CD
+- **Interactive Setup**: Guided configuration of API keys, SSH, and GPG with `dot-configure`
+- **One-Command Install**: From fresh macOS to fully configured in minutes
+- **Modern CLI Tools**: 15+ replacements with intuitive aliases (ls→eza, cat→bat, grep→rg)
+- **Custom Terminal**: Alacritty with pastel theme, Hack font, contrasting background
+- **Smart Secrets**: Global .env template, per-project configurations, direnv integration
+- **Enhanced VS Code**: Language-specific settings, recommended extensions, integrated terminal
+- **CI/CD Templates**: GitHub Actions workflows for Python, Node.js, Rust
+- **Pre-commit Hooks**: Automated code quality checks
+- **Mac-CLI Integration**: System management shortcuts and developer utilities
 
 ## Development Notes
 
+### Workflow Patterns
+- **Zero-to-Productive**: Complete setup from fresh macOS in under 30 minutes
+- **Project Creation**: `newproject` provides language-specific scaffolding with CI/CD
+- **Secrets Management**: Global defaults, per-project overrides, secure configuration
+- **Code Quality**: Pre-commit hooks, formatters, linters configured by default
+
+### Repository Structure
 - All roles are tagged for selective execution
 - Bootstrap-tagged roles only run during initial setup
-- The repository supports both local and remote machine setup
-- Remote setup includes additional roles like ollama, beszel-agent, and adguard
-- macOS-specific functionality is conditionally executed based on `ansible_os_family`
+- Templates directory provides CI/CD and configuration templates
+- Scripts in `bin/` are automatically added to PATH
+- Remote setup supports server configurations
+
+### Best Practices Alignment
+- Self-documenting with comprehensive `CLAUDE.md`
+- Modular, composable Ansible roles
+- Safe defaults with easy customization
+- Automated testing via GitHub Actions templates
+- Security-conscious (SSH keys, GPG, API key management)

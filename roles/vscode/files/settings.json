@@ -9,42 +9,148 @@
   "editor.lineNumbers": "on",
   "editor.renderWhitespace": "boundary",
   "editor.rulers": [80, 120],
+  "editor.minimap.enabled": false,
+  "editor.cursorBlinking": "smooth",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll": true
+  },
   
   // Terminal integration with Alacritty
   "terminal.external.osxExec": "Alacritty.app",
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.fontFamily": "Hack",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.cursorBlinking": true,
   
   // Git integration
   "git.confirmSync": false,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
+  "git.decorations.enabled": true,
+  "git.showInlineOpenFileAction": false,
   
-  // Language-specific settings
+  // Python settings
   "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
-  "python.formatting.provider": "black",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true,
+      "source.fixAll": true
+    }
+  },
+  "python.analysis.typeCheckingMode": "basic",
   "python.linting.enabled": true,
-  "python.linting.ruffEnabled": true,
-  "python.linting.mypyEnabled": true,
+  "ruff.organizeImports": true,
+  "ruff.fixAll": true,
   
-  // JavaScript/TypeScript
+  // JavaScript/TypeScript settings
   "typescript.preferences.quoteStyle": "single",
   "javascript.preferences.quoteStyle": "single",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  
+  // Rust settings
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true
+  },
+  "rust-analyzer.check.command": "clippy",
+  
+  // Go settings
+  "[go]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "go.formatTool": "gofmt",
+  "go.lintTool": "golangci-lint",
+  
+  // JSON/YAML settings
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  
+  // Markdown settings
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  },
   
   // File associations
   "files.associations": {
     "*.zsh": "shellscript",
     "*.yml": "yaml",
-    "*.yaml": "yaml"
+    "*.yaml": "yaml",
+    "Dockerfile*": "dockerfile",
+    ".env*": "properties",
+    "*.toml": "toml"
+  },
+  
+  // File exclusions
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/target": true
+  },
+  
+  // Search exclusions
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/.venv": true,
+    "**/target": true
   },
   
   // Workbench appearance
   "workbench.colorTheme": "Default Dark+",
   "workbench.iconTheme": "vs-seti",
+  "workbench.sideBar.location": "left",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
   
-  // Auto-save
+  // Auto-save and backup
   "files.autoSave": "onFocusChange",
+  "files.hotExit": "onExitAndWindowClose",
   
   // Extensions
-  "extensions.autoUpdate": true
+  "extensions.autoUpdate": true,
+  "extensions.ignoreRecommendations": false,
+  
+  // Breadcrumbs
+  "breadcrumbs.enabled": true,
+  
+  // IntelliSense
+  "editor.suggestSelection": "first",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  
+  // Security
+  "security.workspace.trust.untrustedFiles": "prompt"
 }

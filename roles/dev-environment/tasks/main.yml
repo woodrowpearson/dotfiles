@@ -29,3 +29,9 @@
       .idea/
     dest: "{{ dotfiles_user_home }}/code/.gitignore"
     mode: '0644'
+
+- name: Install Mac-CLI via npm
+  npm:
+    name: mac-cli
+    global: yes
+  failed_when: false

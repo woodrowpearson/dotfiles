@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# Pre-bootstrap script - sets up prerequisites for dotfiles
+# Run this on a fresh macOS system
+
+set -e
+
+echo "🚀 dotfiles Installation Script"
+echo "This will install prerequisites and set up your development environment."
+echo ""
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Check if running on macOS
+if [[ "$(uname)" != "Darwin" ]]; then
+    echo "This script is designed for macOS only."
+    exit 1
+fi
+
+# Check if Xcode Command Line Tools are installed
+echo -e "${BLUE}Checking Xcode Command Line Tools...${NC}"
+if ! xcode-select -p &> /dev/null; then
+    echo "Installing Xcode Command Line Tools..."
+    xcode-select --install
+    
+    echo "Please complete the Xcode Command Line Tools installation."
+    echo "Press Enter when installation is complete..."
+    read -r
+else
+    echo -e "${GREEN}✅ Xcode Command Line Tools already installed${NC}"
+fi
+
+# Install Homebrew
+echo -e "${BLUE}Checking Homebrew...${NC}"
+if ! command -v brew &> /dev/null; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH for Apple Silicon Macs
+    if [[ $(uname -m) == "arm64" ]]; then
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+    
+    echo -e "${GREEN}✅ Homebrew installed${NC}"
+else
+    echo -e "${GREEN}✅ Homebrew already installed${NC}"
+    # Update Homebrew
+    brew update
+fi
+
+# Install Git (if not already available)
+echo -e "${BLUE}Checking Git...${NC}"
+if ! command -v git &> /dev/null; then
+    echo "Installing Git..."
+    brew install git
+    echo -e "${GREEN}✅ Git installed${NC}"
+else
+    echo -e "${GREEN}✅ Git already installed${NC}"
+fi
+
+# Install Python (for Ansible)
+echo -e "${BLUE}Checking Python...${NC}"
+if ! command -v python3 &> /dev/null; then
+    echo "Installing Python..."
+    brew install python
+    echo -e "${GREEN}✅ Python installed${NC}"
+else
+    echo -e "${GREEN}✅ Python already installed${NC}"
+fi
+
+# Install Ansible
+echo -e "${BLUE}Checking Ansible...${NC}"
+if ! command -v ansible &> /dev/null; then
+    echo "Installing Ansible..."
+    brew install ansible
+    echo -e "${GREEN}✅ Ansible installed${NC}"
+else
+    echo -e "${GREEN}✅ Ansible already installed${NC}"
+fi
+
+# Check if dotfiles repo exists
+DOTFILES_DIR="$HOME/dotfiles"
+if [[ ! -d "$DOTFILES_DIR" ]]; then
+    echo -e "${BLUE}Cloning dotfiles repository...${NC}"
+    echo "Enter your GitHub username (default: woodrowpearson):"
+    read -r github_user
+    github_user=${github_user:-woodrowpearson}
+    
+    git clone "https://github.com/$github_user/dotfiles.git" "$DOTFILES_DIR"
+    echo -e "${GREEN}✅ Dotfiles repository cloned${NC}"
+else
+    echo -e "${GREEN}✅ Dotfiles repository already exists${NC}"
+    echo "Pulling latest changes..."
+    cd "$DOTFILES_DIR"
+    git pull origin main
+fi
+
+# GitHub CLI setup
+echo -e "${BLUE}Setting up GitHub CLI authentication...${NC}"
+if ! command -v gh &> /dev/null; then
+    echo "Installing GitHub CLI..."
+    brew install gh
+fi
+
+if ! gh auth status &> /dev/null; then
+    echo "Authenticating with GitHub..."
+    gh auth login --web --git-protocol https
+    echo -e "${GREEN}✅ GitHub CLI authenticated${NC}"
+else
+    echo -e "${GREEN}✅ GitHub CLI already authenticated${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}🎉 Prerequisites installed successfully!${NC}"
+echo -e "${YELLOW}Next steps:${NC}"
+echo "1. cd $DOTFILES_DIR"
+echo "2. ./bin/dot-bootstrap"
+echo "3. ./bin/dot-configure"
+echo ""

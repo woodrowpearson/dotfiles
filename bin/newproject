@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# Project scaffolding script
+# Usage: newproject <language> <project-name> [template]
+
+set -e
+
+LANGUAGE=$1
+PROJECT_NAME=$2
+TEMPLATE=${3:-"basic"}
+
+if [[ -z "$LANGUAGE" || -z "$PROJECT_NAME" ]]; then
+    echo "Usage: newproject <language> <project-name> [template]"
+    echo "Languages: python, node, rust, go, web"
+    echo "Templates: basic, api, cli, web"
+    exit 1
+fi
+
+PROJECT_DIR="$HOME/code/$PROJECT_NAME"
+
+if [[ -d "$PROJECT_DIR" ]]; then
+    echo "Error: Project directory $PROJECT_DIR already exists"
+    exit 1
+fi
+
+echo "🚀 Creating $LANGUAGE project: $PROJECT_NAME"
+
+# Create project directory
+mkdir -p "$PROJECT_DIR"
+cd "$PROJECT_DIR"
+
+# Initialize git
+git init
+git config user.name "woodrow pearson"
+git config user.email "woodrowpearson@gmail.com"
+
+# Copy base .env template
+cp "$HOME/code/.env" ./.env
+
+# Language-specific setup
+case $LANGUAGE in
+    python)
+        # Python project structure
+        mkdir -p src tests docs
+        echo "# $PROJECT_NAME" > README.md
+        echo "A Python project" >> README.md
+        
+        # pyproject.toml
+        cat > pyproject.toml << EOF
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "$PROJECT_NAME"
+dynamic = ["version"]
+description = "A Python project"
+authors = [{name = "woodrow pearson", email = "woodrowpearson@gmail.com"}]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "black", "mypy"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "B", "I"]
+
+[tool.black]
+line-length = 88
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+EOF
+
+        # Create basic Python files
+        touch src/__init__.py
+        echo 'def main():\n    print("Hello, World!")' > src/main.py
+        echo 'import pytest\n\ndef test_main():\n    assert True' > tests/test_main.py
+        ;;
+        
+    node)
+        # Node.js project structure
+        npm init -y
+        npm install --save-dev eslint prettier
+        echo "node_modules/" >> .gitignore
+        ;;
+        
+    rust)
+        cargo init
+        ;;
+        
+    go)
+        go mod init "$PROJECT_NAME"
+        echo "# $PROJECT_NAME" > README.md
+        ;;
+        
+    web)
+        mkdir -p src dist
+        echo "<!DOCTYPE html><html><head><title>$PROJECT_NAME</title></head><body><h1>$PROJECT_NAME</h1></body></html>" > src/index.html
+        ;;
+esac
+
+# Copy CI/CD templates
+echo "📋 Setting up CI/CD templates..."
+TEMPLATES_DIR="$HOME/dotfiles/templates"
+
+# Copy GitHub Actions workflow based on language
+if [[ -f "$TEMPLATES_DIR/.github/workflows/$LANGUAGE.yml" ]]; then
+    mkdir -p .github/workflows
+    cp "$TEMPLATES_DIR/.github/workflows/$LANGUAGE.yml" .github/workflows/
+fi
+
+# Copy pre-commit config
+if [[ -f "$TEMPLATES_DIR/.pre-commit-config.yaml" ]]; then
+    cp "$TEMPLATES_DIR/.pre-commit-config.yaml" .
+fi
+
+# Common files
+echo -e ".env\n.env.local\n.DS_Store\n*.log" >> .gitignore
+
+# Initial commit
+git add .
+git commit -m "Initial commit: $PROJECT_NAME project setup
+
+🤖 Generated with newproject script"
+
+echo "✅ Project $PROJECT_NAME created at $PROJECT_DIR"
+echo "💡 Next steps:"
+echo "   cd $PROJECT_DIR"
+if [[ "$LANGUAGE" == "python" ]]; then
+    echo "   uv venv && source .venv/bin/activate"
+    echo "   uv pip install -e .[dev]"
+    echo "   pre-commit install"
+elif [[ "$LANGUAGE" == "node" ]]; then
+    echo "   npm install"
+    echo "   npm install -g pre-commit"
+    echo "   pre-commit install"
+elif [[ "$LANGUAGE" == "rust" ]]; then
+    echo "   cargo build"
+    echo "   pre-commit install"
+fi
+echo "   code .  # Open in VS Code"

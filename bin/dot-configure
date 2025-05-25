@@ -1,0 +1,213 @@
+#!/usr/bin/env bash
+# Interactive post-setup configuration script
+# Handles personal settings that can't be automated
+
+set -e
+
+echo "🔧 dotfiles Post-Setup Configuration"
+echo "This script will help configure personal settings and API keys."
+echo ""
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to prompt for input with default
+prompt_with_default() {
+    local prompt="$1"
+    local default="$2"
+    local var_name="$3"
+    
+    if [[ -n "$default" ]]; then
+        echo -e "${BLUE}$prompt [default: $default]:${NC}"
+    else
+        echo -e "${BLUE}$prompt:${NC}"
+    fi
+    
+    read -r input
+    if [[ -z "$input" && -n "$default" ]]; then
+        input="$default"
+    fi
+    
+    eval "$var_name='$input'"
+}
+
+# Function to prompt for sensitive input
+prompt_sensitive() {
+    local prompt="$1"
+    local var_name="$2"
+    
+    echo -e "${YELLOW}$prompt (input hidden):${NC}"
+    read -s input
+    eval "$var_name='$input'"
+    echo ""
+}
+
+# SSH Key Setup
+echo -e "${GREEN}=== SSH Configuration ===${NC}"
+if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
+    echo "No SSH key found. Generating new SSH key..."
+    prompt_with_default "Email for SSH key" "woodrowpearson@gmail.com" "ssh_email"
+    
+    ssh-keygen -t ed25519 -C "$ssh_email" -f "$HOME/.ssh/id_ed25519" -N ""
+    echo -e "${GREEN}✅ SSH key generated${NC}"
+    
+    # Start ssh-agent and add key
+    eval "$(ssh-agent -s)"
+    ssh-add "$HOME/.ssh/id_ed25519"
+    
+    echo -e "${YELLOW}📋 Your public SSH key:${NC}"
+    cat "$HOME/.ssh/id_ed25519.pub"
+    echo ""
+    echo -e "${BLUE}Add this key to GitHub: https://github.com/settings/ssh/new${NC}"
+    read -p "Press Enter when you've added the key to GitHub..."
+else
+    echo -e "${GREEN}✅ SSH key already exists${NC}"
+fi
+
+# API Keys Configuration
+echo -e "${GREEN}=== API Keys Configuration ===${NC}"
+ENV_FILE="$HOME/code/.env"
+
+if [[ -f "$ENV_FILE" ]]; then
+    echo "Configuring API keys in $ENV_FILE"
+    
+    # Backup existing .env
+    cp "$ENV_FILE" "$ENV_FILE.backup"
+    
+    # Anthropic API Key
+    if grep -q "ANTHROPIC_API_KEY=" "$ENV_FILE" && [[ $(grep "ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
+        echo -e "${BLUE}Configure Anthropic Claude API key? (y/n)${NC}"
+        read -r configure_anthropic
+        if [[ "$configure_anthropic" == "y" ]]; then
+            prompt_sensitive "Enter Anthropic API key" "anthropic_key"
+            sed -i.bak "s/ANTHROPIC_API_KEY=.*/ANTHROPIC_API_KEY=$anthropic_key/" "$ENV_FILE"
+            echo -e "${GREEN}✅ Anthropic API key configured${NC}"
+        fi
+    fi
+    
+    # OpenAI API Key
+    if grep -q "OPENAI_API_KEY=" "$ENV_FILE" && [[ $(grep "OPENAI_API_KEY=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
+        echo -e "${BLUE}Configure OpenAI API key? (y/n)${NC}"
+        read -r configure_openai
+        if [[ "$configure_openai" == "y" ]]; then
+            prompt_sensitive "Enter OpenAI API key" "openai_key"
+            sed -i.bak "s/OPENAI_API_KEY=.*/OPENAI_API_KEY=$openai_key/" "$ENV_FILE"
+            echo -e "${GREEN}✅ OpenAI API key configured${NC}"
+        fi
+    fi
+    
+    # GitHub Token
+    if grep -q "GITHUB_TOKEN=" "$ENV_FILE" && [[ $(grep "GITHUB_TOKEN=" "$ENV_FILE" | cut -d'=' -f2) == "" ]]; then
+        echo -e "${BLUE}Configure GitHub token? (y/n)${NC}"
+        read -r configure_github
+        if [[ "$configure_github" == "y" ]]; then
+            prompt_sensitive "Enter GitHub token" "github_token"
+            sed -i.bak "s/GITHUB_TOKEN=.*/GITHUB_TOKEN=$github_token/" "$ENV_FILE"
+            echo -e "${GREEN}✅ GitHub token configured${NC}"
+        fi
+    fi
+    
+    # Clean up backup files
+    rm -f "$ENV_FILE.bak"
+fi
+
+# Git Configuration
+echo -e "${GREEN}=== Git Configuration ===${NC}"
+current_name=$(git config --global user.name 2>/dev/null || echo "")
+current_email=$(git config --global user.email 2>/dev/null || echo "")
+
+if [[ -z "$current_name" ]]; then
+    prompt_with_default "Git user name" "woodrow pearson" "git_name"
+    git config --global user.name "$git_name"
+fi
+
+if [[ -z "$current_email" ]]; then
+    prompt_with_default "Git user email" "woodrowpearson@gmail.com" "git_email"
+    git config --global user.email "$git_email"
+fi
+
+# GPG Signing Setup (optional)
+echo -e "${BLUE}Set up GPG commit signing? (y/n)${NC}"
+read -r setup_gpg
+if [[ "$setup_gpg" == "y" ]]; then
+    if ! command -v gpg &> /dev/null; then
+        echo -e "${RED}GPG not found. Install with: brew install gnupg${NC}"
+    else
+        # Check if GPG key exists
+        if ! gpg --list-secret-keys --keyid-format LONG | grep -q "sec"; then
+            echo "Generating GPG key..."
+            prompt_with_default "Real name for GPG key" "woodrow pearson" "gpg_name"
+            prompt_with_default "Email for GPG key" "woodrowpearson@gmail.com" "gpg_email"
+            
+            # Generate GPG key
+            cat > /tmp/gpg-gen-key << EOF
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
+Name-Real: $gpg_name
+Name-Email: $gpg_email
+Expire-Date: 0
+%no-protection
+%commit
+EOF
+            gpg --batch --gen-key /tmp/gpg-gen-key
+            rm /tmp/gpg-gen-key
+            
+            # Get key ID and configure git
+            KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep "sec" | head -1 | awk '{print $2}' | cut -d'/' -f2)
+            git config --global user.signingkey "$KEY_ID"
+            git config --global commit.gpgsign true
+            
+            echo -e "${GREEN}✅ GPG signing configured${NC}"
+            echo -e "${YELLOW}📋 Your GPG public key:${NC}"
+            gpg --armor --export "$KEY_ID"
+            echo -e "${BLUE}Add this key to GitHub: https://github.com/settings/gpg/new${NC}"
+        else
+            echo -e "${GREEN}✅ GPG key already exists${NC}"
+        fi
+    fi
+fi
+
+# VS Code Extensions
+echo -e "${GREEN}=== VS Code Extensions ===${NC}"
+echo -e "${BLUE}Install recommended VS Code extensions? (y/n)${NC}"
+read -r install_extensions
+if [[ "$install_extensions" == "y" ]]; then
+    EXTENSIONS=(
+        "ms-python.python"
+        "ms-python.black-formatter"
+        "charliermarsh.ruff"
+        "ms-python.mypy-type-checker"
+        "bradlc.vscode-tailwindcss"
+        "esbenp.prettier-vscode"
+        "rust-lang.rust-analyzer"
+        "golang.go"
+        "ms-vscode.vscode-json"
+        "redhat.vscode-yaml"
+        "ms-vscode.vscode-typescript-next"
+        "GitLab.gitlab-workflow"
+        "eamodio.gitlens"
+        "ms-vscode.vscode-markdown"
+        "yzhang.markdown-all-in-one"
+    )
+    
+    for ext in "${EXTENSIONS[@]}"; do
+        echo "Installing $ext..."
+        code --install-extension "$ext" --force
+    done
+    
+    echo -e "${GREEN}✅ VS Code extensions installed${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}🎉 Post-setup configuration complete!${NC}"
+echo -e "${BLUE}💡 Next steps:${NC}"
+echo "   • Test SSH connection: ssh -T git@github.com"
+echo "   • Create a new project: newproject python my-app"
+echo "   • Review your environment: code ~/code/.env"
+echo ""
