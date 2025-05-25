@@ -62,7 +62,7 @@ read_only_style = "bold #ff6b6b"
 # Git branch
 [git_branch]
 symbol = " "
-style = "bold #4381df"
+style = "bold #ffc4b4"
 format = "[$symbol$branch]($style) "
 truncation_length = 20
 truncation_symbol = "…"
