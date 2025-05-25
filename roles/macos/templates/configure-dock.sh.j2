@@ -32,17 +32,39 @@ add_app_to_dock() {
 # Add specified applications in order
 echo "  › Adding applications to dock..."
 
+# Track results for summary
+ADDED_APPS=()
+SKIPPED_APPS=()
+
 {% for app in dock_apps %}
 # {{ app.name }}
 {% if app.fallback_path is defined %}
-if ! add_app_to_dock "{{ app.path }}" "{{ app.name }}"; then
-    add_app_to_dock "{{ app.fallback_path }}" "{{ app.name }}" || true
+if add_app_to_dock "{{ app.path }}" "{{ app.name }}"; then
+    ADDED_APPS+=("{{ app.name }}")
+elif add_app_to_dock "{{ app.fallback_path }}" "{{ app.name }}"; then
+    ADDED_APPS+=("{{ app.name }}")
+else
+    echo "  › Skipping {{ app.name }} - not found at {{ app.path }} or {{ app.fallback_path }}"
+    SKIPPED_APPS+=("{{ app.name }}")
 fi
 {% else %}
-add_app_to_dock "{{ app.path }}" "{{ app.name }}" || true
+if add_app_to_dock "{{ app.path }}" "{{ app.name }}"; then
+    ADDED_APPS+=("{{ app.name }}")
+else
+    echo "  › Skipping {{ app.name }} - not found at {{ app.path }}"
+    SKIPPED_APPS+=("{{ app.name }}")
+fi
 {% endif %}
 
 {% endfor %}
+
+# Show summary
+echo "  › Dock configuration summary:"
+echo "    Added {% raw %}${#ADDED_APPS[@]}{% endraw %} applications: {% raw %}${ADDED_APPS[*]}{% endraw %}"
+if [ {% raw %}${#SKIPPED_APPS[@]}{% endraw %} -gt 0 ]; then
+    echo "    Skipped {% raw %}${#SKIPPED_APPS[@]}{% endraw %} applications: {% raw %}${SKIPPED_APPS[*]}{% endraw %}"
+    echo "    Note: Skipped apps may not be installed yet or may need manual installation"
+fi
 
 # Dock settings
 echo "  › Configuring dock behavior..."
