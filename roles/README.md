@@ -11,6 +11,73 @@ Each role follows Ansible best practices:
 - **`defaults/`** - Default variables (customizable in `group_vars/local`)
 - **`*.zsh`** - Shell integrations (automatically loaded)
 
+## 🏠 Home Server & Automation Roles
+
+### 🏠 `homeassistant/` - Complete Smart Home Ecosystem
+**What it configures:**
+- HomeAssistant core with PostgreSQL database
+- MQTT broker (Eclipse Mosquitto) for device communication
+- Zigbee2MQTT for Zigbee device integration
+- HACS (Home Assistant Community Store) with popular integrations
+- Google Home, Apple HomeKit, and Philips Hue integration
+- Comprehensive configuration templates
+
+**Why you'll love it:** Turn your Mac Mini into a professional smart home hub
+
+---
+
+### 📹 `frigate/` - AI-Powered Camera Monitoring
+**What it configures:**
+- Frigate NVR with real-time object detection
+- AI-powered person, car, and animal detection
+- 24/7 recording with motion-triggered clips
+- HomeAssistant integration for notifications
+- Multi-camera support (ONVIF, RTSP, USB)
+- Hardware acceleration for optimal performance
+
+**Why you'll love it:** Professional CCTV monitoring with intelligent alerts
+
+---
+
+### 📊 `monitoring/` - Comprehensive Analytics Stack
+**What it configures:**
+- Grafana dashboards for beautiful visualizations
+- Prometheus for time-series metrics collection
+- AlertManager for intelligent notification routing
+- Node Exporter for system metrics
+- cAdvisor for container monitoring
+- Pre-configured dashboards for all services
+
+**Why you'll love it:** Professional monitoring like the big companies use
+
+---
+
+### 🌐 `tailscale/` - Secure Mesh VPN
+**What it configures:**
+- Tailscale VPN with exit node capabilities
+- Magic DNS for automatic service discovery
+- Subnet routing for home network access
+- SSH integration for secure remote access
+- Service monitoring and health checks
+- Firewall configuration for security
+
+**Why you'll love it:** Access your home server securely from anywhere
+
+---
+
+### 🛡️ `adguard/` - Network-wide Ad Blocking
+**What it configures:**
+- AdGuard Home with comprehensive blocklists
+- DNS-over-HTTPS for secure queries
+- Network-wide ad and tracker blocking
+- Custom DNS rules and filtering
+- Web interface for management
+- Performance-optimized configuration
+
+**Why you'll love it:** Block ads and trackers for your entire home network
+
+---
+
 ## 🎯 Core System Roles
 
 ### 🏠 `alacritty/` - Terminal That Doesn't Suck

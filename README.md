@@ -11,10 +11,12 @@
      ╚═════╝  ╚═════╝    ╚═╝   ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝
 ```
 
-**From fresh macOS to productive development environment in < 30 minutes** ⚡
+**From fresh macOS to productive dev environment + ultimate home server in < 30 minutes** ⚡
 
 [![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
+[![HomeAssistant](https://img.shields.io/badge/Home%20Assistant-41BDF5?style=for-the-badge&logo=home-assistant&logoColor=white)](https://home-assistant.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](docs/CONTRIBUTING.md)
 
@@ -39,11 +41,13 @@ curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install |
 | 🎯 **Feature** | 🔥 **Why You'll Love It** |
 |----------------|---------------------------|
 | **Zero-to-Hero Setup** | Fresh macOS → Fully configured dev environment in one command |
+| **🏠 Ultimate Home Server** | Complete HomeAssistant + Frigate + monitoring stack |
 | **Smart Project Scaffolding** | `newproject python my-api` → Complete project with CI/CD ready |
+| **🌐 Mesh VPN Access** | Tailscale integration for secure remote access |
+| **📊 Comprehensive Monitoring** | Grafana + Prometheus + real-time analytics |
+| **🔒 Network-wide Ad Blocking** | AdGuard Home protecting all your devices |
 | **Interactive Configuration** | Guided setup for API keys, SSH, GPG (no more googling!) |
 | **Modern Everything** | Alacritty + ZSH + 15+ CLI tool upgrades with smart aliases |
-| **Professional CI/CD** | GitHub Actions templates that actually work |
-| **Secrets That Make Sense** | Global + per-project environment management done right |
 
 ## 🗂️ Repository Explorer
 
@@ -58,6 +62,11 @@ dotfiles/
 │   ├── newproject                            # 📦 Smart project scaffolding
 │   └── upgrades                              # 🔄 Keep everything fresh
 ├── 📁 [roles/](roles/README.md)                # 🎭 Ansible roles (the real workhorses)
+│   ├── 🏠 homeassistant/                     # Complete smart home ecosystem
+│   ├── 📹 frigate/                           # AI-powered camera monitoring
+│   ├── 📊 monitoring/                        # Grafana + Prometheus stack
+│   ├── 🌐 tailscale/                         # Mesh VPN networking
+│   ├── 🛡️  adguard/                          # Network-wide ad blocking
 │   ├── 🏠 alacritty/                         # Terminal that doesn't suck
 │   ├── 🐍 python/                            # Python done right (uv + tools)
 │   ├── 🦀 rust/                              # Systems programming goodness
@@ -77,6 +86,42 @@ dotfiles/
 └── 📜 [CHANGELOG.md](CHANGELOG.md)            # What's new and noteworthy
 ```
 
+## 🏠 Ultimate Mac Mini Home Server
+
+**Transform your Mac Mini into a comprehensive smart home hub with one command:**
+
+```bash
+# Deploy the entire home automation stack
+ansible-playbook -i hosts remote_env.yml
+```
+
+### 🏡 **What You Get**
+
+| 📱 **Service** | 🔗 **Access** | 🎯 **Purpose** |
+|-------------|------------|----------------|
+| **HomeAssistant** | `:8123` | Complete smart home automation |
+| **Frigate NVR** | `:5000` | AI-powered camera monitoring |
+| **Grafana** | `:3000` | Beautiful monitoring dashboards |
+| **AdGuard Home** | `:3001` | Network-wide ad blocking |
+| **Tailscale VPN** | *mesh* | Secure remote access |
+
+### 🌐 **Smart Home Integrations**
+- ✨ **Zigbee + Matter + WiFi** device support
+- 📹 **AI CCTV** with object detection (Frigate)
+- 🏠 **Google Home + AirPlay** integration
+- 💡 **Hue lights + smart switches**
+- 📶 **LoRaWAN** for long-range IoT
+- 🌍 **Remote access** via Tailscale mesh VPN
+
+### 📈 **Monitoring & Analytics**
+- Real-time system metrics and alerts
+- Container health and resource usage
+- Network traffic analysis
+- Smart home device status tracking
+- Performance dashboards and trends
+
+---
+
 ## 🎮 Quick Demos
 
 ### **Fresh Mac Setup**
@@ -84,6 +129,15 @@ dotfiles/
 # Literally one command from App Store Mac to development powerhouse
 curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
 cd ~/dotfiles && ./bin/dot-bootstrap && ./bin/dot-configure
+```
+
+### **Deploy Home Server**
+```bash
+# Complete smart home automation stack
+ansible-playbook -i hosts remote_env.yml
+# OR deploy specific layers:
+ansible-playbook -i hosts remote_env.yml --tags homeautomation
+ansible-playbook -i hosts remote_env.yml --tags monitoring
 ```
 
 ### **Create a Project**

@@ -1,6 +1,6 @@
 # ✨ Features Overview
 
-This dotfiles setup is a comprehensive development environment that transforms your Mac into a productivity powerhouse. Here's everything it brings to the table.
+This dotfiles setup is a comprehensive development environment AND ultimate home server that transforms your Mac into a productivity powerhouse and smart home hub. Here's everything it brings to the table.
 
 ## 🚀 Automation & Setup
 
@@ -9,13 +9,46 @@ This dotfiles setup is a comprehensive development environment that transforms y
 - **Prerequisite Handling**: Automatically installs Xcode tools, SSH setup
 - **Interactive Configuration**: Guided setup for secrets and preferences
 - **Dry-Run Support**: Test changes before applying them
+- **🏠 Home Server Deployment**: Complete smart home stack in one command
 
 ### Intelligent Bootstrapping
 ```bash
 ./bin/dot-bootstrap    # Full environment setup
 ./bin/dot-configure    # Interactive configuration
 ./bin/newproject       # Project scaffolding
+# Home Server Deployment
+ansible-playbook -i hosts remote_env.yml  # Ultimate home automation
 ```
+
+## 🏠 Ultimate Home Server Stack
+
+### Smart Home Automation
+- **HomeAssistant Core**: Complete ecosystem with PostgreSQL, MQTT, Zigbee2MQTT
+- **Device Integration**: Zigbee, Matter, WiFi, LoRaWAN support
+- **Voice Assistants**: Google Home, AirPlay, Chromecast integration
+- **Lighting Control**: Hue, LIFX, smart switches and sensors
+- **HACS Support**: Popular community integrations and dashboards
+
+### AI-Powered Security
+- **Frigate NVR**: Real-time object detection for CCTV cameras
+- **24/7 Recording**: Motion-triggered clips with intelligent alerts
+- **Multi-Camera Support**: ONVIF, RTSP, USB camera integration
+- **Smart Zones**: Custom detection areas and object filtering
+- **Hardware Acceleration**: GPU-optimized for performance
+
+### Comprehensive Monitoring
+- **Grafana Dashboards**: Beautiful real-time visualizations
+- **Prometheus Metrics**: Time-series data collection and storage
+- **AlertManager**: Intelligent notification routing and escalation
+- **System Health**: CPU, memory, disk, network monitoring
+- **Application Metrics**: Container health and service status
+
+### Secure Networking
+- **Tailscale VPN**: Mesh networking for secure remote access
+- **AdGuard Home**: Network-wide ad blocking and DNS filtering
+- **Exit Node**: Route internet traffic through your home server
+- **Magic DNS**: Automatic service discovery and routing
+- **Network Segmentation**: Isolated access with fine-grained control
 
 ## 🎨 Terminal & Shell Experience
 
