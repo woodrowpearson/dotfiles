@@ -4,6 +4,7 @@
 
 # Main prompt format
 format = """
+[ ](bold #ffc4b4)\
 [┌─](bold #87ceeb)\
 $username\
 $hostname\
@@ -16,9 +17,10 @@ $nodejs\
 $rust\
 $golang\
 $package\
+$env_var\
 $fill\
-$cmd_duration\
-$time
+$jobs\
+$cmd_duration
 [└─](bold #87ceeb)$character"""
 
 # Right-side prompt for less important info
@@ -130,10 +132,7 @@ format = "[took $duration]($style) "
 
 # Current time
 [time]
-disabled = false
-style = "bold #87ceeb"
-format = "[$time]($style)"
-time_format = "%T"
+disabled = true
 
 # Exit status
 [status]
@@ -173,18 +172,36 @@ threshold = 70
 symbol = " "
 style = "bold #ff6b6b"
 
+# System load
+[load]
+disabled = true
+symbol = " "
+style = "bold #ffedb9"
+
+# Background jobs
+[jobs]
+symbol = " "
+style = "bold #4381df"
+number_threshold = 1
+format = "[$symbol$number]($style) "
+
+# Shell indicator (when nested)
+[shell]
+disabled = true
+
 # Battery
 [battery]
-full_symbol = " "
-charging_symbol = " "
-discharging_symbol = " "
-unknown_symbol = " "
-empty_symbol = " "
+disabled = true
 
-[[battery.display]]
-threshold = 10
-style = "bold #ff6b6b"
+# Environment variables (work mode, session info)
+[env_var.WORK_MODE]
+variable = "WORK_MODE"
+symbol = " "
+style = "bold #ffc4b4"
+format = "[$symbol$env_value]($style) "
 
-[[battery.display]]
-threshold = 30
-style = "bold #ffedb9"
+[env_var.SESSION_NAME]
+variable = "SESSION_NAME"
+symbol = " "
+style = "bold #87ceeb"
+format = "[$symbol$env_value]($style) "
