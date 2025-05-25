@@ -42,7 +42,7 @@ curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install |
 |----------------|---------------------------|
 | **Zero-to-Hero Setup** | Fresh macOS → Fully configured dev environment in one command |
 | **🏠 Ultimate Home Server** | Complete HomeAssistant + Frigate + monitoring stack |
-| **🛡️ Multi-Layer Backup System** | Time Machine + selective configs + bootstrap checkpoints |
+| **🛡️ Multi-Layer Backup System** | Encrypted checkpoints + graceful failure handling + Time Machine integration |
 | **Smart Project Scaffolding** | `newproject python my-api` → Complete project with CI/CD ready |
 | **🌐 Mesh VPN Access** | Tailscale integration for secure remote access |
 | **📊 Comprehensive Monitoring** | Grafana + Prometheus + real-time analytics |
@@ -68,7 +68,7 @@ dotfiles/
 │   ├── 📊 monitoring/                        # Grafana + Prometheus stack
 │   ├── 🌐 tailscale/                         # Mesh VPN networking
 │   ├── 🛡️  adguard/                          # Network-wide ad blocking
-│   ├── 💾 backup/                            # Multi-layer backup & recovery system
+│   ├── 💾 backup/                            # Encrypted checkpoints + graceful recovery system
 │   ├── 🏠 alacritty/                         # Terminal that doesn't suck
 │   ├── 🐍 python/                            # Python done right (uv + tools)
 │   ├── 🦀 rust/                              # Systems programming goodness

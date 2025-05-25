@@ -20,6 +20,15 @@ This is an Ansible-based dotfiles repository that sets up a complete macOS devel
 - `code ~/code/.env` - Edit global environment variables
 - Various Mac-CLI aliases: `sysinfo`, `speedtest`, `gitlog`, `updateall`
 
+### Backup Commands
+- `backup-create` - Create new configuration backup with encryption support
+- `backup-list` - List available backups and checkpoints with filtering options
+- `backup-restore` - Restore from backups with integrity verification
+- `backup-checkpoint` - Create bootstrap phase checkpoints for rollback capability
+- `backup-verify` - Verify backup integrity and test restore procedures
+- `backup-rollback` - Rollback to previous checkpoint or backup state
+- `backup-monitor` - Monitor backup system health and status
+
 ### Advanced Commands
 - `ansible-playbook -i hosts local_env.yml --tags <tag>` - Run specific tagged roles
 - `ansible-playbook -i hosts remote_env.yml` - Set up remote environment
@@ -39,6 +48,7 @@ Each role in `roles/` may contain:
 - Standard Ansible directories (tasks, files, templates, defaults, etc.)
 
 ### Key Roles
+- `backup` - Comprehensive backup system with encrypted checkpoints and graceful failure handling
 - `package_manager` - Homebrew setup and package installation
 - `macos` - macOS system settings (Dock, Finder, trackpad, screenshots)
 - `git` - Git configuration and aliases
@@ -59,9 +69,11 @@ Primary configuration in `group_vars/local`:
 - `icloud_enabled: true` - Enable iCloud Drive symlink
 
 ### Custom Features
+- **Comprehensive Backup System**: Encrypted backpoints, graceful failure handling, Time Machine integration
+- **Bootstrap Checkpoints**: Automatic recovery points with rollback capability during setup
 - **Project Scaffolding**: `newproject python my-api` creates fully configured projects with CI/CD
 - **Interactive Setup**: Guided configuration of API keys, SSH, and GPG with `dot-configure`
-- **One-Command Install**: From fresh macOS to fully configured in minutes
+- **One-Command Install**: From fresh macOS to fully configured in minutes with backup safety
 - **Modern CLI Tools**: 15+ replacements with intuitive aliases (ls→eza, cat→bat, grep→rg)
 - **Custom Terminal**: Alacritty with pastel theme, Hack font, contrasting background
 - **Smart Secrets**: Global .env template, per-project configurations, direnv integration

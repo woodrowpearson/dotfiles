@@ -477,7 +477,7 @@ main() {
     fi
     
     # Sort and display
-    if [ "${#all_items[@]}" -eq 0 ]; then
+    if [ "{% raw %}${#all_items[@]}{% endraw %}" -eq 0 ]; then
         if [ "$json_output" = "true" ]; then
             echo '{"backups": [], "total_count": 0}'
         else
