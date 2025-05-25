@@ -1,0 +1,62 @@
+---
+# Tailscale Configuration
+tailscale_auth_key: "{{ tailscale_auth_key_secret }}"
+tailscale_hostname: "mac-mini-server"
+tailscale_accept_routes: true
+tailscale_accept_dns: true
+
+# Exit Node Configuration
+tailscale_exit_node: true
+tailscale_advertise_exit_node: true
+
+# Subnet Routing
+tailscale_advertise_routes:
+  - "{{ ansible_default_ipv4.network }}/24"  # Home network
+
+# DNS Configuration
+tailscale_override_local_dns: true
+tailscale_custom_dns_servers: []
+
+# SSH Configuration
+tailscale_ssh_enabled: true
+tailscale_ssh_permit_root: false
+
+# Service Configuration
+tailscale_services:
+  - name: "homeassistant"
+    port: 8123
+    description: "Home Assistant Dashboard"
+  - name: "frigate"
+    port: 5000
+    description: "Frigate NVR Interface"
+  - name: "grafana" 
+    port: 3000
+    description: "Monitoring Dashboard"
+  - name: "adguard"
+    port: 3001
+    description: "AdGuard Home Interface"
+
+# Firewall Rules
+tailscale_firewall_rules:
+  - port: 8123
+    protocol: tcp
+    source: tailscale
+    description: "HomeAssistant access"
+  - port: 5000
+    protocol: tcp
+    source: tailscale
+    description: "Frigate access"
+  - port: 3000
+    protocol: tcp
+    source: tailscale
+    description: "Grafana access"
+
+# MagicDNS Settings
+tailscale_magic_dns: true
+tailscale_global_nameservers:
+  - "1.1.1.1"
+  - "8.8.8.8"
+
+# Taildrop Configuration
+tailscale_taildrop_enabled: true
+tailscale_taildrop_dir: "/opt/tailscale/taildrop"

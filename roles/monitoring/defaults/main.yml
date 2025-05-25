@@ -1,0 +1,96 @@
+---
+# Monitoring Stack Configuration
+monitoring_data_dir: "/opt/monitoring"
+monitoring_config_dir: "{{ monitoring_data_dir }}/config"
+
+# Prometheus Configuration
+prometheus_port: 9090
+prometheus_data_dir: "{{ monitoring_data_dir }}/prometheus"
+prometheus_retention: "30d"
+prometheus_scrape_interval: "15s"
+prometheus_evaluation_interval: "15s"
+
+# Grafana Configuration
+grafana_port: 3000
+grafana_data_dir: "{{ monitoring_data_dir }}/grafana"
+grafana_admin_user: "admin"
+grafana_admin_password: "{{ grafana_admin_password | default('admin123') }}"
+
+# Node Exporter Configuration
+node_exporter_port: 9100
+
+# cAdvisor Configuration
+cadvisor_port: 8080
+
+# Blackbox Exporter Configuration
+blackbox_exporter_port: 9115
+
+# Loki Configuration
+loki_port: 3100
+loki_data_dir: "{{ monitoring_data_dir }}/loki"
+
+# Promtail Configuration
+promtail_port: 9080
+
+# AlertManager Configuration
+alertmanager_port: 9093
+alertmanager_data_dir: "{{ monitoring_data_dir }}/alertmanager"
+
+# Monitoring Targets
+monitoring_targets:
+  - name: "prometheus"
+    url: "localhost:{{ prometheus_port }}"
+  - name: "grafana"
+    url: "localhost:{{ grafana_port }}"
+  - name: "homeassistant"
+    url: "localhost:8123"
+  - name: "frigate"
+    url: "localhost:5000"
+  - name: "adguard"
+    url: "localhost:3001"
+
+# External Services to Monitor
+external_monitoring_targets:
+  - name: "google"
+    url: "https://google.com"
+  - name: "cloudflare"
+    url: "https://cloudflare.com"
+
+# Dashboard Configuration
+grafana_dashboards:
+  - name: "Node Exporter Full"
+    id: 1860
+  - name: "Docker and System Monitoring"
+    id: 179
+  - name: "HomeAssistant Dashboard"
+    id: 11693
+  - name: "AdGuard Home"
+    id: 13946
+
+# Alert Rules
+alert_rules:
+  - name: "High CPU Usage"
+    condition: "cpu_usage > 80"
+    duration: "5m"
+  - name: "High Memory Usage"
+    condition: "memory_usage > 90"
+    duration: "2m"
+  - name: "Low Disk Space"
+    condition: "disk_usage > 90"
+    duration: "1m"
+  - name: "Service Down"
+    condition: "up == 0"
+    duration: "30s"
+
+# Notification Channels
+notification_channels:
+  - name: "email"
+    type: "email"
+    enabled: true
+    settings:
+      addresses: ["{{ monitoring_email | default('admin@localhost') }}"]
+  - name: "slack"
+    type: "slack"
+    enabled: false
+    settings:
+      webhook_url: "{{ slack_webhook_url | default('') }}"

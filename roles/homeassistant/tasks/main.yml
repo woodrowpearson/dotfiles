@@ -1,0 +1,176 @@
+---
+- name: Create HomeAssistant directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ homeassistant_data_dir }}"
+    - "{{ homeassistant_config_dir }}"
+    - "{{ homeassistant_media_dir }}"
+    - "{{ homeassistant_backup_dir }}"
+    - "{{ mqtt_data_dir }}"
+    - "{{ zigbee2mqtt_data_dir }}"
+    - "/opt/postgresql"
+
+- name: Create HomeAssistant network
+  docker_network:
+    name: homeassistant
+    driver: bridge
+    ipam_config:
+      - subnet: "172.20.0.0/16"
+        gateway: "172.20.0.1"
+
+- name: Deploy PostgreSQL for HomeAssistant
+  docker_container:
+    name: homeassistant_postgres
+    image: postgres:15
+    restart_policy: unless-stopped
+    networks:
+      - name: homeassistant
+        ipv4_address: "172.20.0.2"
+    env:
+      POSTGRES_DB: "{{ homeassistant_db_name }}"
+      POSTGRES_USER: "{{ homeassistant_db_user }}"
+      POSTGRES_PASSWORD: "{{ homeassistant_db_password }}"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - "/opt/postgresql:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ homeassistant_db_user }}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+- name: Deploy Eclipse Mosquitto MQTT
+  docker_container:
+    name: mosquitto
+    image: eclipse-mosquitto:latest
+    restart_policy: unless-stopped
+    networks:
+      - name: homeassistant
+        ipv4_address: "172.20.0.3"
+    ports:
+      - "{{ mqtt_port }}:1883"
+      - "{{ mqtt_ssl_port }}:8883"
+    volumes:
+      - "{{ mqtt_data_dir }}/config:/mosquitto/config"
+      - "{{ mqtt_data_dir }}/data:/mosquitto/data"
+      - "{{ mqtt_data_dir }}/log:/mosquitto/log"
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+
+- name: Create Mosquitto configuration
+  copy:
+    content: |
+      persistence true
+      persistence_location /mosquitto/data/
+      log_dest file /mosquitto/log/mosquitto.log
+      log_dest stdout
+      listener {{ mqtt_port }}
+      allow_anonymous false
+      password_file /mosquitto/config/passwd
+    dest: "{{ mqtt_data_dir }}/config/mosquitto.conf"
+    mode: '0644'
+
+- name: Deploy Zigbee2MQTT
+  docker_container:
+    name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt:latest
+    restart_policy: unless-stopped
+    networks:
+      - name: homeassistant
+        ipv4_address: "172.20.0.4"
+    ports:
+      - "{{ zigbee2mqtt_port }}:8080"
+    volumes:
+      - "{{ zigbee2mqtt_data_dir }}:/app/data"
+      - "/run/udev:/run/udev:ro"
+    devices:
+      - "{{ zigbee2mqtt_device }}:{{ zigbee2mqtt_device }}"
+    env:
+      TZ: "{{ system_timezone | default('America/Los_Angeles') }}"
+  when: zigbee2mqtt_enabled
+
+- name: Create Zigbee2MQTT configuration
+  template:
+    src: zigbee2mqtt-configuration.yaml.j2
+    dest: "{{ zigbee2mqtt_data_dir }}/configuration.yaml"
+    mode: '0644'
+  when: zigbee2mqtt_enabled
+
+- name: Deploy HomeAssistant Core
+  docker_container:
+    name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:{{ homeassistant_version }}"
+    restart_policy: unless-stopped
+    networks:
+      - name: homeassistant
+        ipv4_address: "172.20.0.10"
+    ports:
+      - "{{ homeassistant_port }}:8123"
+    volumes:
+      - "{{ homeassistant_config_dir }}:/config"
+      - "{{ homeassistant_media_dir }}:/media"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/run/dbus:/run/dbus:ro"
+    env:
+      TZ: "{{ system_timezone | default('America/Los_Angeles') }}"
+    privileged: true
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"  # Zigbee coordinator
+      - "/dev/ttyUSB1:/dev/ttyUSB1"  # Additional USB devices
+
+- name: Create HomeAssistant configuration.yaml
+  template:
+    src: configuration.yaml.j2
+    dest: "{{ homeassistant_config_dir }}/configuration.yaml"
+    mode: '0644'
+    backup: yes
+
+- name: Create HomeAssistant secrets.yaml
+  template:
+    src: secrets.yaml.j2
+    dest: "{{ homeassistant_config_dir }}/secrets.yaml"
+    mode: '0600'
+
+- name: Install HACS (Home Assistant Community Store)
+  git:
+    repo: https://github.com/hacs/integration.git
+    dest: "{{ homeassistant_config_dir }}/custom_components/hacs"
+    version: main
+    force: yes
+  when: hacs_enabled
+
+- name: Create HomeAssistant backup script
+  template:
+    src: homeassistant-backup.sh.j2
+    dest: /usr/local/bin/homeassistant-backup
+    mode: '0755'
+  when: homeassistant_backup_enabled
+
+- name: Schedule HomeAssistant backups
+  cron:
+    name: "HomeAssistant backup"
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/homeassistant-backup"
+    user: "{{ ansible_user }}"
+  when: homeassistant_backup_enabled
+
+- name: Create HomeAssistant update script
+  template:
+    src: homeassistant-update.sh.j2
+    dest: /usr/local/bin/homeassistant-update
+    mode: '0755'
+
+- name: Wait for HomeAssistant to be ready
+  uri:
+    url: "{{ homeassistant_internal_url }}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10

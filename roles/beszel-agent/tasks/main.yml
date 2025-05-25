@@ -22,11 +22,11 @@
     name: beszel-agent
     state: present
 
-- name: Create com.sloria.beszel-agent.plist in ~/Library/LaunchAgents
+- name: Create com.woodrow.beszel-agent.plist in ~/Library/LaunchAgents
   template:
-    src: "com.sloria.beszel-agent.plist.j2"
-    dest: "{{ '~/Library/LaunchAgents/com.sloria.beszel-agent.plist' | expanduser }}"
+    src: "com.woodrow.beszel-agent.plist.j2"
+    dest: "{{ '~/Library/LaunchAgents/com.woodrow.beszel-agent.plist' | expanduser }}"
 
 - name: Load beszel-agent service with launchctl
-  command: "launchctl load {{ '~/Library/LaunchAgents/com.sloria.beszel-agent.plist' | expanduser }}"
+  command: "launchctl load {{ '~/Library/LaunchAgents/com.woodrow.beszel-agent.plist' | expanduser }}"
   changed_when: false

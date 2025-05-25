@@ -1,0 +1,87 @@
+---
+# HomeAssistant Configuration
+homeassistant_version: "latest"
+homeassistant_data_dir: "/opt/homeassistant"
+homeassistant_config_dir: "{{ homeassistant_data_dir }}/config"
+homeassistant_media_dir: "{{ homeassistant_data_dir }}/media"
+homeassistant_backup_dir: "{{ homeassistant_data_dir }}/backups"
+
+# Network Configuration
+homeassistant_port: 8123
+homeassistant_ssl_port: 8443
+homeassistant_internal_url: "http://{{ ansible_default_ipv4.address }}:{{ homeassistant_port }}"
+homeassistant_external_url: "https://homeassistant.{{ tailscale_domain | default('your-tailnet.ts.net') }}"
+
+# Database Configuration
+homeassistant_db_engine: "postgresql"
+homeassistant_db_host: "localhost"
+homeassistant_db_port: 5432
+homeassistant_db_name: "homeassistant"
+homeassistant_db_user: "hass"
+
+# MQTT Configuration
+mqtt_enabled: true
+mqtt_port: 1883
+mqtt_ssl_port: 8883
+mqtt_user: "homeassistant"
+mqtt_data_dir: "/opt/mosquitto"
+
+# Zigbee2MQTT Configuration
+zigbee2mqtt_enabled: true
+zigbee2mqtt_port: 8080
+zigbee2mqtt_data_dir: "/opt/zigbee2mqtt"
+zigbee2mqtt_device: "/dev/ttyUSB0"  # Adjust based on your coordinator
+
+# Add-ons and Integrations
+homeassistant_addons:
+  - name: "File editor"
+    enabled: true
+  - name: "Terminal & SSH"
+    enabled: true
+  - name: "Samba share"
+    enabled: true
+  - name: "Duck DNS"
+    enabled: false  # Use Tailscale instead
+  - name: "Let's Encrypt"
+    enabled: false  # Use Tailscale certs
+
+# HACS (Home Assistant Community Store)
+hacs_enabled: true
+hacs_integrations:
+  - "browser_mod"
+  - "card-mod"
+  - "mini-media-player"
+  - "lovelace-mushroom"
+  - "frigate"
+  - "scheduler-component"
+  - "waste_collection_schedule"
+
+# Custom Integrations
+homeassistant_custom_integrations:
+  - name: "Google Home"
+    enabled: true
+  - name: "Apple HomeKit"
+    enabled: true
+  - name: "Philips Hue"
+    enabled: true
+  - name: "Chromecast"
+    enabled: true
+  - name: "AirPlay"
+    enabled: true
+
+# Backup Configuration
+homeassistant_backup_enabled: true
+homeassistant_backup_schedule: "0 2 * * *"  # Daily at 2 AM
+homeassistant_backup_retention_days: 30
+
+# Security Configuration
+homeassistant_trusted_networks:
+  - "127.0.0.1"
+  - "::1"
+  - "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
+  - "{{ tailscale_network | default('100.64.0.0/10') }}"
+
+# Performance Tuning
+homeassistant_recorder_purge_keep_days: 30
+homeassistant_recorder_commit_interval: 1
+homeassistant_logger_level: "info"

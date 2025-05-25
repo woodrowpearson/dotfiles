@@ -1,4 +1,50 @@
-- name: Install AdGuard Home
-  shell: curl -s -S -L https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | bash -s -- -v
-  args:
-    creates: /Applications/AdGuardHome/AdGuardHome
+---
+- name: Create AdGuard Home directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "/opt/adguard"
+    - "/opt/adguard/conf"
+    - "/opt/adguard/work"
+
+- name: Deploy AdGuard Home container
+  docker_container:
+    name: adguard
+    image: adguard/adguardhome:latest
+    restart_policy: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"  # DHCP
+      - "68:68/udp"  # DHCP
+      - "80:80/tcp"  # Web interface redirect
+      - "443:443/tcp"  # HTTPS
+      - "3001:3000/tcp"  # Web interface
+    volumes:
+      - "/opt/adguard/work:/opt/adguardhome/work"
+      - "/opt/adguard/conf:/opt/adguardhome/conf"
+    env:
+      TZ: "{{ system_timezone | default('America/Los_Angeles') }}"
+    capabilities:
+      - NET_ADMIN
+
+- name: Create comprehensive AdGuard configuration
+  template:
+    src: adguard-config.yaml.j2
+    dest: "/opt/adguard/conf/AdGuardHome.yaml"
+    mode: '0644'
+    backup: yes
+
+- name: Wait for AdGuard Home to be ready
+  uri:
+    url: "http://localhost:3001"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10

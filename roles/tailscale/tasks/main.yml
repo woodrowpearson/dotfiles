@@ -1,0 +1,80 @@
+---
+- name: Install Tailscale
+  homebrew:
+    name: tailscale
+    state: present
+
+- name: Create Tailscale configuration directory
+  file:
+    path: /opt/tailscale
+    state: directory
+    mode: '0755'
+
+- name: Create Taildrop directory
+  file:
+    path: "{{ tailscale_taildrop_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  when: tailscale_taildrop_enabled
+
+- name: Check if Tailscale is already connected
+  command: tailscale status
+  register: tailscale_status
+  failed_when: false
+  changed_when: false
+
+- name: Connect to Tailscale
+  command: >
+    tailscale up
+    --auth-key="{{ tailscale_auth_key }}"
+    --hostname="{{ tailscale_hostname }}"
+    {% if tailscale_accept_routes %}--accept-routes{% endif %}
+    {% if tailscale_accept_dns %}--accept-dns{% endif %}
+    {% if tailscale_advertise_exit_node %}--advertise-exit-node{% endif %}
+    {% if tailscale_advertise_routes %}--advertise-routes="{{ tailscale_advertise_routes | join(',') }}"{% endif %}
+    {% if tailscale_ssh_enabled %}--ssh{% endif %}
+  when: "'Logged out' in tailscale_status.stdout or tailscale_status.rc != 0"
+
+- name: Enable IP forwarding for exit node
+  sysctl:
+    name: net.inet.ip.forwarding
+    value: '1'
+    state: present
+    reload: yes
+  when: tailscale_exit_node
+  become: yes
+
+- name: Configure macOS firewall for Tailscale
+  command: "{{ item }}"
+  loop:
+    - "pfctl -f /etc/pf.conf"
+    - "pfctl -e"
+  become: yes
+  when: tailscale_firewall_rules is defined
+
+- name: Create Tailscale service monitoring script
+  template:
+    src: tailscale-monitor.sh.j2
+    dest: /usr/local/bin/tailscale-monitor
+    mode: '0755'
+
+- name: Create Tailscale status check service
+  template:
+    src: com.woodrow.tailscale-monitor.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.tailscale-monitor.plist"
+    mode: '0644'
+
+- name: Load Tailscale monitoring service
+  command: "launchctl load {{ ansible_env.HOME }}/Library/LaunchAgents/com.woodrow.tailscale-monitor.plist"
+  changed_when: false
+
+- name: Get Tailscale status
+  command: tailscale status
+  register: final_tailscale_status
+  changed_when: false
+
+- name: Display Tailscale connection info
+  debug:
+    msg: "{{ final_tailscale_status.stdout_lines }}"

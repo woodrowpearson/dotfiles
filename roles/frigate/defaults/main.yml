@@ -1,0 +1,89 @@
+---
+# Frigate NVR Configuration
+frigate_version: "0.13-beta3"
+frigate_data_dir: "/opt/frigate"
+frigate_config_dir: "{{ frigate_data_dir }}/config"
+frigate_media_dir: "{{ frigate_data_dir }}/media"
+frigate_recordings_dir: "{{ frigate_data_dir }}/recordings"
+
+# Network Configuration
+frigate_port: 5000
+frigate_rtmp_port: 1935
+frigate_webrtc_port: 8555
+
+# AI Detection Configuration
+frigate_detector: "cpu"  # Options: cpu, edgetpu, openvino
+frigate_model: "yolov8n.pt"
+frigate_width: 320
+frigate_height: 320
+
+# Recording Configuration
+frigate_record_enabled: true
+frigate_record_retention_days: 7
+frigate_record_events_retention_days: 30
+
+# Detection Zones
+frigate_default_objects:
+  - person
+  - car
+  - bicycle
+  - motorcycle
+  - bus
+  - truck
+  - cat
+  - dog
+
+# Performance Settings
+frigate_ffmpeg_hwaccel: false  # Set to true for hardware acceleration
+frigate_ffmpeg_preset: "ultrafast"
+frigate_max_disappeared: 25
+
+# Camera Defaults
+frigate_default_camera_settings:
+  fps: 5
+  width: 1280
+  height: 720
+  record:
+    enabled: true
+    retain:
+      days: 7
+      mode: active_objects
+  snapshots:
+    enabled: true
+    timestamp: true
+    bounding_box: true
+    crop: false
+    retain:
+      default: 10
+      objects:
+        person: 30
+
+# MQTT Configuration
+frigate_mqtt_enabled: true
+frigate_mqtt_host: "mosquitto"
+frigate_mqtt_port: 1883
+frigate_mqtt_user: "frigate"
+
+# HomeAssistant Integration
+frigate_homeassistant_enabled: true
+
+# Example Cameras (customize for your setup)
+frigate_cameras:
+  front_door:
+    ffmpeg:
+      inputs:
+        - path: "rtsp://admin:password@192.168.1.100:554/stream1"
+          roles:
+            - record
+            - detect
+    detect:
+      width: 640
+      height: 480
+      fps: 5
+    zones:
+      entrance:
+        coordinates: "100,100,500,100,500,400,100,400"
+        objects:
+          - person
+          - car
+  # Add more cameras as needed

@@ -1,0 +1,37 @@
+#!/bin/bash
+# Tailscale Connection Monitor
+
+LOG_FILE="/var/log/tailscale-monitor.log"
+MAX_LOG_SIZE=10485760  # 10MB
+
+# Rotate log if too large
+if [[ -f "$LOG_FILE" ]] && [[ $(stat -f%z "$LOG_FILE") -gt $MAX_LOG_SIZE ]]; then
+    mv "$LOG_FILE" "${LOG_FILE}.old"
+fi
+
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Check Tailscale status
+if ! tailscale status >/dev/null 2>&1; then
+    log_message "ERROR: Tailscale is not running, attempting to restart"
+    
+    # Attempt to bring Tailscale back up
+    tailscale up \
+        --auth-key="{{ tailscale_auth_key }}" \
+        --hostname="{{ tailscale_hostname }}" \
+        {% if tailscale_accept_routes %}--accept-routes{% endif %} \
+        {% if tailscale_accept_dns %}--accept-dns{% endif %} \
+        {% if tailscale_advertise_exit_node %}--advertise-exit-node{% endif %} \
+        {% if tailscale_advertise_routes %}--advertise-routes="{{ tailscale_advertise_routes | join(',') }}"{% endif %} \
+        {% if tailscale_ssh_enabled %}--ssh{% endif %}
+    
+    if tailscale status >/dev/null 2>&1; then
+        log_message "SUCCESS: Tailscale reconnected"
+    else
+        log_message "FAILED: Could not reconnect Tailscale"
+    fi
+else
+    log_message "INFO: Tailscale is running normally"
+fi

@@ -1,21 +1,105 @@
-- name: Set up environment on remote machines
+---
+# Ultimate Mac Mini Home Server Setup
+# Multi-layered deployment for comprehensive home automation and monitoring
+
+- name: "🏠 Bootstrap - Core System Setup"
+  hosts: remote
+  gather_facts: yes
+  vars:
+    system_timezone: "America/Los_Angeles"
+  roles:
+    # Core system preparation
+    - { role: package_manager, tags: ["bootstrap", "package_manager"] }
+    - { role: git, tags: ["bootstrap", "git"] }
+    - { role: zsh, tags: ["bootstrap", "zsh"] }
+    - { role: docker, tags: ["bootstrap", "docker"] }
+    - { role: macos, tags: ["bootstrap", "macos"] }
+
+- name: "🌐 Networking - VPN and DNS Infrastructure" 
   hosts: remote
   roles:
-    # Tag each role so that we can select individual roles to run with ansible-playbook --tags
-    - { role: git, tags: ["git"] }
-    - { role: package_manager, tags: ["package_manager", "bootstrap"] }
-    - { role: zsh, tags: ["zsh", "bootstrap"] }
-    - { role: python, tags: ["python"] }
-    - { role: mise, tags: ["mise"] }
-    - { role: rust, tags: ["rust"] }
-    - { role: vim, tags: ["vim"] }
-    - { role: rg, tags: ["rg"] }
-    - { role: eza, tags: ["eza"] }
-    - { role: gsed, tags: ["gsed"] }
-    - { role: bat, tags: ["bat"] }
-    - { role: fzf, tags: ["fzf"] }
-    - { role: ollama, tags: ["ollama"] }
-    - { role: beszel-agent, tags: ["beszel-agent"] }
-    - { role: adguard, tags: ["adguard"] }
-    - { role: lctl, tags: ["lctl"], when: ansible_os_family == "Darwin" }
-    - { role: macos, tags: ["macos"], when: ansible_os_family == "Darwin" }
+    # Network foundation
+    - { role: tailscale, tags: ["networking", "tailscale"] }
+    - { role: adguard, tags: ["networking", "adguard", "dns"] }
+
+- name: "🏡 Home Automation - Core Services"
+  hosts: remote
+  roles:
+    # Smart home ecosystem
+    - { role: homeassistant, tags: ["homeautomation", "homeassistant"] }
+    - { role: frigate, tags: ["homeautomation", "frigate", "cctv"] }
+
+- name: "📊 Monitoring - Analytics and Observability"
+  hosts: remote  
+  roles:
+    # Comprehensive monitoring stack
+    - { role: monitoring, tags: ["monitoring", "grafana", "prometheus"] }
+    - { role: beszel-agent, tags: ["monitoring", "beszel"] }
+
+- name: "🛠️ Utilities - Developer and Management Tools"
+  hosts: remote
+  roles:
+    # CLI tools and utilities
+    - { role: python, tags: ["utilities", "python"] }
+    - { role: mise, tags: ["utilities", "mise"] }
+    - { role: rust, tags: ["utilities", "rust"] }
+    - { role: vim, tags: ["utilities", "vim"] }
+    - { role: eza, tags: ["utilities", "eza"] }
+    - { role: bat, tags: ["utilities", "bat"] }
+    - { role: rg, tags: ["utilities", "rg"] }
+    - { role: fzf, tags: ["utilities", "fzf"] }
+    - { role: gsed, tags: ["utilities", "gsed"] }
+    - { role: ollama, tags: ["utilities", "ollama", "ai"] }
+    - { role: lctl, tags: ["utilities", "lctl"], when: ansible_os_family == "Darwin" }
+
+  post_tasks:
+    - name: "🎉 Deployment Summary"
+      debug:
+        msg: |
+          ====================================================================
+          🏠 ULTIMATE MAC MINI HOME SERVER DEPLOYMENT COMPLETE! 🏠
+          ====================================================================
+          
+          🌐 Network Services:
+          • Tailscale VPN: Remote access configured
+          • AdGuard Home: Network-wide ad blocking (http://{{ ansible_default_ipv4.address }}:3001)
+          
+          🏡 Home Automation:
+          • Home Assistant: http://{{ ansible_default_ipv4.address }}:8123
+          • Frigate NVR: http://{{ ansible_default_ipv4.address }}:5000
+          
+          📊 Monitoring & Analytics:
+          • Grafana Dashboard: http://{{ ansible_default_ipv4.address }}:3000
+          • Prometheus Metrics: http://{{ ansible_default_ipv4.address }}:9090
+          
+          🔧 Management:
+          • SSH: ssh {{ ansible_user }}@{{ ansible_default_ipv4.address }}
+          • Tailscale: Connect via tailscale for remote access
+          
+          📚 Next Steps:
+          1. Configure HomeAssistant integrations for your devices
+          2. Set up Frigate cameras in configuration.yaml
+          3. Import Grafana dashboards for monitoring
+          4. Configure AdGuard DNS on your router ({{ ansible_default_ipv4.address }})
+          
+          ====================================================================
+      when: ansible_hostname is defined
+
+# Usage Examples:
+#
+# Full deployment:
+# ansible-playbook -i hosts remote_env.yml
+#
+# Deploy specific layers:
+# ansible-playbook -i hosts remote_env.yml --tags bootstrap
+# ansible-playbook -i hosts remote_env.yml --tags networking
+# ansible-playbook -i hosts remote_env.yml --tags homeautomation
+# ansible-playbook -i hosts remote_env.yml --tags monitoring
+#
+# Deploy specific services:
+# ansible-playbook -i hosts remote_env.yml --tags homeassistant
+# ansible-playbook -i hosts remote_env.yml --tags frigate
+# ansible-playbook -i hosts remote_env.yml --tags grafana
+#
+# Bootstrap + Core Services:
+# ansible-playbook -i hosts remote_env.yml --tags bootstrap,homeassistant,adguard
