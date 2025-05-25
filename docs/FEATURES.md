@@ -177,6 +177,36 @@ newproject my-tool rust     # Rust project template
 - **BetterTouchTool**: Gesture and shortcut customization
 - **Terminal Integration**: Command-line application launching
 
+## 💾 Multi-Layer Backup & Recovery
+
+### Comprehensive Protection Strategy
+- **Time Machine Integration**: Full system backup foundation
+- **Selective Configuration Backup**: Application settings, dotfiles, development environment
+- **Bootstrap Checkpoints**: Automatic safety points during environment setup
+- **Emergency Recovery**: Quick rollback and restoration capabilities
+
+### Backup Components
+```bash
+backup-create --full                    # Complete system backup
+backup-create --config-only             # Quick configuration backup  
+backup-checkpoint "pre-homebrew"        # Bootstrap safety checkpoint
+backup-restore --selective vscode       # Restore specific application
+backup-rollback emergency               # Emergency recovery mode
+```
+
+### Smart Features
+- **Encrypted Security Data**: GPG encryption for SSH keys and credentials
+- **Non-networked Drive Support**: Local + external backup sync
+- **Mackup Integration**: Application settings preservation
+- **Incremental Backups**: Space-efficient differential updates
+- **Integrity Verification**: Backup health checks and validation
+
+### Recovery Scenarios
+- **Bootstrap Failure**: Roll back to any checkpoint during setup
+- **Configuration Issues**: Restore specific application settings
+- **Complete System Loss**: Full environment reconstruction
+- **Selective Recovery**: Granular restoration of individual components
+
 ## 🔄 Maintenance & Updates
 
 ### Automated Maintenance

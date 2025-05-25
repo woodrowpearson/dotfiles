@@ -178,6 +178,34 @@ ansible-playbook -i hosts remote_env.yml --tags homeassistant
 ansible-playbook -i hosts remote_env.yml --tags monitoring
 ```
 
+### 💾 Backup and Recovery
+
+The Mac Mini server includes comprehensive backup capabilities for safe configuration management:
+
+```bash
+# Create server configuration backup
+backup-create --full --name "pre-update-$(date +%Y%m%d)"
+
+# Quick configuration backup before changes
+backup-create --config-only
+
+# List available backups
+backup-list --all --details
+
+# Restore specific service configuration
+backup-restore --selective homeassistant latest
+
+# Emergency rollback after failed update
+backup-rollback emergency
+```
+
+#### Backup Strategy
+- **Time Machine**: Full system backup (if external drive connected)
+- **Configuration Backup**: Docker configs, service settings, certificates
+- **Database Backup**: HomeAssistant database and user data
+- **Security Data**: SSH keys, certificates (encrypted)
+- **Checkpoint System**: Automatic safety points during updates
+
 ## 🌐 Smart Home Integration
 
 ### Supported Devices

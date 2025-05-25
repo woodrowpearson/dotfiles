@@ -78,6 +78,20 @@ Each role follows Ansible best practices:
 
 ---
 
+### 💾 `backup/` - Multi-Layer Backup & Recovery System
+**What it configures:**
+- Comprehensive backup strategy for safe development environment management
+- Bootstrap safety checkpoints with automatic rollback capabilities
+- Time Machine integration + selective configuration backups
+- Encrypted security data backup (SSH keys, GPG keys, credentials)
+- Non-networked backup drive support with local + external sync
+- Mackup integration for application settings preservation
+- Complete CLI toolkit: backup-create, backup-restore, backup-checkpoint, backup-list, backup-rollback
+
+**Why you'll love it:** Never lose your carefully crafted development environment again
+
+---
+
 ## 🎯 Core System Roles
 
 ### 🏠 `alacritty/` - Terminal That Doesn't Suck

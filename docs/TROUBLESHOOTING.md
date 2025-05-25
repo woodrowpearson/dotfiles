@@ -224,6 +224,78 @@ xattr -d com.apple.quarantine /Applications/YourApp.app
 # Or allow in System Preferences > Security & Privacy
 ```
 
+## 💾 Backup & Recovery Issues
+
+### Bootstrap Process Failures
+
+**Problem**: Bootstrap script fails mid-execution
+```bash
+# Solution: Use checkpoint rollback
+backup-rollback bootstrap --phase pre-homebrew
+
+# Or emergency recovery
+backup-rollback emergency
+
+# Resume from specific role
+ansible-playbook -i hosts local_env.yml --tags git,zsh,python
+```
+
+**Problem**: Configuration got corrupted during setup
+```bash
+# Solution: Restore specific application configs
+backup-restore --selective vscode latest
+backup-restore --configs latest
+
+# Or restore from specific checkpoint
+backup-restore --from pre-setup_20240125_143022
+```
+
+**Problem**: Can't access backup commands after failed setup
+```bash
+# Solution: Manual recovery from Time Machine
+# 1. Boot to Recovery Mode (⌘+R)
+# 2. Restore from Time Machine backup
+# 3. Re-run dotfiles setup
+
+# Or restore manually
+curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
+```
+
+### Backup System Issues
+
+**Problem**: Backup creation fails with permission errors
+```bash
+# Solution: Fix backup directory permissions
+sudo chown -R $(whoami) ~/.dotfiles-backups
+chmod 755 ~/.dotfiles-backups
+
+# Reinitialize backup system
+backup-create --initialize
+```
+
+**Problem**: External backup drive not detected
+```bash
+# Solution: Check drive mount and paths
+mount | grep -i backup
+ls -la /Volumes/
+
+# Update backup configuration if needed
+# Edit group_vars/local to match your drive path
+```
+
+**Problem**: GPG encryption keys missing
+```bash
+# Solution: Regenerate backup encryption key
+gpg --batch --gen-key <<EOF
+Key-Type: RSA
+Key-Length: 4096
+Name-Real: Dotfiles Backup
+Name-Email: backup@localhost
+Expire-Date: 0
+%no-protection
+EOF
+```
+
 ## 🔄 Update & Maintenance Issues
 
 ### Git Pull Conflicts
@@ -379,6 +451,10 @@ brew --version
 
 2. **Backup before major changes**
    ```bash
+   # Quick backup using built-in system
+   backup-create --config-only --name "before-changes"
+   
+   # Or manual backup for specific files
    cp ~/.zshrc ~/.zshrc.backup
    cp -r ~/.config ~/.config.backup
    ```
