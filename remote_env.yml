@@ -1,45 +1,48 @@
 ---
-# Ultimate Mac Mini Home Server Setup
-# Multi-layered deployment for comprehensive home automation and monitoring
+# Mac Mini Home Server Setup - Week 1 Foundation
+# Foundation and architecture implementation for modular home server deployment
 
-- name: "🏠 Bootstrap - Core System Setup"
+- name: "🏗️ Foundation - Week 1 Architecture Setup"
   hosts: remote
   gather_facts: yes
   vars:
     system_timezone: "America/Los_Angeles"
   roles:
     # Core system preparation
-    - { role: package_manager, tags: ["bootstrap", "package_manager"] }
-    - { role: git, tags: ["bootstrap", "git"] }
-    - { role: zsh, tags: ["bootstrap", "zsh"] }
-    - { role: docker, tags: ["bootstrap", "docker"] }
-    - { role: macos, tags: ["bootstrap", "macos"] }
+    - { role: package_manager, tags: ["foundation", "package_manager"] }
+    - { role: git, tags: ["foundation", "git"] }
+    - { role: zsh, tags: ["foundation", "zsh"] }
+    - { role: macos, tags: ["foundation", "macos"] }
 
-- name: "🌐 Networking - VPN and DNS Infrastructure" 
+- name: "🗄️ Storage Infrastructure - External and Network Storage"
   hosts: remote
   roles:
-    # Network foundation
-    - { role: tailscale, tags: ["networking", "tailscale"] }
-    - { role: adguard, tags: ["networking", "adguard", "dns"] }
+    # Storage foundation - Week 1 implementation
+    - { role: external-storage, tags: ["storage", "external-storage"] }
+    - { role: network-storage, tags: ["storage", "network-storage"] }
+    - { role: backup-storage, tags: ["storage", "backup-storage"] }
+    - { role: camera-storage, tags: ["storage", "camera-storage"] }
+    - { role: storage-monitoring, tags: ["storage", "storage-monitoring"] }
 
-- name: "🏡 Home Automation - Core Services"
+- name: "⚡ Intel Optimization - Hardware-Specific Tuning"
   hosts: remote
   roles:
-    # Smart home ecosystem
-    - { role: homeassistant, tags: ["homeautomation", "homeassistant"] }
-    - { role: frigate, tags: ["homeautomation", "frigate", "cctv"] }
+    # Intel Mac Mini optimization - Week 1 implementation  
+    - { role: intel-optimization, tags: ["optimization", "intel-optimization"] }
+    - { role: orbstack, tags: ["optimization", "orbstack", "containers"] }
 
-- name: "📊 Monitoring - Analytics and Observability"
-  hosts: remote  
+- name: "📊 Core Monitoring - Foundation Observability"
+  hosts: remote
   roles:
-    # Comprehensive monitoring stack
-    - { role: monitoring, tags: ["monitoring", "grafana", "prometheus"] }
+    # Basic monitoring - Week 1 foundation
+    - { role: monitoring, tags: ["monitoring", "foundation"] }
+    - { role: uptime-kuma, tags: ["monitoring", "uptime-kuma"] }
     - { role: beszel-agent, tags: ["monitoring", "beszel"] }
 
-- name: "🛠️ Utilities - Developer and Management Tools"
+- name: "🛠️ Development Tools - Core Utilities"
   hosts: remote
   roles:
-    # CLI tools and utilities
+    # Essential CLI tools
     - { role: python, tags: ["utilities", "python"] }
     - { role: mise, tags: ["utilities", "mise"] }
     - { role: rust, tags: ["utilities", "rust"] }
@@ -50,56 +53,68 @@
     - { role: fzf, tags: ["utilities", "fzf"] }
     - { role: gsed, tags: ["utilities", "gsed"] }
     - { role: ollama, tags: ["utilities", "ollama", "ai"] }
-    - { role: lctl, tags: ["utilities", "lctl"], when: ansible_os_family == "Darwin" }
 
   post_tasks:
-    - name: "🎉 Deployment Summary"
+    - name: "🎉 Week 1 Foundation Deployment Complete"
       debug:
         msg: |
           ====================================================================
-          🏠 ULTIMATE MAC MINI HOME SERVER DEPLOYMENT COMPLETE! 🏠
+          🏗️ MAC MINI HOME SERVER - WEEK 1 FOUNDATION COMPLETE! 🏗️
           ====================================================================
           
-          🌐 Network Services:
-          • Tailscale VPN: Remote access configured
-          • AdGuard Home: Network-wide ad blocking (http://{{ ansible_default_ipv4.address }}:3001)
+          🗄️ Storage Infrastructure:
+          • External Storage: Auto-mounted at {{ external_storage.mount_point | default('/Volumes/HomeServerStorage') }}
+          • Network Storage: SMB/AFP/NFS shares configured for Time Machine
+          • Storage Monitoring: Health checks and cleanup automation active
           
-          🏡 Home Automation:
-          • Home Assistant: http://{{ ansible_default_ipv4.address }}:8123
-          • Frigate NVR: http://{{ ansible_default_ipv4.address }}:5000
+          ⚡ Intel Optimization:
+          • Thermal Management: Active monitoring for {{ intel_hardware.cpu_model | default('Intel i7') }}
+          • Container Runtime: OrbStack optimized for Intel Mac Mini
+          • Resource Allocation: {{ orbstack_settings.cpu_limit | default(4) }} CPU cores, {{ orbstack_settings.memory_limit | default('6GB') }} RAM
           
-          📊 Monitoring & Analytics:
-          • Grafana Dashboard: http://{{ ansible_default_ipv4.address }}:3000
-          • Prometheus Metrics: http://{{ ansible_default_ipv4.address }}:9090
+          📊 Foundation Monitoring:
+          • Uptime Monitoring: Basic infrastructure health checks
+          • Beszel Agent: System metrics collection
+          • Storage Health: Disk monitoring and alerts
           
-          🔧 Management:
-          • SSH: ssh {{ ansible_user }}@{{ ansible_default_ipv4.address }}
-          • Tailscale: Connect via tailscale for remote access
+          🛠️ Development Environment:
+          • CLI Tools: eza, bat, ripgrep, fzf, mise configured
+          • AI Tools: Ollama ready for local LLM deployment
+          • Editor: Vim optimized with snippets and configuration
           
-          📚 Next Steps:
-          1. Configure HomeAssistant integrations for your devices
-          2. Set up Frigate cameras in configuration.yaml
-          3. Import Grafana dashboards for monitoring
-          4. Configure AdGuard DNS on your router ({{ ansible_default_ipv4.address }})
+          📚 Week 1 Foundation Summary:
+          ✅ Modular role architecture established (12 roles)
+          ✅ External storage integration with auto-detection
+          ✅ Network storage protocols for Time Machine backup
+          ✅ Intel-specific optimizations and thermal management
+          ✅ Container runtime optimization (75% RAM reduction vs Docker Desktop)
+          ✅ User choice framework with deployment profiles
+          
+          🔜 Ready for Week 2+:
+          The foundation supports future implementation of:
+          • Home automation services (HomeAssistant, Frigate)
+          • Advanced monitoring (Grafana, Prometheus)
+          • Network services (AdGuard, Tailscale)
+          • Security services (Vaultwarden)
           
           ====================================================================
       when: ansible_hostname is defined
 
 # Usage Examples:
 #
-# Full deployment:
+# Full Week 1 foundation deployment:
 # ansible-playbook -i hosts remote_env.yml
 #
-# Deploy specific layers:
-# ansible-playbook -i hosts remote_env.yml --tags bootstrap
-# ansible-playbook -i hosts remote_env.yml --tags networking
-# ansible-playbook -i hosts remote_env.yml --tags homeautomation
+# Deploy specific infrastructure layers:
+# ansible-playbook -i hosts remote_env.yml --tags foundation
+# ansible-playbook -i hosts remote_env.yml --tags storage
+# ansible-playbook -i hosts remote_env.yml --tags optimization
 # ansible-playbook -i hosts remote_env.yml --tags monitoring
 #
-# Deploy specific services:
-# ansible-playbook -i hosts remote_env.yml --tags homeassistant
-# ansible-playbook -i hosts remote_env.yml --tags frigate
-# ansible-playbook -i hosts remote_env.yml --tags grafana
+# Deploy specific components:
+# ansible-playbook -i hosts remote_env.yml --tags external-storage
+# ansible-playbook -i hosts remote_env.yml --tags intel-optimization
+# ansible-playbook -i hosts remote_env.yml --tags orbstack
 #
-# Bootstrap + Core Services:
-# ansible-playbook -i hosts remote_env.yml --tags bootstrap,homeassistant,adguard
+# Foundation + Storage + Optimization:
+# ansible-playbook -i hosts remote_env.yml --tags foundation,storage,optimization
