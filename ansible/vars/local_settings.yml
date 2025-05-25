@@ -1,0 +1,292 @@
+# ~/.dotfiles/ansible/vars/local_settings.yml
+# This file contains user-specific overrides and additions for the Ansible playbooks.
+# Generated based on user questionnaire and system setting screenshots.
+
+# Section 1: Personal Identity & Authentication
+user_full_name: "woodrow pearson" # Q1
+user_email: "woodrowpearson@gmail.com" # Q2
+user_apple_id: "woody123@u.washington.edu" # Q3 (for Mac App Store installs)
+user_git_name: "woodrow pearson" # Derived from Q1
+user_git_email: "woodrowpearson@gmail.com" # Derived from Q2
+user_git_username: "woodrowpearson" # Q4
+git_core_editor: "vscode" # Q8
+ssh_generate_key: true # Q5: no existing keys, so generate new ones
+gpg_generate_key: true # Q6: no GPG signing, implies generate if to be used, or skip. For setup, good to have.
+
+# Section 2: System & Hardware (macOS Defaults)
+hostname: "w-mbp" # Q9
+# local_hostname: "w-mbp" # Usually derived from hostname by macOS role
+icloud_drive_symlink_enabled: true # Q11
+enable_filevault: false # Q12
+enable_firewall: true # Q13
+dock_tilesize: 48 # Q14 & Screenshot Page 7
+dock_autohide: false # Q15a & Screenshot Page 7
+dock_orientation: "left" # Q15b & Screenshot Page 7
+dock_show_process_indicators: true # Screenshot Page 7
+dock_launchanim: true # Screenshot Page 7 "Animate opening applications"
+dock_minimize_to_application: true # Screenshot Page 7
+dock_magnification: false # Screenshot Page 7
+dock_show_suggested_and_recent_apps: true # Screenshot Page 7 (Checked in screenshot)
+
+# Trackpad settings
+trackpad_tap_to_click_enabled: false # Q16 & Screenshot Page 27 (Unchecked)
+trackpad_natural_scrolling_enabled: true # Screenshot Page 25 (Checked)
+trackpad_secondary_click_enabled: true # Screenshot Page 27 ("Click with Two Fingers")
+
+# Finder settings
+finder_show_pathbar: true # Q17
+finder_show_hidden_files: true # Q18
+finder_show_all_file_extensions: true # Screenshot Page 4 (Checked)
+finder_warn_on_change_extension: true # Screenshot Page 4 (Checked)
+finder_show_warning_before_emptying_trash: true # Screenshot Page 4 (Checked)
+finder_remove_items_from_trash_after_30_days: true # Screenshot Page 4 (Checked)
+finder_keep_folders_on_top_windows: true # Screenshot Page 4 ("In windows when sorting by name")
+finder_keep_folders_on_top_desktop: true # Screenshot Page 4 ("On Desktop")
+finder_default_search_scope: "SCsp" # Screenshot Page 4 ("Search This Mac"). SCcf is current folder.
+finder_new_window_target_path: "PfHm" # Defaulting to Home. User has iCloud symlink (Q11) & custom screenshot iCloud path (Q58).
+finder_open_folders_in_tabs: true # Screenshot Page 6 (Checked)
+
+# Desktop icons visibility (Screenshot Page 6)
+desktop_show_hard_drives_on_desktop: true
+desktop_show_external_disks_on_desktop: true
+desktop_show_removable_media_on_desktop: true # "CDs, DVDs, and iPods"
+desktop_show_connected_servers_on_desktop: true
+
+mission_control_spaces_count: 1 # Q20 (Hot Corners Q19: No - ensure roles don't set them or set to no-action)
+
+# Screenshot settings
+screenshots_location: "~/Library/Mobile Documents/com~apple~CloudDocs/02 - screenshots" # Q58 (Custom iCloud path)
+screenshots_format: "png" # Q57
+
+# TextEdit settings (Screenshot Page 24)
+textedit_default_format_is_rich_text: true
+textedit_smart_quotes_enabled: true # "Smart quotes and dashes in rich text documents only"
+
+# Keyboard settings (Screenshot Page 16)
+# For KeyRepeat and InitialKeyRepeat, values are approx. 2 & 15 respectively.
+# defaults write NSGlobalDomain KeyRepeat -int 2
+# defaults write NSGlobalDomain InitialKeyRepeat -int 15
+keyboard_key_repeat_rate: 2
+keyboard_initial_key_repeat_delay: 15
+keyboard_adjust_brightness_in_low_light: true
+keyboard_backlight_off_after_inactivity_seconds: 300 # 5 minutes
+
+# Appearance settings (Screenshot Page 18)
+apple_interface_style: "Auto" # Options: Light, Dark, Auto
+apple_accent_color: -1 # Multicolor (-1 for multicolor, 0-7 for specific colors)
+# apple_highlight_color: "0.65098 0.858824 0.996078" # Example for blue. Ignored if accent is multicolor.
+sidebar_icon_size: "Medium" # Options: Small, Medium, Large
+allow_wallpaper_tinting: true
+show_scroll_bars: "WhenScrolling" # Options: Automatically, WhenScrolling, Always
+click_in_scroll_bar_action: "JumpToNextPage" # Options: JumpToNextPage, JumpToClickedSpot
+
+# Menu Bar settings (Screenshot Page 19)
+menubar_autohide_enabled: false
+# Specific menu bar items (e.g., Time Machine show, Spotlight hide) might need custom `defaults write` tasks.
+
+# Section 3: Regional Settings
+user_timezone: "America/Los_Angeles" # Q21
+# keyboard_layout: "US" # Q22 - Typically set during OS installation.
+# system_locale: "en_US.UTF-8" # Q23 - Typically set during OS installation.
+# ntp_server: "time.apple.com" # Q24 - macOS default.
+
+# Section 4: Development Environment
+install_rosetta: true # Q25
+xcode_install_command_line_tools: true # Q26 (clt)
+# use_corporate_proxy: false # Q27
+# corporate_proxy_url: "" # Q28
+
+# Programming Languages & Tools
+use_asdf_for_language_management: true # Q30
+asdf_tool_plugins: # For languages selected in Q29
+  - { name: "python", versions: ["latest"] } # Specify versions or use latest
+  - { name: "nodejs", versions: ["20", "lts"] } # Q32 default "20"
+  - { name: "rust", versions: ["latest"] }
+  - { name: "golang", versions: ["latest"] }
+
+python_tools_to_install: # Q31 (via pipx, poetry, or venv)
+  - "pytest"
+  - "ruff"
+  - "black"
+  - "mypy"
+  - "poetry"
+  - "pyright"
+  - "jupyterlab"
+
+install_docker_cli: true # Q33
+docker_preferred_solution: "orbstack" # Q34 (influences cask choice)
+
+# VS Code Extensions to install
+vscode_extensions:
+  - "Anthropic.claude-code" # Q59.7 - Claude Code extension
+  # Add other preferred VS Code extension IDs here, for example:
+  # - "dbaeumer.vscode-eslint"
+  # - "esbenp.prettier-vscode"
+  # - "ms-python.python"
+  # - "hashicorp.terraform"
+
+# Section 5: Terminal & Shell
+shell_framework_preference: "prezto" # Q35 (sloria/dotfiles uses Prezto)
+shell_theme_preference: "pure" # Q36 (sloria/dotfiles uses 'pure' by Sorin for Prezto)
+default_shell_path: "/bin/zsh" # Q37. Note: Homebrew Zsh is /opt/homebrew/bin/zsh. This choice is specific.
+terminal_emulator_preference: "alacritty" # Q38
+shell_enable_autosuggestions: true # Q39 (Typically a Zsh plugin)
+terminal_font_preference: "Hack" # Q40 (Install via homebrew_cask_fonts)
+
+# Custom shell items from Q59
+install_direnv_tool: true # Q59.2
+create_code_folder_at_home: true # Q59.3 (for ~/code)
+projects_folder_name: "code" # Q59.3
+setup_env_stubs_in_code_folder: true # Q59.4
+api_key_stubs_list: # Q59.4
+  - ANTHROPIC_API_KEY
+  - PERPLEXITY_API_KEY
+  - GEMINI_API_KEY
+  - OPENAI_API_KEY # for chatgpt
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+  - GOOGLE_APPLICATION_CREDENTIALS # for gcp/vertex
+  - GITHUB_TOKEN
+# shell_theme_customization_notes: "Q59.1: Icons, contrasting bg, pastel palette..." # For manual scripting/theming
+
+# Section 6: Applications & Tools (Homebrew Formulas, Casks, MAS apps)
+# auto_sign_in_mas: true # Q41 - Hard to automate securely. Manual step.
+default_browser_bundle_id: "com.google.Chrome" # Q59.5 (Chrome)
+
+homebrew_taps:
+  - Mac-CLI/mac-cli # Q59.8 For installing mac-cli
+  - homebrew/bundle
+  - homebrew/cask
+  - homebrew/cask-fonts # For installing fonts like Hack
+  - homebrew/core
+  - homebrew/services
+
+homebrew_installed_packages: # CLI tools (Formulas)
+  # Essentials from sloria/dotfiles (subset)
+  - python # Python 3
+  - git
+  - vim
+  - curl
+  - wget
+  - tree
+  - zsh
+  - tmux
+  - reattach-to-user-namespace # For tmux on macOS
+  - imagemagick
+  # User requested languages (may be handled by asdf, but base tools can be here)
+  - go # Q29
+  - node # Q29 (asdf will manage versions)
+  # - rust # Q29 (typically installed via rustup, not direct brew formula for toolchain)
+  - asdf # Q30
+  # macOS Utilities (Q59.9)
+  - mas # Mac App Store CLI
+  - dockutil
+  - m-cli
+  - switchaudio-osx
+  - blueutil
+  - trash
+  # CLI Replacements (Q59.9)
+  - eza # ls replacement
+  - bat # cat replacement
+  - ripgrep # grep replacement (rg)
+  - fd-find # find replacement (fd) - formula is often fd-find or fd
+  - dust # du replacement
+  - btop # top replacement
+  - procs # ps replacement
+  - git-delta # diff replacement
+  - gnu-sed
+  - gnu-tar
+  - coreutils # GNU core utilities
+  - fzf # Fuzzy finder
+  - most # Pager
+  # Shell/Git Extras (Q59.9)
+  - thefuck # Command corrector
+  - git-open # Open repo in browser
+  - Mac-CLI/mac-cli/mac-cli # Q59.8 (Tap and formula)
+  - direnv # Q59.2
+
+homebrew_cask_apps:
+  # Browsers (Q42)
+  - google-chrome # Default browser
+  # Safari is system-provided
+  # Productivity (Q43)
+  - spotify
+  # Development Tools (Q44)
+  - visual-studio-code
+  - alacritty # Q38 Terminal emulator
+  - orbstack # Q34 Docker preference
+  - bettertouchtool # Q45
+  # Cloud Services (Q49)
+  - tailscale
+  # Consider adding any other essential casks the user might have forgotten
+
+homebrew_cask_fonts:
+  - font-hack # Q40 Terminal font
+
+mas_installed_apps: [] # User did not specify any MAS-exclusive apps.
+
+# BetterTouchTool custom action (Q46b)
+# This needs to be scripted or manually configured.
+# btt_custom_action_details: "4 fingers down opens iCloud Drive/02 - screenshots"
+
+# Section 7: Cloud Services & APIs
+# These typically involve CLI installations (covered by homebrew) and manual auth.
+# aws_cli_enabled: true # Q47 (AWS selected)
+# gcp_cli_enabled: true # Q47 (Google Cloud selected)
+# vercel_cli_enabled: true # Q47 (Vercel selected)
+# aws_credentials_method: "none" # Q48
+
+# Section 9: Customization (Vim, Shell Aliases)
+vim_color_scheme: "hybrid" # Q55
+vim_enable_relative_line_numbers: true # Q56
+
+# Shell Aliases & Functions (Q59.9)
+# These should be placed in the user's .zshrc or equivalent dotfiles.
+# The geerlingguy.dotfiles Ansible role symlinks these files.
+# Example content for .aliases or .zshrc_custom:
+# alias ..="cd .."
+# alias ...="cd ../.."
+# ... (all other aliases)
+# extract () { ... } (extract function)
+
+# GNU Coreutils Path Shim (Q59.9)
+# To be added to shell config (e.g., .zshrc): export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
+ensure_gnu_coreutils_in_path: true
+
+# FZF Keybindings & Completion Install (Q59.9)
+# Requires running: $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash
+# (Ansible task should handle this post-brew install)
+setup_fzf_shell_integration: true
+
+# ZSH plugins (Q59.9)
+# These are for Prezto, to be configured in .zpreztorc within the user's dotfiles repo.
+# Example modules to add to .zpreztorc:
+# 'autosuggestions' (needs zsh-autosuggestions plugin)
+# 'syntax-highlighting' (zsh-syntax-highlighting plugin)
+# 'fzf-tab' (needs fzf-tab plugin and setup)
+# 'history-substring-search' (zsh-history-substring-search plugin)
+# TheFuck is installed via brew, eval command in .zshrc: eval "$(thefuck --alias)"
+
+# Dotfiles repository configuration for geerlingguy.dotfiles role
+dotfiles_repo_url: "https://github.com/{{ user_git_username }}/dotfiles.git"
+dotfiles_repo_accept_hostkey: true
+dotfiles_repo_local_destination: "~/dotfiles" # Or other preferred location like ~/Projects/dotfiles
+dotfiles_to_symlink: # List of files/folders to symlink from dotfiles_repo_local_destination to ~
+  - ".aliases"
+  - ".bash_profile" # If using bash
+  - ".bashrc" # If using bash
+  - ".config/git/config" # If git config is modular
+  - ".editorconfig"
+  - ".functions"
+  - ".gitconfig" # Main git config
+  - ".gitignore_global"
+  - ".hushlogin"
+  - ".inputrc"
+  - ".profile" # General profile
+  - ".tmux.conf"
+  - ".vimrc"
+  - ".zprofile" # For Zsh login
+  - ".zshrc" # Main Zsh config
+  - ".zpreztorc" # Prezto config if using Prezto
+  # Add any other files/directories the user has in their dotfiles root
+
