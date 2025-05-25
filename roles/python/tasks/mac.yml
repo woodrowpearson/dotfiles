@@ -1,7 +1,13 @@
 - name: Install uv
   homebrew: name=uv state=present
 
-- name: Install global Python tools
+- name: Ensure Python is available via mise
+  command: mise install python
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin"
+  failed_when: false
+
+- name: Install global Python tools via uv
   command: uv tool install {{ item }}
   loop:
     - pytest
@@ -11,4 +17,8 @@
     - poetry
     - pyright
     - jupyterlab
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin"
   failed_when: false
+  retries: 2
+  delay: 5

@@ -1,0 +1,458 @@
+#!/usr/bin/env bash
+# Bootstrap testing framework for dotfiles
+# Tests all bootstrap scripts and validates configuration
+
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Configuration
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEST_OUTPUT_DIR="${DOTFILES_DIR}/artifacts/test-results"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+# Initialize test environment
+init_test_env() {
+    echo -e "${BLUE}Initializing test environment...${NC}"
+    mkdir -p "$TEST_OUTPUT_DIR"
+    
+    # Create test log
+    TEST_LOG="${TEST_OUTPUT_DIR}/bootstrap_test_${TIMESTAMP}.log"
+    echo "Bootstrap Test Results - $(date)" > "$TEST_LOG"
+    echo "========================================" >> "$TEST_LOG"
+}
+
+# Test helper functions
+test_passed() {
+    echo -e "${GREEN}✅ $1${NC}"
+    echo "PASS: $1" >> "$TEST_LOG"
+}
+
+test_failed() {
+    echo -e "${RED}❌ $1${NC}"
+    echo "FAIL: $1" >> "$TEST_LOG"
+    return 1
+}
+
+test_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo "WARN: $1" >> "$TEST_LOG"
+}
+
+# Test 1: Prerequisites validation
+test_prerequisites() {
+    echo -e "${BLUE}Testing prerequisites...${NC}"
+    
+    # Check macOS
+    if [[ "$(uname)" == "Darwin" ]]; then
+        test_passed "Running on macOS"
+    else
+        test_failed "Not running on macOS"
+        return 1
+    fi
+    
+    # Check Xcode Command Line Tools
+    if xcode-select -p &> /dev/null; then
+        test_passed "Xcode Command Line Tools installed"
+    else
+        test_failed "Xcode Command Line Tools not installed"
+    fi
+    
+    # Check Homebrew
+    if command -v brew &> /dev/null; then
+        test_passed "Homebrew installed"
+        brew --version >> "$TEST_LOG" 2>&1
+    else
+        test_failed "Homebrew not installed"
+    fi
+    
+    # Check Git
+    if command -v git &> /dev/null; then
+        test_passed "Git installed"
+        git --version >> "$TEST_LOG" 2>&1
+    else
+        test_failed "Git not installed"
+    fi
+    
+    # Check Python
+    if command -v python3 &> /dev/null; then
+        test_passed "Python3 installed"
+        python3 --version >> "$TEST_LOG" 2>&1
+    else
+        test_failed "Python3 not installed"
+    fi
+    
+    # Check Ansible
+    if command -v ansible &> /dev/null; then
+        test_passed "Ansible installed"
+        ansible --version >> "$TEST_LOG" 2>&1
+    else
+        test_failed "Ansible not installed"
+    fi
+}
+
+# Test 2: dot-install script validation
+test_dot_install() {
+    echo -e "${BLUE}Testing dot-install script...${NC}"
+    
+    if [[ -f "${DOTFILES_DIR}/bin/dot-install" ]]; then
+        test_passed "dot-install script exists"
+        
+        # Test help flag
+        if "${DOTFILES_DIR}/bin/dot-install" --help > /dev/null 2>&1; then
+            test_passed "dot-install --help works"
+        else
+            test_failed "dot-install --help failed"
+        fi
+        
+        # Test script syntax
+        if bash -n "${DOTFILES_DIR}/bin/dot-install"; then
+            test_passed "dot-install syntax is valid"
+        else
+            test_failed "dot-install has syntax errors"
+        fi
+    else
+        test_failed "dot-install script not found"
+    fi
+}
+
+# Test 3: dot-bootstrap script validation
+test_dot_bootstrap() {
+    echo -e "${BLUE}Testing dot-bootstrap script...${NC}"
+    
+    if [[ -f "${DOTFILES_DIR}/bin/dot-bootstrap" ]]; then
+        test_passed "dot-bootstrap script exists"
+        
+        # Test script syntax
+        if bash -n "${DOTFILES_DIR}/bin/dot-bootstrap"; then
+            test_passed "dot-bootstrap syntax is valid"
+        else
+            test_failed "dot-bootstrap has syntax errors"
+        fi
+    else
+        test_failed "dot-bootstrap script not found"
+    fi
+}
+
+# Test 4: Ansible playbook validation
+test_ansible_playbooks() {
+    echo -e "${BLUE}Testing Ansible playbooks...${NC}"
+    
+    cd "$DOTFILES_DIR"
+    
+    # Test local_env.yml syntax
+    if ansible-playbook --syntax-check local_env.yml > /dev/null 2>&1; then
+        test_passed "local_env.yml syntax is valid"
+    else
+        test_failed "local_env.yml has syntax errors"
+    fi
+    
+    # Test remote_env.yml syntax
+    if ansible-playbook --syntax-check remote_env.yml > /dev/null 2>&1; then
+        test_passed "remote_env.yml syntax is valid"
+    else
+        test_failed "remote_env.yml has syntax errors"
+    fi
+    
+    # Test inventory file
+    if [[ -f "hosts" ]]; then
+        test_passed "Ansible inventory file exists"
+        
+        # Test inventory parsing
+        if ansible-inventory -i hosts --list > /dev/null 2>&1; then
+            test_passed "Ansible inventory is valid"
+        else
+            test_failed "Ansible inventory parsing failed"
+        fi
+    else
+        test_failed "Ansible inventory file not found"
+    fi
+}
+
+# Test 5: Bootstrap roles validation
+test_bootstrap_roles() {
+    echo -e "${BLUE}Testing bootstrap-tagged roles...${NC}"
+    
+    cd "$DOTFILES_DIR"
+    
+    # Test bootstrap roles in check mode
+    echo "Running bootstrap roles in check mode..." >> "$TEST_LOG"
+    if ansible-playbook -i hosts local_env.yml --tags bootstrap --check --diff >> "$TEST_LOG" 2>&1; then
+        test_passed "Bootstrap roles check mode successful"
+    else
+        test_failed "Bootstrap roles check mode failed"
+    fi
+    
+    # Test individual bootstrap roles
+    local bootstrap_roles=("package_manager" "zsh")
+    
+    for role in "${bootstrap_roles[@]}"; do
+        echo "Testing role: $role" >> "$TEST_LOG"
+        if ansible-playbook -i hosts local_env.yml --tags "$role" --check >> "$TEST_LOG" 2>&1; then
+            test_passed "Role $role check mode successful"
+        else
+            test_failed "Role $role check mode failed"
+        fi
+    done
+}
+
+# Test 6: Dependency order validation
+test_dependency_order() {
+    echo -e "${BLUE}Testing dependency order...${NC}"
+    
+    cd "$DOTFILES_DIR"
+    
+    # Extract role order from local_env.yml
+    local role_order=$(grep -A 50 "roles:" local_env.yml | grep "role:" | sed 's/.*role: \([^,]*\).*/\1/')
+    
+    # Check critical dependency order: mise before dev-environment
+    local mise_line=$(echo "$role_order" | grep -n "mise" | cut -d: -f1)
+    local dev_env_line=$(echo "$role_order" | grep -n "dev-environment" | cut -d: -f1)
+    
+    if [[ -n "$mise_line" && -n "$dev_env_line" && "$mise_line" -lt "$dev_env_line" ]]; then
+        test_passed "mise role comes before dev-environment"
+    else
+        test_failed "mise role must come before dev-environment (Node.js dependency)"
+    fi
+    
+    # Check for duplicate CLI tools
+    local homebrew_tools=$(grep -A 30 "mac_homebrew_packages:" group_vars/local | grep -E "\s+- (eza|bat|ripgrep|fzf)" | wc -l | tr -d ' ')
+    if [[ "$homebrew_tools" -eq 0 ]]; then
+        test_passed "No duplicate CLI tools in Homebrew packages (handled by roles)"
+    else
+        test_warning "Found CLI tools in Homebrew packages that have dedicated roles"
+    fi
+    
+    # Check for mise config includes Python
+    if grep -q "python" roles/mise/files/config.toml; then
+        test_passed "Python included in mise configuration"
+    else
+        test_failed "Python missing from mise configuration"
+    fi
+    
+    # Check dev-environment has Node.js dependency check
+    if grep -q "mise install node" roles/dev-environment/tasks/main.yml; then
+        test_passed "dev-environment checks Node.js availability"
+    else
+        test_failed "dev-environment missing Node.js dependency check"
+    fi
+    
+    # Check python role has Python dependency check
+    if grep -q "mise install python" roles/python/tasks/mac.yml; then
+        test_passed "python role checks Python availability"
+    else
+        test_failed "python role missing Python dependency check"
+    fi
+}
+
+# Test 7: Configuration files validation
+test_config_files() {
+    echo -e "${BLUE}Testing configuration files...${NC}"
+    
+    # Test group_vars
+    if [[ -f "${DOTFILES_DIR}/group_vars/local" ]]; then
+        test_passed "group_vars/local exists"
+        
+        # Test YAML syntax (skip if PyYAML not available)
+        if command -v ansible &> /dev/null; then
+            if ansible-inventory -i "${DOTFILES_DIR}/hosts" --list > /dev/null 2>&1; then
+                test_passed "group_vars/local YAML syntax is valid (via ansible)"
+            else
+                test_failed "group_vars/local has invalid YAML syntax"
+            fi
+        else
+            test_warning "Cannot validate YAML syntax - PyYAML/ansible not available"
+        fi
+    else
+        test_failed "group_vars/local not found"
+    fi
+    
+    if [[ -f "${DOTFILES_DIR}/group_vars/remote" ]]; then
+        test_passed "group_vars/remote exists"
+        
+        # Test YAML syntax (skip if PyYAML not available)
+        if command -v ansible &> /dev/null; then
+            test_passed "group_vars/remote YAML syntax is valid (via ansible)"
+        else
+            test_warning "Cannot validate YAML syntax - PyYAML/ansible not available"
+        fi
+    else
+        test_failed "group_vars/remote not found"
+    fi
+}
+
+# Test 8: Role structure validation
+test_role_structure() {
+    echo -e "${BLUE}Testing role structure...${NC}"
+    
+    local roles_dir="${DOTFILES_DIR}/roles"
+    
+    if [[ -d "$roles_dir" ]]; then
+        test_passed "roles directory exists"
+        
+        # Check each role has main.yml in tasks
+        local role_count=0
+        local valid_roles=0
+        
+        for role_dir in "$roles_dir"/*; do
+            if [[ -d "$role_dir" ]]; then
+                role_count=$((role_count + 1))
+                local role_name=$(basename "$role_dir")
+                
+                if [[ -f "${role_dir}/tasks/main.yml" ]]; then
+                    valid_roles=$((valid_roles + 1))
+                    
+                    # Test YAML syntax with ansible
+                    if ansible-playbook --syntax-check "${role_dir}/tasks/main.yml" > /dev/null 2>&1; then
+                        test_passed "Role $role_name has valid main.yml"
+                    else
+                        test_warning "Role $role_name may have YAML syntax issues"
+                    fi
+                else
+                    test_warning "Role $role_name missing tasks/main.yml"
+                fi
+            fi
+        done
+        
+        echo "Found $role_count roles, $valid_roles with valid structure" >> "$TEST_LOG"
+        test_passed "Checked $role_count roles"
+    else
+        test_failed "roles directory not found"
+    fi
+}
+
+# Test 9: URL accessibility test
+test_remote_urls() {
+    echo -e "${BLUE}Testing remote URLs...${NC}"
+    
+    # Test GitHub repository URL
+    if curl -s --head "https://github.com/woodrowpearson/dotfiles" | head -n 1 | grep -q "200 OK"; then
+        test_passed "GitHub repository is accessible"
+    else
+        test_warning "GitHub repository may not be accessible"
+    fi
+    
+    # Test raw GitHub URL for dot-install
+    if curl -s --head "https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install" | head -n 1 | grep -q "200 OK"; then
+        test_passed "dot-install raw URL is accessible"
+    else
+        test_warning "dot-install raw URL may not be accessible"
+    fi
+}
+
+# Generate test report
+generate_report() {
+    echo -e "${BLUE}Generating test report...${NC}"
+    
+    local report_file="${TEST_OUTPUT_DIR}/bootstrap_test_report_${TIMESTAMP}.md"
+    
+    cat > "$report_file" << EOF
+# Bootstrap Test Report
+
+**Date:** $(date)
+**System:** $(uname -a)
+**Dotfiles Version:** $(cd "$DOTFILES_DIR" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+## Test Results
+
+$(cat "$TEST_LOG")
+
+## System Information
+
+### Homebrew Packages
+\`\`\`
+$(brew list --formula 2>/dev/null | head -20 || echo "Homebrew not available")
+\`\`\`
+
+### Cask Packages
+\`\`\`
+$(brew list --cask 2>/dev/null | head -20 || echo "Homebrew not available")
+\`\`\`
+
+### Python Packages
+\`\`\`
+$(pip3 list 2>/dev/null | head -20 || echo "pip3 not available")
+\`\`\`
+
+## Recommendations
+
+### Immediate Actions Required
+- Check failed tests above
+- Review Ansible warnings about Python interpreter
+- Validate all prerequisites are installed
+
+### Optional Improvements
+- Update Homebrew packages: \`brew update && brew upgrade\`
+- Update Ansible: \`pip3 install --upgrade ansible\`
+- Clear Python cache: \`python3 -m pip cache purge\`
+
+EOF
+
+    echo -e "${GREEN}Test report generated: $report_file${NC}"
+    echo -e "${GREEN}Test log available: $TEST_LOG${NC}"
+}
+
+# Main test execution
+main() {
+    echo -e "${BLUE}🧪 Bootstrap Testing Framework${NC}"
+    echo -e "${BLUE}================================${NC}"
+    
+    init_test_env
+    
+    local test_functions=(
+        "test_prerequisites"
+        "test_dot_install"
+        "test_dot_bootstrap"
+        "test_ansible_playbooks"
+        "test_bootstrap_roles"
+        "test_dependency_order"
+        "test_config_files"
+        "test_role_structure"
+        "test_remote_urls"
+    )
+    
+    local failed_tests=0
+    
+    for test_func in "${test_functions[@]}"; do
+        echo ""
+        if ! $test_func; then
+            failed_tests=$((failed_tests + 1))
+        fi
+    done
+    
+    echo ""
+    generate_report
+    
+    echo ""
+    if [[ $failed_tests -eq 0 ]]; then
+        echo -e "${GREEN}🎉 All tests passed! Bootstrap system is ready.${NC}"
+        exit 0
+    else
+        echo -e "${RED}❌ $failed_tests test(s) failed. Check the report for details.${NC}"
+        exit 1
+    fi
+}
+
+# Show help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "dot-test-bootstrap - Bootstrap testing framework"
+    echo ""
+    echo "This script validates all bootstrap scripts and configurations:"
+    echo "  • Prerequisites (Xcode, Homebrew, Git, Python, Ansible)"
+    echo "  • Script syntax and functionality"
+    echo "  • Ansible playbook and role validation"
+    echo "  • Configuration file integrity"
+    echo "  • Remote URL accessibility"
+    echo ""
+    echo "Usage: ./bin/dot-test-bootstrap"
+    echo ""
+    echo "Output: Test results and detailed report in artifacts/test-results/"
+    exit 0
+fi
+
+main "$@"

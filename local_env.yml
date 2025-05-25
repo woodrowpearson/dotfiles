@@ -21,10 +21,10 @@
     # Core development tools
     - { role: git, tags: ["git"] }
     - { role: zsh, tags: ["zsh", "bootstrap"] }
-    - { role: dev-environment, tags: ["dev-environment"] }
     
-    # Programming languages
+    # Programming languages (mise must come before dev-environment)
     - { role: mise, tags: ["mise"] }
+    - { role: dev-environment, tags: ["dev-environment"] }
     - { role: python, tags: ["python"] }
     - { role: rust, tags: ["rust"] }
     

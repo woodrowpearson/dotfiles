@@ -1,10 +1,56 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Setting up local dev environment..."
-ansible-playbook -i ~/dotfiles/hosts ~/dotfiles/local_env.yml --ask-become-pass
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# If terminal-notifier is installed, use it to display a notification
-if command -v terminal-notifier 1>/dev/null 2>&1; then
-  terminal-notifier -title "dotfiles: Bootstrap complete" -message "Successfully set up dev environment."
+echo -e "${BLUE}🚀 Setting up local dev environment...${NC}"
+
+# Check prerequisites
+echo -e "${BLUE}Checking prerequisites...${NC}"
+
+if ! command -v ansible &> /dev/null; then
+    echo -e "${RED}❌ Ansible not found. Run ./bin/dot-install first.${NC}"
+    exit 1
+fi
+
+if ! command -v brew &> /dev/null; then
+    echo -e "${RED}❌ Homebrew not found. Run ./bin/dot-install first.${NC}"
+    exit 1
+fi
+
+if [[ ! -f ~/dotfiles/local_env.yml ]]; then
+    echo -e "${RED}❌ local_env.yml not found. Ensure you're in the dotfiles directory.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Prerequisites check passed${NC}"
+
+# Run bootstrap with better error handling
+echo -e "${BLUE}Running Ansible playbook...${NC}"
+if ansible-playbook -i ~/dotfiles/hosts ~/dotfiles/local_env.yml --ask-become-pass; then
+    echo -e "${GREEN}🎉 Bootstrap completed successfully!${NC}"
+    
+    # Show next steps
+    echo -e "${YELLOW}Next steps:${NC}"
+    echo "1. Run: source ~/.zshrc (or restart terminal)"
+    echo "2. Run: ./bin/dot-configure (for API keys and SSH setup)"
+    echo "3. Run: ./bin/dot-test-bootstrap (to validate setup)"
+    
+    # If terminal-notifier is installed, use it to display a notification
+    if command -v terminal-notifier 1>/dev/null 2>&1; then
+        terminal-notifier -title "dotfiles: Bootstrap complete" -message "Successfully set up dev environment."
+    fi
+else
+    echo -e "${RED}❌ Bootstrap failed. Check the error messages above.${NC}"
+    echo -e "${YELLOW}Troubleshooting tips:${NC}"
+    echo "1. Ensure you have internet connectivity"
+    echo "2. Check available disk space"
+    echo "3. Run: ./bin/dot-test-bootstrap (for detailed diagnostics)"
+    echo "4. Check the logs for specific error messages"
+    exit 1
 fi

@@ -30,8 +30,18 @@
     dest: "{{ dotfiles_user_home }}/code/.gitignore"
     mode: '0644'
 
+- name: Ensure Node.js is available via mise
+  command: mise install node
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin"
+  failed_when: false
+
 - name: Install Mac-CLI via npm
   npm:
     name: mac-cli
     global: yes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin"
   failed_when: false
+  retries: 2
+  delay: 5

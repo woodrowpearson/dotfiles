@@ -43,10 +43,7 @@ mac_homebrew_packages:
   - switchaudio-osx  # Switch audio devices
   - blueutil  # Toggle/query Bluetooth
   - trash  # Safe rm wrapper
-  # Modern CLI replacements
-  - eza  # ls replacement
-  - bat  # cat replacement
-  - ripgrep  # grep replacement
+  # Modern CLI replacements (others handled by dedicated roles)
   - fd  # find replacement
   - dust  # du replacement
   - btop  # htop replacement
@@ -55,7 +52,6 @@ mac_homebrew_packages:
   - gnu-sed
   - gnu-tar
   - coreutils
-  - fzf  # fuzzy finder
   - most  # pager replacement
   # Shell extras
   - thefuck  # command corrector

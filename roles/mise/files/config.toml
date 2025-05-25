@@ -1,6 +1,7 @@
 [tools]
 node = "20"
 go = "latest"
+python = "latest"
 
 [settings]
-idiomatic_version_file_enable_tools = ["node"]
+idiomatic_version_file_enable_tools = ["node", "python"]
