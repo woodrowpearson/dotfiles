@@ -1,5 +1,3 @@
-# 🏠 dotfiles
-
 <div align="center">
 
 ```ascii
