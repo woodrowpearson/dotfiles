@@ -56,13 +56,13 @@ Click around and explore! Each 📁 links to detailed documentation.
 
 ```
 dotfiles/
-├── 📁 [bin/](bin/README.md)                    # 🛠️  Automation scripts that do the magic
-│   ├── dot-install                           # 🚀 One-command fresh macOS setup  
-│   ├── dot-bootstrap                         # ⚙️  Complete environment installation
-│   ├── dot-configure                         # 🔧 Interactive post-setup wizard
-│   ├── newproject                            # 📦 Smart project scaffolding
-│   └── upgrades                              # 🔄 Keep everything fresh
-├── 📁 [roles/](roles/README.md)                # 🎭 Ansible roles (the real workhorses)
+├── 📁 [bin/](bin/README.md)                    # Automation scripts that do the magic
+│   ├── dot-install                           # One-command fresh macOS setup  
+│   ├── dot-bootstrap                         # Complete environment installation
+│   ├── dot-configure                         # Interactive post-setup wizard
+│   ├── newproject                            # Smart project scaffolding
+│   └── upgrades                              # Keep everything fresh
+├── 📁 [roles/](roles/README.md)                # Ansible roles (the real workhorses)
 │   ├── 🏠 homeassistant/                     # Complete smart home ecosystem
 │   ├── 📹 frigate/                           # AI-powered camera monitoring
 │   ├── 📊 monitoring/                        # Grafana + Prometheus stack
@@ -75,10 +75,10 @@ dotfiles/
 │   ├── 🚀 vscode/                            # Editor config + extensions
 │   ├── 🐚 zsh/                               # Shell that makes you productive
 │   └── 🎨 macos/                             # System settings automation
-├── 📁 [templates/](templates/README.md)        # 🏗️  CI/CD templates for new projects
+├── 📁 [templates/](templates/README.md)        # CI/CD templates for new projects
 │   ├── .github/workflows/                   # GitHub Actions that work
 │   └── .pre-commit-config.yaml              # Code quality automation
-├── 📁 [docs/](docs/)                          # 📚 Deep-dive documentation
+├── 📁 [docs/](docs/)                          # Deep-dive documentation
 │   ├── 📖 [INSTALLATION.md](docs/INSTALLATION.md)  # Detailed setup guide
 │   ├── ⭐ [FEATURES.md](docs/FEATURES.md)           # Comprehensive feature list
 │   ├── 🎨 [CUSTOMIZATION.md](docs/CUSTOMIZATION.md) # Make it truly yours
@@ -98,7 +98,7 @@ dotfiles/
 ansible-playbook -i hosts remote_env.yml
 ```
 
-### 🏡 **What You Get**
+### **What is in the box?**
 
 | 📱 **Service** | 🔗 **Access** | 🎯 **Purpose** |
 |-------------|------------|----------------|
@@ -129,14 +129,14 @@ ansible-playbook -i hosts remote_env.yml
 
 ### **Fresh Mac Setup**
 ```bash
-# Literally one command from App Store Mac to development powerhouse
+# One command from fresh Mac to development env
 curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install | bash
 cd ~/dotfiles && ./bin/dot-bootstrap && ./bin/dot-configure
 ```
 
 ### **Deploy Home Server**
 ```bash
-# Complete smart home automation stack
+# Complete-ish smart home automation stack
 ansible-playbook -i hosts remote_env.yml
 # OR deploy specific layers:
 ansible-playbook -i hosts remote_env.yml --tags homeautomation
@@ -180,16 +180,16 @@ find      # → fd (sensible defaults)
 ## 🤝 Community & Credits
 
 ### **Standing on the Shoulders of Giants**
-Huge props to [Steven Loria](https://github.com/sloria) for the original dotfiles that inspired this. What started as a simple fork has evolved into something much more comprehensive, but the core philosophy remains: *make developer setup painless*.
+Huge props to [Steven Loria](https://github.com/sloria) for the original dotfiles that inspired this. What started as a simple fork has evolved into something much more comprehensive, but the core philosophy remains: *make developer setup painless - make life less painful for family dealing with my projects*.
 
 ### **Contributing**
-Found a bug? Have an idea? Want to add your favorite tool? 
+Found a bug? Of course you did! Have an idea? Fork! Want to add your favorite tool? aloso, fork! 
 
 **[👥 Contributing Guide →](docs/CONTRIBUTING.md)**
+Prefer bug fixes over feature fixes.  
 
 ### **Support**
 - 🐛 **Issues**: [GitHub Issues](https://github.com/woodrowpearson/dotfiles/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/woodrowpearson/dotfiles/discussions)
 - ⭐ **Star this repo** if it saved you time!
 
 ## 📊 Stats & Recognition
@@ -208,9 +208,9 @@ Found a bug? Have an idea? Want to add your favorite tool?
 
 <div align="center">
 
-**Made with ❤️ and way too much coffee** ☕
 
-*Your terminal will thank you. Your productivity will soar. Your coworkers will be jealous.* 😎
+
+*Your terminal will thank you. Your productivity will soar. Your partner & family will be happy-er.* 😎
 
 **[🚀 Get Started Now](#-tldr---get-started-now) • [📚 Read the Docs](docs/) • [🤝 Contribute](docs/CONTRIBUTING.md)**
 
