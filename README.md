@@ -20,8 +20,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](docs/CONTRIBUTING.md)
 
-*Started as a [sloria](https://github.com/sloria/dotfiles) fork.* 😏
-
 </div>
 
 ## 🚀 TL;DR - Get Started Now
