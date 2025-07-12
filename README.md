@@ -47,7 +47,7 @@ curl -fsSL https://github.com/woodrowpearson/dotfiles/raw/main/bin/dot-install |
 | **🌐 Mesh VPN Access** | Tailscale integration for secure remote access |
 | **📊 Comprehensive Monitoring** | Grafana + Prometheus + real-time analytics |
 | **🔒 Network-wide Ad Blocking** | AdGuard Home protecting all your devices |
-| **Interactive Configuration** | Guided setup for API keys, SSH, GPG (no more googling!) |
+| **Interactive Configuration** | Guided setup for API keys, SSH, GPG (no more googling!  eh maybe some.. ) |
 | **Modern Everything** | Alacritty + ZSH + 15+ CLI tool upgrades with smart aliases |
 
 ## 🗂️ Repository Explorer
